@@ -1,0 +1,334 @@
+# Smart Email Sent AI — Implementation Plan
+
+এই PRD-এর উপর ভিত্তি করে সম্পূর্ণ Implementation Plan। কাজ শুরুর আগে দেখে approve করুন।
+
+---
+
+## সারসংক্ষেপ
+
+**প্রোডাক্ট:** Bengali-first Email Marketing SaaS  
+**ফোকাস (এখন):** Frontend UI সম্পূর্ণ করা + Backend ফাইল স্ট্রাকচার তৈরি  
+**পরে:** Firebase/SES credential দিলে live integration  
+
+> [!IMPORTANT]
+> এই পর্যায়ে Firebase ও Amazon SES credential ছাড়াই কাজ করা হবে।
+> UI সম্পূর্ণ Mock/Static data দিয়ে তৈরি হবে।
+> Backend ফাইলগুলো পূর্ণাঙ্গ structure সহ তৈরি হবে, কিন্তু live credential ছাড়া run হবে না।
+> Firebase + CLI access পেলে integration শুরু হবে।
+
+---
+
+## কাজের পর্যায়
+
+### পর্যায় ১ — Project Bootstrap (Next.js Frontend + Express Backend)
+### পর্যায় ২ — Design System + Global Layout
+### পর্যায় ৩ — সব Page/Feature এর UI
+### পর্যায় ৪ — Backend File Structure (সব module, middleware, repository)
+
+---
+
+## Proposed Changes
+
+---
+
+### Frontend (Next.js App)
+
+**Root:** `c:\Users\Sazu akheni dot com\Documents\Smart Email Sent AI\frontend\`
+
+#### [NEW] Project Bootstrap
+- `npx create-next-app@latest` দিয়ে App Router + TypeScript + Tailwind সেটআপ
+- Google Font `Anek Bangla` যোগ
+- Dark Mode support (next-themes)
+- Global CSS Design Token সেটআপ
+
+---
+
+#### [NEW] Design System — `frontend/src/components/ui/`
+
+| ফাইল | Component |
+|------|-----------|
+| `button.tsx` | Primary, Secondary, Ghost, Danger variant |
+| `input.tsx` | Live validation, error state |
+| `select.tsx` | Custom dropdown |
+| `checkbox.tsx` / `radio.tsx` / `toggle.tsx` | Form controls |
+| `card.tsx` | Surface card |
+| `table.tsx` | Sortable + paginated |
+| `modal.tsx` | Accessible modal |
+| `drawer.tsx` | Side drawer |
+| `sidebar.tsx` | App sidebar nav |
+| `navbar.tsx` | Top navbar |
+| `badge.tsx` | Status badge |
+| `toast.tsx` | Success/Error notification |
+| `skeleton.tsx` | Loading state |
+| `empty-state.tsx` | No data UI |
+| `stat-card.tsx` | Dashboard metric card |
+| `chart-wrapper.tsx` | Recharts wrapper |
+| `stepper.tsx` | Multi-step wizard |
+| `date-range-picker.tsx` | Date filter |
+| `tag-input.tsx` | Contact tags |
+| `otp-input.tsx` | 6-box OTP |
+| `progress-bar.tsx` | Usage/billing |
+| `copy-button.tsx` | DNS record copy |
+
+---
+
+#### [NEW] Public Pages — `frontend/src/app/(public)/`
+
+| Route | ফাইল | বিবরণ |
+|-------|------|--------|
+| `/` | `page.tsx` | Landing Page — Hero, Features, Pricing preview, CTA |
+| `/pricing` | `pricing/page.tsx` | Plan comparison table |
+| `/login` | `login/page.tsx` | Email/Password + Google sign-in |
+| `/signup` | `signup/page.tsx` | Registration form + OTP |
+| `/forgot-password` | `forgot-password/page.tsx` | Password reset |
+| `/unsubscribe/[token]` | `unsubscribe/[token]/page.tsx` | Public unsubscribe page |
+
+---
+
+#### [NEW] Onboarding — `frontend/src/app/(onboarding)/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `onboarding/page.tsx` | ৩-ধাপ Wizard: Workspace নাম → Business type → Import/Skip |
+
+---
+
+#### [NEW] Dashboard App Pages — `frontend/src/app/(dashboard)/`
+
+| Route | ফাইল | বিবরণ |
+|-------|------|--------|
+| `/dashboard` | `dashboard/page.tsx` | Summary cards + trend chart + activity feed |
+| `/contacts` | `contacts/page.tsx` | Contact table (search/filter/sort/paginate) |
+| `/contacts/[id]` | `contacts/[id]/page.tsx` | Contact detail drawer |
+| `/contacts/lists` | `contacts/lists/page.tsx` | List/Segment management |
+| `/contacts/import` | `contacts/import/page.tsx` | CSV import wizard |
+| `/templates` | `templates/page.tsx` | Template grid with thumbnails |
+| `/templates/[id]/edit` | `templates/[id]/edit/page.tsx` | Drag-and-drop template editor |
+| `/campaigns` | `campaigns/page.tsx` | Campaign list with status badges |
+| `/campaigns/new` | `campaigns/new/page.tsx` | 4-step Campaign wizard |
+| `/campaigns/[id]` | `campaigns/[id]/page.tsx` | Campaign detail + status |
+| `/analytics` | `analytics/page.tsx` | Workspace-level overview charts |
+| `/analytics/campaigns/[id]` | `analytics/campaigns/[id]/page.tsx` | Per-campaign detailed report |
+| `/settings/account` | `settings/account/page.tsx` | Profile edit |
+| `/settings/security` | `settings/security/page.tsx` | Password + 2FA + sessions |
+| `/settings/domains` | `settings/domains/page.tsx` | Domain verify + DNS records |
+| `/settings/billing` | `settings/billing/page.tsx` | Plan + invoices + upgrade |
+| `/settings/notifications` | `settings/notifications/page.tsx` | Notification preferences |
+| `/settings/team` | `settings/team/page.tsx` | Team members (Phase 2 placeholder) |
+
+---
+
+#### [NEW] Feature Components — `frontend/src/components/features/`
+
+| ফোল্ডার | Components |
+|---------|-----------|
+| `auth/` | `LoginForm`, `SignupForm`, `OtpVerify`, `OnboardingWizard` |
+| `dashboard/` | `SummaryCards`, `TrendChart`, `ActivityFeed`, `QuickActions` |
+| `contacts/` | `ContactTable`, `ContactDrawer`, `FilterPanel`, `BulkActionBar`, `CsvImportWizard`, `ColumnMapper` |
+| `templates/` | `TemplateGrid`, `TemplateCard`, `DragDropEditor`, `BlockLibrary`, `PropertyPanel`, `PreviewToggle`, `MergeTagPicker` |
+| `campaigns/` | `CampaignWizard`, `RecipientPicker`, `SchedulePicker`, `ReviewSummary`, `CampaignStatusBadge`, `TestEmailModal` |
+| `analytics/` | `OverviewCharts`, `CampaignReport`, `LinkClickTable`, `DeviceBreakdown`, `ExportButton` |
+| `domains/` | `DomainCard`, `DnsRecordBlock`, `VerifyStatusBadge` |
+| `billing/` | `PricingCard`, `UsageProgress`, `InvoiceTable`, `PaymentMethodSelector` |
+| `settings/` | `ProfileForm`, `SecurityForm`, `SessionList`, `NotificationToggles` |
+
+---
+
+#### [NEW] Lib / Utilities — `frontend/src/lib/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `firebase.ts` | Firebase init (placeholder — credential পরে) |
+| `api-client.ts` | Axios instance + auth header injection |
+| `validators.ts` | Zod schemas (email, password, form fields) |
+| `mock-data.ts` | UI dev-এর জন্য static mock data |
+| `utils.ts` | Date format, cn() classname helper |
+| `constants.ts` | Routes, plan limits, merge tags |
+
+---
+
+#### [NEW] Store — `frontend/src/store/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `auth-store.ts` | User + workspace state (Zustand) |
+| `ui-store.ts` | Sidebar, modal, toast global state |
+| `campaign-store.ts` | Campaign wizard step state |
+
+---
+
+### Backend (Express.js API)
+
+**Root:** `c:\Users\Sazu akheni dot com\Documents\Smart Email Sent AI\backend\`
+
+#### [NEW] Entry + Config — `backend/src/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `index.ts` | Express app entry point |
+| `app.ts` | Middleware setup (helmet, cors, rateLimiter, bodyParser) |
+| `config/index.ts` | ENV config (Firebase, SES, Redis, Payment keys — placeholder) |
+| `config/firebase-admin.ts` | Firebase Admin SDK init (credential পরে) |
+| `config/redis.ts` | Redis connection (BullMQ) |
+| `config/ses.ts` | Amazon SES client (credential পরে) |
+
+---
+
+#### [NEW] Middleware — `backend/src/middleware/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `auth.ts` | Firebase ID Token verify + attach user to req |
+| `workspace.ts` | Workspace membership + role check |
+| `rateLimiter.ts` | Per-IP + per-user rate limiting (Redis store) |
+| `validate.ts` | Zod/Joi schema validation middleware |
+| `errorHandler.ts` | Global error handler + Sentry logging |
+| `auditLog.ts` | Sensitive action log middleware |
+
+---
+
+#### [NEW] Modules — `backend/src/modules/`
+
+প্রতিটা module-এ: `controller.ts`, `service.ts`, `validation.ts`, `routes.ts`
+
+| Module | Routes সংখ্যা | মূল কাজ |
+|--------|--------------|---------|
+| `auth/` | 6 | profile sync, me, mfa, session |
+| `workspaces/` | 3 | create, get, update workspace |
+| `contacts/` | 8 | CRUD, bulk import, export, lists |
+| `templates/` | 5 | CRUD, duplicate |
+| `campaigns/` | 8 | CRUD, send, schedule, pause, test |
+| `analytics/` | 4 | overview, per-campaign, tracking pixel, click redirect |
+| `domains/` | 4 | CRUD, DNS verify |
+| `billing/` | 4 | plan info, subscribe, invoices |
+| `webhooks/` | 2 | payment webhook, email events (SES SNS) |
+| `dashboard/` | 3 | summary, activity, chart |
+| `settings/` | 4 | profile update, sessions, notifications |
+
+---
+
+#### [NEW] Repository Layer — `backend/src/repositories/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `contacts.repository.ts` | Firestore contacts CRUD |
+| `campaigns.repository.ts` | Firestore campaigns CRUD |
+| `templates.repository.ts` | Firestore templates CRUD |
+| `analytics.repository.ts` | Firestore events read/aggregate |
+| `domains.repository.ts` | Firestore domains CRUD |
+| `billing.repository.ts` | Firestore billing CRUD |
+| `workspaces.repository.ts` | Firestore workspaces + members |
+| `users.repository.ts` | Firestore users CRUD |
+| `audit-log.repository.ts` | Firestore auditLogs write |
+
+---
+
+#### [NEW] Queue Jobs — `backend/src/jobs/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `queue.ts` | BullMQ queue setup |
+| `send-campaign.processor.ts` | Campaign email batch send (SES rate limit মেনে) |
+| `import-contacts.processor.ts` | CSV parse + bulk Firestore write |
+| `export-contacts.processor.ts` | CSV generate + Firebase Storage upload |
+| `domain-verify.processor.ts` | DNS lookup + SES domain identity check |
+
+---
+
+#### [NEW] Cron — `backend/src/cron/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `scheduled-campaigns.cron.ts` | Scheduled campaign trigger |
+| `domain-recheck.cron.ts` | Periodic DNS re-verification |
+| `usage-alert.cron.ts` | Usage limit notification |
+
+---
+
+#### [NEW] Utils — `backend/src/utils/`
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `logger.ts` | Winston/Pino setup |
+| `email-render.ts` | Template JSON → HTML render (merge tag replace) |
+| `unsubscribe-token.ts` | HMAC token generate/verify |
+| `dns-checker.ts` | SPF/DKIM/DMARC DNS lookup |
+| `ses-sender.ts` | SES send + bounce/complaint webhook handler |
+| `pagination.ts` | Cursor/page-based pagination helper |
+| `response.ts` | Standard `{success, data, meta}` response wrapper |
+
+---
+
+### Shared Config Files
+
+#### [NEW] Root Level
+
+| ফাইল | বিবরণ |
+|------|--------|
+| `.env.example` | সব ENV variable-এর template (value ছাড়া) |
+| `README.md` | Project setup guide |
+| `.gitignore` | node_modules, .env, build artifacts |
+
+---
+
+## UI Design Priority Order
+
+> [!NOTE]
+> নিচের ক্রমে UI page গুলো build করা হবে — সবচেয়ে গুরুত্বপূর্ণ থেকে শুরু।
+
+1. **Design System** — সব token, component আগে তৈরি
+2. **Landing Page** — প্রথম impression
+3. **Auth Pages** — Login, Signup, OTP
+4. **Dashboard** — Core value showcase
+5. **Campaigns** — Main product feature (wizard)
+6. **Templates Editor** — Drag-drop builder
+7. **Contacts** — Table + Import wizard
+8. **Analytics** — Charts + reports
+9. **Settings** — Domains, Billing, Security
+10. **Onboarding Wizard**
+
+---
+
+## Tech Versions (চূড়ান্ত)
+
+| Package | Version |
+|---------|---------|
+| Next.js | 15 (App Router) |
+| React | 19 |
+| TypeScript | 5.x |
+| Tailwind CSS | 3.x |
+| next-themes | latest |
+| Zustand | 5.x |
+| Recharts | 2.x |
+| react-beautiful-dnd / @dnd-kit | latest |
+| Zod | 3.x |
+| Axios | 1.x |
+| Node.js | 20 LTS |
+| Express.js | 5.x |
+| BullMQ | 5.x |
+| Winston | 3.x |
+| Joi | 17.x |
+
+---
+
+## Verification Plan
+
+### UI পরীক্ষা
+- Dev server (`npm run dev`) চালু করে সব route ব্রাউজারে দেখা
+- Dark/Light mode toggle কাজ করছে কিনা
+- Mobile responsive (375px, 768px, 1280px) চেক
+- Anek Bangla ফন্ট ঠিকমতো লোড হচ্ছে কিনা
+
+### Backend পরীক্ষা
+- `npm run build` error-free compile হয় কিনা
+- Placeholder endpoint-গুলো 200/404 response দিচ্ছে কিনা
+
+### Firebase Integration (পরে)
+- Credential দিলে auth flow test
+- Firestore CRUD test
+- Queue worker test
+
+---
+
+> [!IMPORTANT]
+> **Approve করলে কাজ শুরু হবে।** প্রথমে Next.js + Express bootstrap, তারপর ধাপে ধাপে সব UI ও backend file তৈরি হবে।

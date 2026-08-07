@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* ============================================
+   DESIGN TOKENS — Smart Email Sent AI
+   ============================================ */
+
+:root {
+  /* Brand Colors */
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
+  --color-primary-light: #EDE9FE;
+  --color-accent: #6366F1;
+
+  /* Semantic Colors */
+  --color-success: #16A34A;
+  --color-success-bg: #DCFCE7;
+  --color-warning: #F97316;
+  --color-warning-bg: #FFF7ED;
+  --color-danger: #DC2626;
+  --color-danger-bg: #FEE2E2;
+
+  /* Surface — Light Mode */
+  --color-bg: #F9FAFB;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F3F4F6;
+  --color-border: #E5E7EB;
+  --color-border-strong: #D1D5DB;
+
+  /* Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
+
+  /* Sidebar */
+  --color-sidebar-bg: #FFFFFF;
+  --color-sidebar-active: #EDE9FE;
+  --color-sidebar-text: #374151;
+
+  /* Design Tokens */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+
+/* Dark Mode */
+.dark {
+  --color-primary: #8B5CF6;
+  --color-primary-hover: #7C3AED;
+  --color-primary-light: #2E1065;
+  --color-accent: #818CF8;
+
+  --color-bg: #0B0B0F;
+  --color-surface: #18181B;
+  --color-surface-2: #27272A;
+  --color-border: #2A2A31;
+  --color-border-strong: #3F3F46;
+
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #9CA3AF;
+  --color-text-tertiary: #6B7280;
+
+  --color-sidebar-bg: #18181B;
+  --color-sidebar-active: #2E1065;
+  --color-sidebar-text: #D1D5DB;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Anek Bangla', 'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   GRADIENTS
+   ============================================ */
+
+.gradient-purple {
+  background: linear-gradient(135deg, #7C3AED 0%, #6366F1 100%);
+}
+
+.gradient-hero {
+  background:
+    radial-gradient(ellipse at top left, rgba(124,58,237,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(99,102,241,0.10) 0%, transparent 50%);
+}
+
+/* ============================================
+   GLASS EFFECT
+   ============================================ */
+
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.dark .glass {
+  background: rgba(24,24,27,0.85);
+  border: 1px solid rgba(63,63,70,0.5);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in     { animation: fadeIn 0.2s ease forwards; }
+.animate-slide-right { animation: slideInRight 0.2s ease forwards; }
+.animate-scale-in    { animation: scaleIn 0.15s ease forwards; }
+.animate-pulse-soft  { animation: pulse-soft 2s ease-in-out infinite; }
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+.dark ::-webkit-scrollbar-thumb { background: #3F3F46; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #52525B; }
+
+/* ============================================
+   COMMON COMPONENTS (non-Tailwind classes)
+   ============================================ */
+
+.btn-primary-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 1.25rem;
+  height: 2.5rem;
+  background: #7C3AED;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.btn-primary-custom:hover { background: #6D28D9; }
+.btn-primary-custom:active { transform: scale(0.98); }
+.btn-primary-custom:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Recharts custom tooltips */
+.recharts-default-tooltip {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 8px !important;
+  font-family: 'Anek Bangla', sans-serif !important;
+}
