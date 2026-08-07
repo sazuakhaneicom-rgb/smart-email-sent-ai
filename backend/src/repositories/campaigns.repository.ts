@@ -83,7 +83,7 @@ export class CampaignsRepository {
       .limit(limit)
       .get();
 
-    const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Campaign));
+    const data = snap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Campaign));
     return { data, total };
   }
 
@@ -104,7 +104,7 @@ export class CampaignsRepository {
       .where('scheduledAt', '<=', now)
       .limit(50)
       .get();
-    return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Campaign));
+    return snap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Campaign));
   }
 
   async create(workspaceId: string, data: Partial<Campaign>): Promise<Campaign> {
@@ -157,7 +157,6 @@ export class CampaignsRepository {
     const col = this.col(workspaceId);
     if (!col) return;
     const ref = col.doc(campaignId);
-    // Use Firestore increment for atomic stat updates
     const increments: Record<string, FirebaseFirestore.FieldValue> = {};
     const { FieldValue } = await import('firebase-admin/firestore');
     for (const [key, val] of Object.entries(stats)) {

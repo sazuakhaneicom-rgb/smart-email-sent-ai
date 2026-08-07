@@ -91,7 +91,7 @@ export class WorkspacesRepository {
       .collection('members')
       .orderBy('joinedAt', 'asc')
       .get();
-    return snap.docs.map((doc) => ({ userId: doc.id, ...doc.data() } as WorkspaceMember));
+    return snap.docs.map((doc: any) => ({ userId: doc.id, ...doc.data() } as WorkspaceMember));
   }
 
   async addMember(
@@ -112,7 +112,6 @@ export class WorkspacesRepository {
     };
     if (col) {
       await col.doc(workspaceId).collection('members').doc(userId).set(data);
-      // Update member count
       const { FieldValue } = await import('firebase-admin/firestore');
       await col.doc(workspaceId).update({ memberCount: FieldValue.increment(1), updatedAt: new Date() });
     }

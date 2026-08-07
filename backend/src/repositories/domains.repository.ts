@@ -32,7 +32,7 @@ export class DomainsRepository {
     const col = this.col(workspaceId);
     if (!col) return [];
     const snap = await col.orderBy('createdAt', 'desc').get();
-    return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Domain));
+    return snap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Domain));
   }
 
   async findById(workspaceId: string, domainId: string): Promise<Domain | null> {
@@ -59,7 +59,7 @@ export class DomainsRepository {
       .where('status', '==', 'pending')
       .limit(100)
       .get();
-    return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Domain));
+    return snap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Domain));
   }
 
   async create(workspaceId: string, data: Partial<Domain>): Promise<Domain> {
