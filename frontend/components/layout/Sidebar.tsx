@@ -1,146 +1,292 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { LayoutDashboard, Send, Users, FileText, BarChart2, Settings, ChevronDown, LogOut, Cpu } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store';
+import {
+  LayoutDashboard, Mail, Users, FileText, BarChart3,
+  Settings, ChevronLeft, ChevronRight, Zap, LogOut,
+  Building2, CreditCard, Bell, Shield, Globe, UserCheck, Bot, Sparkles,
+} from 'lucide-react';
+
+const mainNav = [
+  { href: '/dashboard',  icon: LayoutDashboard, label: 'ড্যাশবোর্ড' },
+  { href: '/ai-agent',   icon: Bot,             label: 'AI Email Agent', isHighlighted: true },
+  { href: '/campaigns',  icon: Mail,             label: 'ক্যাম্পেইন' },
+  { href: '/contacts',   icon: Users,            label: 'কন্টাক্টস' },
+  { href: '/templates',  icon: FileText,         label: 'টেমপ্লেট' },
+  { href: '/analytics',  icon: BarChart3,        label: 'বিশ্লেষণ' },
+];
+
+const settingsNav = [
+  { href: '/settings/account',       icon: UserCheck,  label: 'অ্যাকাউন্ট' },
+  { href: '/settings/security',      icon: Shield,     label: 'সিকিউরিটি' },
+  { href: '/settings/domains',       icon: Globe,      label: 'ডোমেইন' },
+  { href: '/settings/billing',       icon: CreditCard, label: 'বিলিং' },
+  { href: '/settings/notifications', icon: Bell,       label: 'নোটিফিকেশন' },
+  { href: '/settings/team',          icon: Building2,  label: 'টিম' },
+];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout, user, currentWorkspace } = useAuthStore();
+  const [collapsed, setCollapsed] = useState(false);
 
-  const mainNav = [
-    { name: 'ড্যাশবোর্ড', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'ক্যাম্পেইন', href: '/campaigns', icon: Send },
-    { name: 'কন্টাক্টস', href: '/contacts', icon: Users },
-    { name: 'টেমপ্লেট', href: '/templates', icon: FileText },
-  ];
+  const isActive = (href: string) =>
+    href === '/dashboard' ? pathname === href : pathname.startsWith(href);
 
-  const analyticsNav = [
-    { name: 'বিশ্লেষণ', href: '/analytics', icon: BarChart2 },
-  ];
-  
-  const comingSoonNav = [
-    { name: 'অটোমেশন', href: '#', icon: Cpu, badge: 'শীঘ্রই' },
-  ];
+  const handleLogout = () => {
+    logout();
+    router.replace('/login');
+  };
 
-  const adminNav = [
-    { name: 'সেটিংস', href: '/settings', icon: Settings },
-  ];
+  const initials = user?.name
+    ? user.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
+    : 'U';
 
   return (
-    <aside className="w-[260px] h-screen bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col hidden md:flex sticky top-0">
-      {/* Top */}
-      <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="flex items-center space-x-2 space-x-reverse mb-6">
-          <div className="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center">
-            <Send className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-xl text-zinc-900 dark:text-zinc-50">Smart Email AI</span>
-        </div>
-        <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-          <div className="flex items-center space-x-2 space-x-reverse">
-            <div className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-medium text-xs">M</div>
-            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">My Workspace</span>
-          </div>
-          <ChevronDown className="w-4 h-4 text-zinc-500" />
-        </button>
-      </div>
+    <aside
+      style={{
+        width: collapsed ? '72px' : '240px',
+        minHeight: '100vh',
+        background: 'var(--bg-void)',
+        borderRight: '1px solid var(--sidebar-border)',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
+        overflow: 'hidden',
+        position: 'relative',
+        flexShrink: 0,
+      }}
+    >
+      {/* Background grid */}
+      <div
+        style={{
+          position: 'absolute', inset: 0, opacity: 0.4,
+          backgroundImage:
+            'linear-gradient(rgba(139,92,246,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.05) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+          pointerEvents: 'none',
+        }}
+      />
 
-      {/* Nav */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        <div>
-          <h4 className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">মূল</h4>
-          <div className="space-y-1">
-            {mainNav.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link key={item.name} href={item.href} className={cn(
-                  "flex items-center space-x-3 space-x-reverse px-3 py-2 rounded-lg transition-colors text-sm font-medium",
-                  isActive 
-                    ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400" 
-                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100"
-                )}>
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+      {/* Top glow */}
+      <div
+        style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '200px',
+          background: 'radial-gradient(ellipse at top, rgba(139,92,246,0.08) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Logo */}
+        <div
+          style={{
+            height: '64px', display: 'flex', alignItems: 'center',
+            padding: collapsed ? '0 16px' : '0 20px',
+            borderBottom: '1px solid var(--sidebar-border)',
+            gap: '12px',
+          }}
+        >
+          <div
+            style={{
+              width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+              background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: 'var(--glow-purple-sm)',
+            }}
+          >
+            <Zap size={18} style={{ color: '#fff' }} />
           </div>
+          {!collapsed && (
+            <div>
+              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                Smart Email
+              </p>
+              <p style={{ fontSize: '0.65rem', color: 'var(--neon-cyan)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                Sent AI
+              </p>
+            </div>
+          )}
         </div>
 
-        <div>
-          <h4 className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">বিশ্লেষণ</h4>
-          <div className="space-y-1">
-            {analyticsNav.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link key={item.name} href={item.href} className={cn(
-                  "flex items-center space-x-3 space-x-reverse px-3 py-2 rounded-lg transition-colors text-sm font-medium",
-                  isActive 
-                    ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400" 
-                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100"
-                )}>
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+        {/* Workspace badge */}
+        {!collapsed && currentWorkspace && (
+          <div
+            style={{
+              margin: '12px 12px 4px',
+              padding: '8px 12px',
+              borderRadius: '10px',
+              background: 'rgba(139,92,246,0.06)',
+              border: '1px solid rgba(139,92,246,0.12)',
+            }}
+          >
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>
+              Workspace
+            </p>
+            <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {currentWorkspace.name}
+            </p>
+            <span
+              style={{
+                fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em',
+                color: currentWorkspace.plan === 'pro' ? 'var(--neon-purple-bright)' : 'var(--text-muted)',
+              }}
+            >
+              {currentWorkspace.plan.toUpperCase()}
+            </span>
           </div>
-        </div>
-        
-        <div>
-          <h4 className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">এরপর</h4>
-          <div className="space-y-1">
-            {comingSoonNav.map((item) => (
-              <div key={item.name} className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-zinc-400 dark:text-zinc-600 cursor-not-allowed">
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.name}</span>
-                </div>
-                <span className="text-[10px] uppercase bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">{item.badge}</span>
-              </div>
+        )}
+
+        {/* Main Nav */}
+        <nav style={{ flex: 1, padding: '8px 10px', overflowY: 'auto' }}>
+          <div style={{ marginBottom: '24px' }}>
+            {!collapsed && (
+              <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '4px 8px 8px', fontWeight: 600 }}>
+                মেইন মেনু
+              </p>
+            )}
+            {mainNav.map(({ href, icon: Icon, label, isHighlighted }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`nav-item ${isActive(href) ? 'active' : ''}`}
+                title={collapsed ? label : undefined}
+                style={{
+                  marginBottom: '4px',
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  ...(isHighlighted ? {
+                    background: isActive(href)
+                      ? 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(6,182,212,0.25))'
+                      : 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1))',
+                    border: '1px solid rgba(139,92,246,0.35)',
+                    boxShadow: '0 0 14px rgba(139,92,246,0.2)',
+                  } : {})
+                }}
+              >
+                <Icon size={18} style={{ flexShrink: 0, color: isHighlighted ? 'var(--neon-cyan)' : undefined }} />
+                {!collapsed && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <span style={{ fontWeight: isHighlighted ? 700 : 500, color: isHighlighted ? '#fff' : undefined }}>{label}</span>
+                    {isHighlighted && (
+                      <span style={{
+                        fontSize: '0.55rem', fontWeight: 800, padding: '1px 6px', borderRadius: 999,
+                        background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', color: '#fff',
+                        boxShadow: '0 0 8px rgba(6,182,212,0.5)', letterSpacing: '0.05em'
+                      }}>AI</span>
+                    )}
+                  </div>
+                )}
+              </Link>
             ))}
           </div>
+
+          <div>
+            {!collapsed && (
+              <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '4px 8px 8px', fontWeight: 600 }}>
+                সেটিংস
+              </p>
+            )}
+            {settingsNav.map(({ href, icon: Icon, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`nav-item ${isActive(href) ? 'active' : ''}`}
+                title={collapsed ? label : undefined}
+                style={{ marginBottom: '2px', justifyContent: collapsed ? 'center' : 'flex-start' }}
+              >
+                <Icon size={16} style={{ flexShrink: 0 }} />
+                {!collapsed && <span style={{ fontSize: '0.825rem' }}>{label}</span>}
+              </Link>
+            ))}
+          </div>
+        </nav>
+
+        {/* Bottom — User + Logout */}
+        <div style={{ padding: '10px', borderTop: '1px solid var(--sidebar-border)' }}>
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: collapsed ? '8px' : '10px 12px',
+              borderRadius: '10px',
+              background: 'rgba(139,92,246,0.04)',
+              border: '1px solid rgba(139,92,246,0.08)',
+              marginBottom: '6px',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+            }}
+          >
+            <div
+              style={{
+                width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.75rem', fontWeight: 700, color: '#fff',
+              }}
+            >
+              {initials}
+            </div>
+            {!collapsed && (
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {user?.name || 'Demo User'}
+                </p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {user?.email}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleLogout}
+            title={collapsed ? 'লগআউট' : undefined}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              gap: '8px', padding: collapsed ? '8px' : '8px 12px',
+              borderRadius: '8px', border: 'none', background: 'transparent',
+              color: 'var(--text-muted)', fontSize: '0.825rem', cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(248,113,113,0.08)';
+              (e.currentTarget as HTMLButtonElement).style.color = '#F87171';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
+            }}
+          >
+            <LogOut size={16} style={{ flexShrink: 0 }} />
+            {!collapsed && <span>লগআউট</span>}
+          </button>
         </div>
 
-        <div>
-          <h4 className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">প্রশাসন</h4>
-          <div className="space-y-1">
-            {adminNav.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link key={item.name} href={item.href} className={cn(
-                  "flex items-center space-x-3 space-x-reverse px-3 py-2 rounded-lg transition-colors text-sm font-medium",
-                  isActive 
-                    ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400" 
-                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100"
-                )}>
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom */}
-      <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3 space-x-reverse">
-            <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-              <Users className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">ইউজার নেম</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">user@email.com</p>
-            </div>
-          </div>
-        </div>
-        <button className="w-full flex items-center justify-center space-x-2 space-x-reverse py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors">
-          <LogOut className="w-4 h-4" />
-          <span>লগ আউট</span>
+        {/* Collapse Toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          style={{
+            position: 'absolute', right: '-12px', top: '76px',
+            width: '24px', height: '24px', borderRadius: '50%',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-default)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', zIndex: 10, color: 'var(--text-muted)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--neon-purple)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--neon-purple-bright)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
+          }}
+        >
+          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
         </button>
       </div>
     </aside>

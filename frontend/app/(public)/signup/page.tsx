@@ -1,241 +1,352 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Lock, Eye, EyeOff, User, CheckCircle2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Mail, Lock, Eye, EyeOff, User, CheckCircle2, Zap, ChevronRight } from 'lucide-react';
+import { useAuthStore } from '@/store';
+import { authService } from '@/lib/auth-service';
 
 export default function SignupPage() {
-  const [step, setStep] = useState(1);
+  const router = useRouter();
+  const { setUser, setWorkspaces, setCurrentWorkspace } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [countdown, setCountdown] = useState(60);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (step === 2 && countdown > 0) {
-      timer = setInterval(() => setCountdown(prev => prev - 1), 1000);
-    }
-    return () => clearInterval(timer);
-  }, [step, countdown]);
-
-  const handleSignupSubmit = (e: React.FormEvent) => {
+  const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(2);
+    setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('পাসওয়ার্ড দুটি মেলেনি!');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { user, workspace } = await authService.signupWithEmail(formData.email, formData.password, formData.name);
+      setUser(user);
+      setWorkspaces([workspace]);
+      setCurrentWorkspace(workspace);
+      router.push('/onboarding');
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      setError(err?.message || 'অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
-      nextInput?.focus();
+  const handleGoogleSignup = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const { user, workspace } = await authService.loginWithGoogle();
+      setUser(user);
+      setWorkspaces([workspace]);
+      setCurrentWorkspace(workspace);
+      router.push('/onboarding');
+    } catch (err: any) {
+      console.error('Google signup error:', err);
+      setError('Google দিয়ে রেজিস্ট্রেশন সম্পূর্ণ করা যায়নি।');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const passwordStrength = formData.password.length > 8 ? 4 : formData.password.length > 5 ? 3 : formData.password.length > 2 ? 2 : formData.password.length > 0 ? 1 : 0;
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left Panel */}
-      <div className="hidden md:flex flex-col justify-center items-start p-12 lg:p-24 w-1/2 bg-gradient-to-br from-purple-700 to-purple-900 text-white">
-        <div className="flex items-center space-x-3 mb-8">
-          <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-center">
-            <Mail className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-2xl font-bold tracking-tight">Smart Email</span>
-        </div>
-        
-        <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-          বিনামূল্যে<br />শুরু করুন আজই
-        </h1>
-        
-        <div className="space-y-4 text-purple-100 mt-8">
-          {[
-            '১০০০ ফ্রি ইমেইল প্রতি মাসে',
-            'সহজে ড্র্যাগ অ্যান্ড ড্রপ এডিটর',
-            'কোনো ক্রেডিট কার্ডের প্রয়োজন নেই',
-          ].map((feature, idx) => (
-            <div key={idx} className="flex items-center space-x-3">
-              <CheckCircle2 className="w-5 h-5 text-purple-300" />
-              <span className="text-lg">{feature}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div style={{
+      minHeight: '100vh', display: 'flex',
+      background: 'var(--bg-void)',
+      fontFamily: "'Anek Bangla', sans-serif",
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Background Grid */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage:
+          'linear-gradient(rgba(139,92,246,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.05) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+        pointerEvents: 'none',
+      }} />
 
-      {/* Right Panel */}
-      <div className="flex-1 flex flex-col justify-center items-center p-8 bg-gray-50 dark:bg-gray-950">
-        <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 p-8 transition-all duration-300">
-          
-          <div className="text-center mb-8">
-            <div className="md:hidden flex items-center justify-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <Mail className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">Smart Email</span>
+      {/* Top Glow Orb */}
+      <div style={{
+        position: 'absolute', top: '-200px', left: '50%', transform: 'translateX(-50%)',
+        width: '800px', height: '600px',
+        background: 'radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{ display: 'flex', width: '100%', position: 'relative', zIndex: 1 }}>
+
+        {/* LEFT PANEL */}
+        <div style={{
+          flex: '0 0 50%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '60px 64px',
+          borderRight: '1px solid rgba(139,92,246,0.12)',
+        }} className="hidden md:flex">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 48 }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 14,
+              background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 0 24px rgba(139,92,246,0.5)',
+            }}>
+              <Zap size={24} style={{ color: '#fff' }} />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {step === 1 ? 'নতুন অ্যাকাউন্ট খুলুন' : 'ইমেইল ভেরিফাই করুন'}
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400">
-              {step === 1 ? 'আপনার ব্যবসা বাড়াতে আজই যুক্ত হোন' : `আমরা ${formData.email || 'আপনার ইমেইলে'} একটি কোড পাঠিয়েছি`}
+            <div>
+              <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#E8E8F0', lineHeight: 1.1 }}>Smart Email</p>
+              <p style={{ fontSize: '0.7rem', color: 'var(--neon-cyan)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Sent AI Platform</p>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 40 }}>
+            <h1 style={{
+              fontSize: '2.8rem', fontWeight: 800, lineHeight: 1.15,
+              marginBottom: 16, color: '#E8E8F0',
+            }}>
+              বিনামূল্যে<br />
+              <span style={{
+                background: 'linear-gradient(135deg, #A78BFA, #06B6D4)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>আজই শুরু করুন</span>
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.7 }}>
+              কোনো ক্রেডিট কার্ডের প্রয়োজন নেই। কয়েক সেকেন্ডেই একাউন্ট খুলে ইমেইল ক্যাম্পেইন পাঠানো শুরু করুন।
             </p>
           </div>
 
-          {step === 1 ? (
-            <form className="space-y-5" onSubmit={handleSignupSubmit}>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">সম্পূর্ণ নাম</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-gray-400" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {[
+              { icon: '✦', text: '১০০০ ফ্রি ইমেইল প্রতি মাসে', color: '#A78BFA' },
+              { icon: '◈', text: 'সহজে ড্র্যাগ অ্যান্ড ড্রপ এডিটর', color: '#22D3EE' },
+              { icon: '⬡', text: 'কোনো হিডেন চার্জ নেই', color: '#34D399' },
+            ].map((f, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '12px 16px', borderRadius: 10,
+                background: 'rgba(139,92,246,0.05)',
+                border: '1px solid rgba(139,92,246,0.12)',
+              }}>
+                <span style={{ color: f.color, fontSize: '1rem', fontWeight: 700, flexShrink: 0 }}>{f.icon}</span>
+                <span style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{f.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT PANEL */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '40px 24px',
+        }}>
+          <div style={{ width: '100%', maxWidth: '440px' }}>
+            <div style={{
+              background: 'rgba(12,12,26,0.9)',
+              border: '1px solid rgba(139,92,246,0.2)',
+              borderRadius: 20,
+              padding: '36px 32px',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 0 40px rgba(139,92,246,0.08), 0 20px 60px rgba(0,0,0,0.5)',
+            }}>
+              <div style={{ textAlign: 'center', marginBottom: 28 }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#E8E8F0', marginBottom: 6 }}>
+                  নতুন অ্যাকাউন্ট খুলুন
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                  আপনার ব্যবসা বাড়াতে আজই যুক্ত হোন
+                </p>
+              </div>
+
+              <form style={{ display: 'flex', flexDirection: 'column', gap: 14 }} onSubmit={handleSignupSubmit}>
+                {/* Name */}
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+                    সম্পূর্ণ নাম
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <User size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                    <input
+                      type="text"
+                      className="cyber-input"
+                      style={{ paddingLeft: '36px' }}
+                      placeholder="আপনার নাম"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
                   </div>
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                    placeholder="আপনার নাম"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    required
-                  />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">ইমেইল ঠিকানা</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                {/* Email */}
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+                    ইমেইল ঠিকানা
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Mail size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                    <input
+                      type="email"
+                      className="cyber-input"
+                      style={{ paddingLeft: '36px' }}
+                      placeholder="name@company.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
                   </div>
-                  <input
-                    type="email"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                    placeholder="name@company.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    required
-                  />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">পাসওয়ার্ড</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                {/* Password */}
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+                    পাসওয়ার্ড
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Lock size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      className="cyber-input"
+                      style={{ paddingLeft: '36px', paddingRight: '36px' }}
+                      placeholder="কমপক্ষে ৬ অক্ষর"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                    placeholder="••••••••"
-                    value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
+                  {/* Strength meter */}
+                  {formData.password && (
+                    <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                      {[1, 2, 3, 4].map((level) => (
+                        <div
+                          key={level}
+                          style={{
+                            height: 3, flex: 1, borderRadius: 2,
+                            background: passwordStrength >= level
+                              ? level <= 2 ? '#F87171' : level === 3 ? '#F59E0B' : '#10B981'
+                              : 'rgba(139,92,246,0.1)',
+                            transition: 'all 0.2s',
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {/* Strength indicator */}
-                <div className="flex space-x-1 mt-2">
-                  {[1, 2, 3, 4].map(level => (
-                    <div key={level} className={`h-1 flex-1 rounded-full ${passwordStrength >= level ? (passwordStrength > 2 ? 'bg-green-500' : 'bg-purple-500') : 'bg-gray-200 dark:bg-gray-700'}`}></div>
-                  ))}
+
+                {/* Confirm Password */}
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+                    পাসওয়ার্ড নিশ্চিত করুন
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Lock size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      className="cyber-input"
+                      style={{ paddingLeft: '36px' }}
+                      placeholder="একই পাসওয়ার্ড পুনরায় লিখুন"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center mt-4">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  required
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                />
-                <label htmlFor="terms" className="ml-2 block text-sm text-gray-600 dark:text-gray-400">
-                  আমি <a href="#" className="text-purple-600 hover:underline">শর্তাবলী</a> ও <a href="#" className="text-purple-600 hover:underline">গোপনীয়তা নীতিতে</a> সম্মত
-                </label>
-              </div>
+                {/* Error message */}
+                {error && (
+                  <div style={{
+                    padding: '10px 14px', borderRadius: 8,
+                    background: 'rgba(248,113,113,0.08)',
+                    border: '1px solid rgba(248,113,113,0.25)',
+                    color: '#F87171', fontSize: '0.825rem',
+                  }}>
+                    {error}
+                  </div>
+                )}
 
-              <button
-                type="submit"
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-purple-500/30 mt-4"
-              >
-                অ্যাকাউন্ট তৈরি করুন
-              </button>
-
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">অথবা</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="w-full flex justify-center items-center space-x-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-medium py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-                <span>Google দিয়ে সাইন আপ করুন</span>
-              </button>
-            </form>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center gap-2">
-                {otp.map((digit, idx) => (
-                  <input
-                    key={idx}
-                    id={`otp-${idx}`}
-                    type="text"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(idx, e.target.value)}
-                    className="w-12 h-14 text-center text-xl font-bold rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-purple-500/30"
-              >
-                ভেরিফাই করুন
-              </button>
-              <div className="text-center">
-                <button 
-                  disabled={countdown > 0} 
-                  className={`text-sm font-medium ${countdown > 0 ? 'text-gray-400' : 'text-purple-600 hover:text-purple-500'}`}
-                  onClick={() => setCountdown(60)}
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  style={{
+                    width: '100%', height: '48px',
+                    background: isLoading ? 'rgba(124,58,237,0.4)' : 'linear-gradient(135deg, #7C3AED, #6D28D9)',
+                    border: '1px solid rgba(139,92,246,0.5)',
+                    borderRadius: 12, color: '#fff',
+                    fontWeight: 700, fontSize: '1rem',
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    boxShadow: isLoading ? 'none' : '0 0 20px rgba(139,92,246,0.4)',
+                    transition: 'all 0.2s ease',
+                    fontFamily: "'Anek Bangla', sans-serif",
+                    marginTop: 6,
+                  }}
                 >
-                  {countdown > 0 ? `পুনরায় পাঠান (${countdown}s)` : 'কোড পুনরায় পাঠান'}
+                  {isLoading ? 'অ্যাকাউন্ট তৈরি হচ্ছে...' : <>অ্যাকাউন্ট তৈরি করুন <ChevronRight size={18} /></>}
                 </button>
-              </div>
-              <div className="text-center">
-                 <button onClick={() => setStep(1)} className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">ইমেইল পরিবর্তন করুন</button>
-              </div>
-            </div>
-          )}
 
-          {step === 1 && (
-            <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-              ইতোমধ্যে অ্যাকাউন্ট আছে?{' '}
-              <Link href="/login" className="font-medium text-purple-600 hover:text-purple-500 dark:text-purple-400">
-                লগইন করুন
-              </Link>
+                {/* Google Sign Up */}
+                <button
+                  type="button"
+                  onClick={handleGoogleSignup}
+                  disabled={isLoading}
+                  style={{
+                    width: '100%', height: '44px',
+                    background: 'rgba(139,92,246,0.08)',
+                    border: '1px solid rgba(139,92,246,0.25)',
+                    borderRadius: 12, color: 'var(--text-primary)',
+                    fontWeight: 600, fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                    transition: 'all 0.2s ease',
+                    fontFamily: "'Anek Bangla', sans-serif",
+                  }}
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  Google দিয়ে সাইনআপ করুন
+                </button>
+              </form>
+
+              <div style={{ marginTop: 24, textAlign: 'center', fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+                ইতিমধ্যে অ্যাকাউন্ট আছে?{' '}
+                <Link href="/login" style={{ color: 'var(--neon-purple-bright)', textDecoration: 'none', fontWeight: 600 }}>
+                  লগইন করুন
+                </Link>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

@@ -44,7 +44,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       workspaces: [],
       currentWorkspace: null,
-      isLoading: true,
+      isLoading: false,   // persist hydration-এর পরে false-ই থাকবে
       isAuthenticated: false,
 
       setUser: (user) =>
@@ -67,8 +67,12 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      // user, isAuthenticated সহ persist করলে page refresh-এও লগইন থাকবে
       partialize: (state) => ({
+        user: state.user,
+        workspaces: state.workspaces,
         currentWorkspace: state.currentWorkspace,
+        isAuthenticated: state.isAuthenticated,
       }),
     }
   )

@@ -1,5 +1,4 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatCardProps {
@@ -7,30 +6,60 @@ interface StatCardProps {
   value: string | number;
   trend?: { value: string; positive: boolean };
   icon: React.ReactNode;
-  iconBg?: string;
+  iconBg?: string; // kept for API compat
+  accentColor?: string;
 }
 
-export function StatCard({ title, value, trend, icon, iconBg = 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' }: StatCardProps) {
+export function StatCard({
+  title,
+  value,
+  trend,
+  icon,
+  accentColor = '#8B5CF6',
+}: StatCardProps) {
+  const glow = accentColor + '33';
+
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{title}</h3>
-        <div className={cn("p-2 rounded-full", iconBg)}>
+    <div className="stat-card" style={{ fontFamily: "'Anek Bangla', sans-serif" }}>
+      {/* Top accent line */}
+      <div style={{
+        position: 'absolute', top: 0, left: 16, right: 16, height: 2,
+        background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)`,
+        borderRadius: 999,
+      }} />
+
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 10,
+          background: glow,
+          border: `1px solid ${accentColor}30`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: `0 0 12px ${accentColor}30`,
+          color: accentColor,
+        }}>
           {icon}
         </div>
-      </div>
-      <div className="flex items-baseline space-x-2 space-x-reverse">
-        <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{value}</h2>
+
         {trend && (
-          <span className={cn(
-            "flex items-center text-xs font-medium",
-            trend.positive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
-          )}>
-            {trend.positive ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
+          <span style={{
+            display: 'flex', alignItems: 'center', gap: 3,
+            fontSize: '0.7rem', fontWeight: 600,
+            padding: '3px 8px', borderRadius: 999,
+            background: trend.positive ? 'rgba(16,185,129,0.10)' : 'rgba(248,113,113,0.10)',
+            color: trend.positive ? '#34D399' : '#F87171',
+          }}>
+            {trend.positive
+              ? <TrendingUp size={11} />
+              : <TrendingDown size={11} />}
             {trend.value}
           </span>
         )}
       </div>
+
+      <p style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1, marginBottom: 6 }}>
+        {value}
+      </p>
+      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{title}</p>
     </div>
   );
 }

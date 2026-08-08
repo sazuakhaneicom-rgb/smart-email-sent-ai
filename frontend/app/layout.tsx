@@ -7,6 +7,7 @@ const anekBangla = Anek_Bangla({
   weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-anek",
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -22,20 +23,21 @@ export const metadata: Metadata = {
     locale: "bn_BD",
     siteName: "Smart Email Sent AI",
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="bn" suppressHydrationWarning>
-      <body className={`${anekBangla.variable} font-sans antialiased`}>
+    <html lang="bn" className="dark" suppressHydrationWarning>
+      <head>
+        {/* Preconnect for Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body
+        className={anekBangla.variable}
+        style={{ fontFamily: "'Anek Bangla', system-ui, sans-serif" }}
+      >
         {children}
       </body>
     </html>
