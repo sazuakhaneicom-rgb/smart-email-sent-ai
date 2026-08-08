@@ -4,6 +4,8 @@ import { domainsService } from './service';
 import { sendSuccess, sendError } from '../../utils/response';
 import { AddDomainDto } from './validation';
 
+const str = (val: string | string[] | undefined): string => (Array.isArray(val) ? val[0] : val || '');
+
 export class DomainsController {
   async list(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
@@ -16,7 +18,7 @@ export class DomainsController {
 
   async getById(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const domain = await domainsService.findById(req.workspaceId!, req.params.domainId);
+      const domain = await domainsService.findById(req.workspaceId!, str(req.params.domainId || req.params.id));
       sendSuccess(res, domain);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 404, 'NOT_FOUND');
@@ -36,7 +38,7 @@ export class DomainsController {
 
   async delete(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const result = await domainsService.delete(req.workspaceId!, req.params.domainId);
+      const result = await domainsService.delete(req.workspaceId!, str(req.params.domainId || req.params.id));
       sendSuccess(res, result);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 404, 'NOT_FOUND');
@@ -45,7 +47,7 @@ export class DomainsController {
 
   async verify(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const result = await domainsService.verify(req.workspaceId!, req.params.domainId);
+      const result = await domainsService.verify(req.workspaceId!, str(req.params.domainId || req.params.id));
       sendSuccess(res, result);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 400, 'VERIFY_FAILED');

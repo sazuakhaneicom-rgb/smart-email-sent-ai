@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState, use } from 'react';
-import { MailOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { MailX, CheckCircle } from 'lucide-react';
 
 export default function UnsubscribePage({ params }: { params: Promise<{ token: string }> }) {
   const unwrappedParams = use(params);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const handleUnsubscribe = () => {
-    // In a real app, you would make an API call using unwrappedParams.token here
     setStatus('success');
   };
 
@@ -19,7 +18,7 @@ export default function UnsubscribePage({ params }: { params: Promise<{ token: s
         {status === 'idle' && (
           <>
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <MailOff className="w-8 h-8" />
+              <MailX className="w-8 h-8" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">আনসাবস্ক্রাইব নিশ্চিত করুন</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">

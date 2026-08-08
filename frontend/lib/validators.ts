@@ -27,7 +27,7 @@ export const signupSchema = z
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: z.string(),
-    terms: z.literal(true, { errorMap: () => ({ message: 'শর্তাবলী মেনে নেওয়া আবশ্যক' }) }),
+    terms: z.boolean().refine((val) => val === true, { message: 'শর্তাবলী মেনে নেওয়া আবশ্যক' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'পাসওয়ার্ড মেলেনি',

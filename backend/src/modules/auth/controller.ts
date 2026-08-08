@@ -68,7 +68,7 @@ export class AuthController {
 
   async revokeSession(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const result = await authService.revokeSession(req.user!.uid, id);
       sendSuccess(res, result);
     } catch (err: unknown) {

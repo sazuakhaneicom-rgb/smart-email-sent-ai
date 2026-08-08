@@ -10,6 +10,8 @@ import {
   TestSendDto,
 } from './validation';
 
+const str = (val: string | string[] | undefined): string => (Array.isArray(val) ? val[0] : val || '');
+
 export class CampaignsController {
   async list(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
@@ -25,7 +27,7 @@ export class CampaignsController {
 
   async getById(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const campaign = await campaignsService.findById(req.workspaceId!, req.params.campaignId);
+      const campaign = await campaignsService.findById(req.workspaceId!, str(req.params.campaignId || req.params.id));
       sendSuccess(res, campaign);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 404, 'NOT_FOUND');
@@ -47,7 +49,7 @@ export class CampaignsController {
       const dto = req.body as UpdateCampaignDto;
       const campaign = await campaignsService.update(
         req.workspaceId!,
-        req.params.campaignId,
+        str(req.params.campaignId || req.params.id),
         dto
       );
       sendSuccess(res, campaign);
@@ -59,7 +61,7 @@ export class CampaignsController {
 
   async delete(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const result = await campaignsService.delete(req.workspaceId!, req.params.campaignId);
+      const result = await campaignsService.delete(req.workspaceId!, str(req.params.campaignId || req.params.id));
       sendSuccess(res, result);
     } catch (err: unknown) {
       const msg = (err as Error).message;
@@ -69,7 +71,7 @@ export class CampaignsController {
 
   async send(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const result = await campaignsService.send(req.workspaceId!, req.params.campaignId);
+      const result = await campaignsService.send(req.workspaceId!, str(req.params.campaignId || req.params.id));
       sendSuccess(res, result);
     } catch (err: unknown) {
       const msg = (err as Error).message;
@@ -80,7 +82,7 @@ export class CampaignsController {
   async schedule(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
       const dto = req.body as ScheduleCampaignDto;
-      const campaign = await campaignsService.schedule(req.workspaceId!, req.params.campaignId, dto);
+      const campaign = await campaignsService.schedule(req.workspaceId!, str(req.params.campaignId || req.params.id), dto);
       sendSuccess(res, campaign);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 400, 'SCHEDULE_FAILED');
@@ -89,7 +91,7 @@ export class CampaignsController {
 
   async pause(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const campaign = await campaignsService.pause(req.workspaceId!, req.params.campaignId);
+      const campaign = await campaignsService.pause(req.workspaceId!, str(req.params.campaignId || req.params.id));
       sendSuccess(res, campaign);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 400, 'PAUSE_FAILED');
@@ -99,7 +101,7 @@ export class CampaignsController {
   async testSend(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
       const dto = req.body as TestSendDto;
-      const result = await campaignsService.testSend(req.workspaceId!, req.params.campaignId, dto);
+      const result = await campaignsService.testSend(req.workspaceId!, str(req.params.campaignId || req.params.id), dto);
       sendSuccess(res, result);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 400, 'TEST_SEND_FAILED');
@@ -108,9 +110,8 @@ export class CampaignsController {
 
   async unsubscribe(req: any, res: Response): Promise<void> {
     try {
-      const { token } = req.params;
+      const token = str(req.params.token);
       await campaignsService.handleUnsubscribe(token);
-      // Redirect to a friendly unsubscribe confirmation page
       res.redirect(`${config.frontendUrl}/unsubscribed`);
     } catch {
       res.status(400).send('Invalid or expired unsubscribe link.');

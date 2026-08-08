@@ -4,6 +4,8 @@ import { templatesService } from './service';
 import { sendSuccess, sendError } from '../../utils/response';
 import { CreateTemplateDto, UpdateTemplateDto } from './validation';
 
+const str = (val: string | string[] | undefined): string => (Array.isArray(val) ? val[0] : val || '');
+
 export class TemplatesController {
   async list(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
@@ -19,7 +21,7 @@ export class TemplatesController {
 
   async getById(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const template = await templatesService.findById(req.workspaceId!, req.params.templateId);
+      const template = await templatesService.findById(req.workspaceId!, str(req.params.templateId || req.params.id));
       sendSuccess(res, template);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 404, 'NOT_FOUND');
@@ -39,7 +41,7 @@ export class TemplatesController {
   async update(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
       const dto = req.body as UpdateTemplateDto;
-      const template = await templatesService.update(req.workspaceId!, req.params.templateId, dto);
+      const template = await templatesService.update(req.workspaceId!, str(req.params.templateId || req.params.id), dto);
       sendSuccess(res, template);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 404, 'NOT_FOUND');
@@ -48,7 +50,7 @@ export class TemplatesController {
 
   async delete(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
-      const result = await templatesService.delete(req.workspaceId!, req.params.templateId);
+      const result = await templatesService.delete(req.workspaceId!, str(req.params.templateId || req.params.id));
       sendSuccess(res, result);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 404, 'NOT_FOUND');
@@ -59,7 +61,7 @@ export class TemplatesController {
     try {
       const template = await templatesService.duplicate(
         req.workspaceId!,
-        req.params.templateId,
+        str(req.params.templateId || req.params.id),
         req.user!.uid
       );
       sendSuccess(res, template, 201);

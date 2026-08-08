@@ -3,11 +3,12 @@ import { WorkspaceRequest } from '../../middleware/workspace';
 import { analyticsService } from './service';
 import { sendSuccess, sendError } from '../../utils/response';
 
-// 1x1 transparent GIF pixel
 const TRACKING_PIXEL = Buffer.from(
   'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
   'base64'
 );
+
+const str = (val: string | string[] | undefined): string => (Array.isArray(val) ? val[0] : val || '');
 
 export class AnalyticsController {
   async getOverview(req: WorkspaceRequest, res: Response): Promise<void> {
@@ -26,7 +27,7 @@ export class AnalyticsController {
     try {
       const data = await analyticsService.getCampaignStats(
         req.workspaceId!,
-        req.params.campaignId
+        str(req.params.campaignId)
       );
       sendSuccess(res, data);
     } catch (err: unknown) {
@@ -35,8 +36,9 @@ export class AnalyticsController {
   }
 
   async trackOpen(req: Request, res: Response): Promise<void> {
-    // Public endpoint — returns 1x1 tracking pixel
-    const { wid, campaignId, contactId } = req.params;
+    const wid = str(req.params.wid);
+    const campaignId = str(req.params.campaignId);
+    const contactId = str(req.params.contactId);
     try {
       await analyticsService.trackOpen(wid, campaignId, contactId, {
         userAgent: req.headers['user-agent'],
@@ -52,7 +54,9 @@ export class AnalyticsController {
   }
 
   async trackClick(req: Request, res: Response): Promise<void> {
-    const { wid, campaignId, contactId } = req.params;
+    const wid = str(req.params.wid);
+    const campaignId = str(req.params.campaignId);
+    const contactId = str(req.params.contactId);
     const url = req.query.url as string;
     try {
       if (url) {

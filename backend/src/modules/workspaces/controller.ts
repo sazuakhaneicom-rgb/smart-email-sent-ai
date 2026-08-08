@@ -10,6 +10,8 @@ import {
   UpdateMemberDto,
 } from './validation';
 
+const str = (val: string | string[] | undefined): string => (Array.isArray(val) ? val[0] : val || '');
+
 export class WorkspacesController {
   async create(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
@@ -78,7 +80,7 @@ export class WorkspacesController {
   async updateMember(req: WorkspaceRequest, res: Response): Promise<void> {
     try {
       const dto = req.body as UpdateMemberDto;
-      const member = await workspacesService.updateMember(req.workspaceId!, req.params.userId, dto);
+      const member = await workspacesService.updateMember(req.workspaceId!, str(req.params.userId || req.params.id), dto);
       sendSuccess(res, member);
     } catch (err: unknown) {
       sendError(res, (err as Error).message, 500, 'UPDATE_FAILED');
@@ -89,7 +91,7 @@ export class WorkspacesController {
     try {
       const result = await workspacesService.removeMember(
         req.workspaceId!,
-        req.params.userId,
+        str(req.params.userId || req.params.id),
         req.user!.uid
       );
       sendSuccess(res, result);
