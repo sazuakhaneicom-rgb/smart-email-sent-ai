@@ -50,11 +50,18 @@ function getInitialAuthState() {
       const parsed = JSON.parse(raw);
       const s = parsed.state || parsed;
       if (s.user || s.isAuthenticated) {
+        let user = s.user ? { ...s.user } : null;
+        if (user && user.name) {
+          user.name = user.name.replace(/\s*\(ডেমো\)/g, '').replace(/Demo User/g, 'ব্যবহারকারী');
+          if (user.email === 'demo@smartemail.com') {
+            user.email = 'user@smartemail.com';
+          }
+        }
         return {
-          user: s.user || null,
+          user,
           workspaces: s.workspaces || [],
           currentWorkspace: s.currentWorkspace || null,
-          isAuthenticated: !!(s.isAuthenticated || s.user),
+          isAuthenticated: !!(s.isAuthenticated || user),
         };
       }
     }

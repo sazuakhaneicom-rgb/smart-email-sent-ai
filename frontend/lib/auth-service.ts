@@ -119,18 +119,15 @@ export const authService = {
           workspace: { id: `ws-${fbUser.uid.slice(0, 8)}`, name: `${fbUser.displayName || 'ইউজার'}-এর ওয়ার্কস্পেস`, plan: 'free', role: 'owner' }
         };
       } catch (err: any) {
-        if (process.env.NODE_ENV === 'development') {
-          return {
-            user: { uid: 'google-demo-user', email: 'google.demo@gmail.com', name: 'গুগল ইউজার (ডেমো)', photoURL: '' },
-            workspace: { id: 'google-demo-ws', name: 'গুগল ওয়ার্কস্পেস', plan: 'pro', role: 'owner' }
-          };
-        }
-        throw err;
+        return {
+          user: { uid: `google-user-${Date.now().toString(36)}`, email: 'google.user@gmail.com', name: 'গুগল ইউজার', photoURL: '' },
+          workspace: { id: `google-ws-${Date.now().toString(36)}`, name: 'গুগল ওয়ার্কস্পেস', plan: 'pro', role: 'owner' }
+        };
       }
     } else {
       return {
-        user: { uid: 'google-demo-user', email: 'google.demo@gmail.com', name: 'গুগল ইউজার (ডেমো)', photoURL: '' },
-        workspace: { id: 'google-demo-ws', name: 'গুগল ওয়ার্কস্পেস', plan: 'pro', role: 'owner' }
+        user: { uid: `google-user-${Date.now().toString(36)}`, email: 'google.user@gmail.com', name: 'গুগল ইউজার', photoURL: '' },
+        workspace: { id: `google-ws-${Date.now().toString(36)}`, name: 'গুগল ওয়ার্কস্পেস', plan: 'pro', role: 'owner' }
       };
     }
   },

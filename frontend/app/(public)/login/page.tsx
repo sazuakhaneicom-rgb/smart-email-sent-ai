@@ -37,7 +37,7 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
-      setError('ইমেইল বা পাসওয়ার্ড সঠিক নয়। (ডেমো ইমেইল: demo@smartemail.com)');
+      setError('ইমেইল বা পাসওয়ার্ড সঠিক নয়। দয়া করে সঠিক তথ্য দিন।');
     } finally {
       setIsLoading(false);
     }

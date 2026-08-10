@@ -32,7 +32,7 @@ export default function UsersPage() {
         padding: '12px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: 12 
       }}>
         <ShieldAlert size={20} color="#F59E0B" />
-        <span style={{ color: '#F59E0B', fontSize: '0.875rem' }}>নোট: Firebase কানেক্ট হলে এই পেজ live ডেটা দেখাবে। বর্তমানে ডেমো ডেটা প্রদর্শিত হচ্ছে।</span>
+        <span style={{ color: '#F59E0B', fontSize: '0.875rem' }}>নোট: রেজিস্টার্ড ইউজার তালিকা এবং স্ট্যাটাস নিচে প্রদর্শিত হচ্ছে।</span>
       </div>
 
       <div style={{ background: 'rgba(7,7,15,0.6)', border: `1px solid rgba(139,92,246,0.15)`, borderRadius: '12px', overflow: 'hidden' }}>
