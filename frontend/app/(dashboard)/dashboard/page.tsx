@@ -14,6 +14,8 @@ import {
 } from 'recharts';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
+import LiveMonitor from '@/components/dashboard/LiveMonitor';
+
 
 const PIE_COLORS = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B'];
 
@@ -291,8 +293,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Bottom Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      {/* Bottom Row: Quick Actions + Pie Chart + Live Monitor */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 320px', gap: 20 }}>
+
         {/* Quick Actions */}
         <div style={{
           background: 'var(--bg-surface)',
@@ -381,6 +384,10 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* Live Agent Monitor */}
+        <LiveMonitor />
+
       </div>
     </div>
   );

@@ -51,6 +51,30 @@ export const DEFAULT_ADMIN_CONFIG = {
   jwtSecret: "dev-jwt-secret-key-32-chars-minimum",
   unsubscribeSecret: "dev-unsubscribe-secret-key-32-chars",
   adminPassword: "admin123",
+
+  // ── AI Agent Runtime Config ──────────────────────────────────
+  agentStatus: "active",          // 'active' | 'paused' | 'stopped'
+  emailProvider: "demo",          // 'aws_ses' | 'smtp' | 'sendgrid' | 'mailgun' | 'demo'
+
+  // SMTP (alternative to SES)
+  smtpHost: "",
+  smtpPort: "587",
+  smtpUser: "",
+  smtpPass: "",
+  smtpSecure: false,
+
+  // SendGrid / Mailgun
+  sendgridApiKey: "",
+  mailgunApiKey: "",
+  mailgunDomain: "",
+
+  // Agent defaults
+  dailySendLimit: 5000,
+  throttleRate: 50,               // emails/second
+  stealthMode: true,
+  humanJitterMin: 4,
+  humanJitterMax: 12,
+  testEmailRecipient: "",         // email address for test sends
 };
 
 export const loadAdminConfig = (): typeof DEFAULT_ADMIN_CONFIG => {

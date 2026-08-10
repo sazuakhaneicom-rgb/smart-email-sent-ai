@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Key, Settings, Users, Activity, Shield, ArrowLeft, Terminal, Server } from 'lucide-react';
+import { LayoutDashboard, Key, Settings, Users, Activity, Shield, ArrowLeft, Terminal, Server, Bot } from 'lucide-react';
 
 const adminNav = [
   { href: '/admin', icon: LayoutDashboard, label: 'ওভারভিউ', exact: true },
+  { href: '/admin/agent-config', icon: Bot, label: '🤖 AI Agent Config', highlight: true },
   { href: '/admin/hosting', icon: Server, label: 'হোস্টিং ও মাইগ্রেশন' },
   { href: '/admin/api-keys', icon: Key, label: 'API Keys' },
   { href: '/admin/settings', icon: Settings, label: 'গ্লোবাল সেটিংস' },
@@ -73,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Nav */}
         <nav style={{ flex: 1, padding: '12px 10px' }}>
-          {adminNav.map(({ href, icon: Icon, label, exact }) => (
+          {adminNav.map(({ href, icon: Icon, label, exact, highlight }: any) => (
             <Link
               key={href}
               href={href}
@@ -82,13 +83,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 marginBottom: '4px',
                 display: 'flex', alignItems: 'center', gap: '10px',
                 padding: '10px 12px', borderRadius: '8px',
-                color: isActive(href, exact) ? '#E8E8F0' : '#8888A8',
-                background: isActive(href, exact) ? 'rgba(139,92,246,0.15)' : 'transparent',
-                border: isActive(href, exact) ? '1px solid rgba(139,92,246,0.3)' : '1px solid transparent',
-                textDecoration: 'none', transition: 'all 0.2s'
+                color: isActive(href, exact) ? '#E8E8F0' : highlight ? '#C4B5FD' : '#8888A8',
+                background: isActive(href, exact) ? 'rgba(139,92,246,0.15)' : highlight ? 'rgba(139,92,246,0.08)' : 'transparent',
+                border: isActive(href, exact)
+                  ? '1px solid rgba(139,92,246,0.3)'
+                  : highlight ? '1px solid rgba(139,92,246,0.2)' : '1px solid transparent',
+                textDecoration: 'none', transition: 'all 0.2s',
+                boxShadow: highlight && !isActive(href, exact) ? '0 0 8px rgba(139,92,246,0.1)' : 'none',
               }}
             >
-              <Icon size={16} style={{ flexShrink: 0, color: isActive(href, exact) ? '#06B6D4' : 'currentColor' }} />
+              <Icon size={16} style={{ flexShrink: 0, color: isActive(href, exact) ? '#06B6D4' : highlight ? '#A78BFA' : 'currentColor' }} />
               <span style={{ fontSize: '0.875rem' }}>{label}</span>
             </Link>
           ))}
