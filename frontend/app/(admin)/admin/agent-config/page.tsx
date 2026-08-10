@@ -681,6 +681,78 @@ export default function AgentConfigPage() {
           </div>
         </div>
 
+        {/* ══ 6. HELPER LINKS MANAGEMENT (Admin Editable Links) ══════════════ */}
+        <div className="glass-card" style={{ padding: 24, border: '1px solid rgba(139,92,246,0.2)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <ExternalLink size={18} style={{ color: '#818CF8' }} />
+              <h2 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
+                ৬. হেল্প ও টিউটোরিয়াল লিংক ম্যানেজমেন্ট
+              </h2>
+            </div>
+            <SaveBtn keys={['linkGoogle2FA', 'linkGoogleAppPassword', 'linkAwsIamConsole', 'linkSendgridApi', 'linkMailgunApi', 'linkCustomHelpGuide']} color="#818CF8" />
+          </div>
+          <SectionNote>
+            🔗 ইউজারের ড্যাশবোর্ড ও অ্যাডমিন প্যানেলে যে হেল্প বাটন ও গাইড লিংকগুলো দেখানো হয়, আপনি চাইলে সেগুলো এখান থেকে পরিবর্তন করে আপনার নিজস্ব লিংক বা ভিডিও কাস্টমাইজ করতে পারবেন।
+          </SectionNote>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>
+                🔗 Google 2-Step Verification Link
+              </label>
+              <input className="cyber-input" placeholder="https://myaccount.google.com/signinoptions/two-step-verification"
+                value={f('linkGoogle2FA')} onChange={e => patch('linkGoogle2FA', e.target.value)}
+                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem' }} />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>
+                🔑 Google App Passwords Link
+              </label>
+              <input className="cyber-input" placeholder="https://myaccount.google.com/apppasswords"
+                value={f('linkGoogleAppPassword')} onChange={e => patch('linkGoogleAppPassword', e.target.value)}
+                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem' }} />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>
+                ☁️ AWS IAM Users Console Link
+              </label>
+              <input className="cyber-input" placeholder="https://console.aws.amazon.com/iam/home#/users"
+                value={f('linkAwsIamConsole')} onChange={e => patch('linkAwsIamConsole', e.target.value)}
+                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem' }} />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>
+                📧 SendGrid API Keys Link
+              </label>
+              <input className="cyber-input" placeholder="https://app.sendgrid.com/settings/api_keys"
+                value={f('linkSendgridApi')} onChange={e => patch('linkSendgridApi', e.target.value)}
+                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem' }} />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>
+                🔫 Mailgun API Keys Link
+              </label>
+              <input className="cyber-input" placeholder="https://app.mailgun.com/app/account/security/api_keys"
+                value={f('linkMailgunApi')} onChange={e => patch('linkMailgunApi', e.target.value)}
+                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem' }} />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>
+                🎥 কাস্টম টিউটোরিয়াল/গাইড লিংক (YouTube/Drive)
+              </label>
+              <input className="cyber-input" placeholder="https://youtube.com/watch?v=your-video-id"
+                value={f('linkCustomHelpGuide')} onChange={e => patch('linkCustomHelpGuide', e.target.value)}
+                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem' }} />
+            </div>
+          </div>
+        </div>
+
         {/* ══ 6. TEST SEND ════════════════════════════════════════════════ */}
         <div className="glass-card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>

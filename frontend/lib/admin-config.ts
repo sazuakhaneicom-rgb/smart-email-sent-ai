@@ -79,6 +79,14 @@ export const DEFAULT_ADMIN_CONFIG = {
   // ── Sender Identity (ইনবক্সে যেভাবে দেখাবে) ───────────────────
   senderDisplayName: "",          // Inbox-এ bold নামে এটি দেখাবে
   replyToEmail: "",               // Reply করলে এই email-এ আসবে
+
+  // ── External Setup & Guide Links (অ্যাডমিন থেকে পরিবর্তনযোগ্য) ──
+  linkGoogle2FA: "https://myaccount.google.com/signinoptions/two-step-verification",
+  linkGoogleAppPassword: "https://myaccount.google.com/apppasswords",
+  linkAwsIamConsole: "https://console.aws.amazon.com/iam/home#/users",
+  linkSendgridApi: "https://app.sendgrid.com/settings/api_keys",
+  linkMailgunApi: "https://app.mailgun.com/app/account/security/api_keys",
+  linkCustomHelpGuide: "",        // ঐচ্ছিক: অ্যাডমিনের নিজস্ব হেল্প/টিউটোরিয়াল ভিডিও বা পেজের লিংক
 };
 
 export const loadAdminConfig = (): typeof DEFAULT_ADMIN_CONFIG => {

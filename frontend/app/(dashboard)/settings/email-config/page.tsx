@@ -7,6 +7,8 @@ import {
   Zap, Shield, Server, FlaskConical, User,
 } from 'lucide-react';
 import { useAuthStore } from '@/store';
+import { loadAdminConfig } from '@/lib/admin-config';
+import { onConfigSync } from '@/lib/config-sync';
 
 // ── Types ──────────────────────────────────────────────────────────
 type EmailProvider = 'gmail_smtp' | 'custom_smtp' | 'system_default';
@@ -82,6 +84,7 @@ export default function UserEmailSetupPage() {
   const userId = user?.uid || 'guest';
 
   const [cfg, setCfg] = useState<UserEmailConfig>(DEFAULT_CONFIG);
+  const [adminCfg, setAdminCfg] = useState<any>(loadAdminConfig());
   const [showPass, setShowPass] = useState(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [testEmail, setTestEmail] = useState('');
@@ -93,6 +96,12 @@ export default function UserEmailSetupPage() {
     const saved = loadUserEmailConfig(userId);
     setCfg(saved);
     evaluateStatus(saved);
+    setAdminCfg(loadAdminConfig());
+
+    const unsubscribe = onConfigSync((updated) => {
+      setAdminCfg(updated);
+    });
+    return () => unsubscribe();
   }, [userId]);
 
   const evaluateStatus = (c: UserEmailConfig) => {
@@ -397,8 +406,8 @@ export default function UserEmailSetupPage() {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {[
-                    { step: '১', text: 'Google 2-Step Verification চালু করুন', link: 'https://myaccount.google.com/signinoptions/two-step-verification', btn: '2FA চালু →' },
-                    { step: '২', text: 'App Passwords পেজে গিয়ে "Smart Email" নামে নতুন password বানান', link: 'https://myaccount.google.com/apppasswords', btn: 'App Password নিন →' },
+                    { step: '১', text: 'Google 2-Step Verification चालू করুন', link: adminCfg?.linkGoogle2FA || 'https://myaccount.google.com/signinoptions/two-step-verification', btn: '2FA চালু →' },
+                    { step: '২', text: 'App Passwords পেজে গিয়ে "Smart Email" নামে নতুন password বানান', link: adminCfg?.linkGoogleAppPassword || 'https://myaccount.google.com/apppasswords', btn: 'App Password নিন →' },
                     { step: '৩', text: '16-digit password পাবেন — সেটি নিচের "App Password" ঘরে দিন', link: null, btn: null },
                   ].map(({ step, text, link, btn }) => (
                     <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -450,7 +459,7 @@ export default function UserEmailSetupPage() {
                       <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
                         🔒 App Password (16-digit)
                       </label>
-                      <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer"
+                      <a href={adminCfg?.linkGoogleAppPassword || 'https://myaccount.google.com/apppasswords'} target="_blank" rel="noopener noreferrer"
                         style={{ fontSize: '0.7rem', color: '#67E8F9', textDecoration: 'none', padding: '2px 8px', borderRadius: 4, background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)', display: 'flex', alignItems: 'center', gap: 3 }}>
                         নিন <ExternalLink size={10} />
                       </a>
