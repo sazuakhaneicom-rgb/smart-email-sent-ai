@@ -5,7 +5,7 @@ import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 
 export const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyCL3976YduCH6P1qNnqmwbx3lzx7guIacg",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyC4xNZyLCxbGZP0gWNMjkSWoCYF8hjCwjs",
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "smart-email-sent-ai.firebaseapp.com",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "smart-email-sent-ai",
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "smart-email-sent-ai.firebasestorage.app",

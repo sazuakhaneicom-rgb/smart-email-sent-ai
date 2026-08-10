@@ -1,4 +1,6 @@
-'use client'
+export function generateStaticParams() {
+  return [{ id: '1' }, { id: '2' }, { id: '3' }, { id: 'draft' }];
+}
 
 import { ArrowLeft, Play, Copy, ExternalLink, Calendar, Users, Mail, LayoutTemplate, Activity } from 'lucide-react'
 import Link from 'next/link'

@@ -12,8 +12,8 @@ import { useAuthStore, User, Workspace } from '@/store';
 export const isFirebaseConfigured = (): boolean => {
   return (
     !!firebaseConfig.apiKey &&
-    firebaseConfig.apiKey !== 'AIzaSyC4xNZyLCxbGZP0gWNMjkSWoCYF8hjCwjs' &&
-    !firebaseConfig.apiKey.includes('your-')
+    !firebaseConfig.apiKey.includes('your-') &&
+    firebaseConfig.projectId === 'smart-email-sent-ai'
   );
 };
 
