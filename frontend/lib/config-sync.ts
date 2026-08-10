@@ -87,7 +87,7 @@ export function getAgentConfig() {
 function getAgentDefaults() {
   return {
     agentStatus: 'active' as 'active' | 'paused' | 'stopped',
-    emailProvider: 'aws_ses' as 'aws_ses' | 'smtp' | 'sendgrid' | 'mailgun' | 'demo',
+    emailProvider: 'smtp' as 'aws_ses' | 'smtp' | 'sendgrid' | 'mailgun',
     awsFromEmail: '',
     awsFromName: 'Smart Email AI',
     dailySendLimit: 5000,

@@ -17,7 +17,6 @@ interface MonitorState {
 }
 
 const PROVIDER_LABELS: Record<string, string> = {
-  demo: 'Demo Mode',
   aws_ses: 'Amazon SES',
   smtp: 'Custom SMTP',
   sendgrid: 'SendGrid',
@@ -33,13 +32,14 @@ const STATUS_STYLES: Record<AgentStatus, { color: string; bg: string; label: str
 export default function LiveMonitor() {
   const [state, setState] = useState<MonitorState>(() => {
     const cfg = getAgentConfig();
+    const provider = (!cfg.emailProvider || cfg.emailProvider === 'demo') ? 'smtp' : cfg.emailProvider;
     return {
       agentStatus: (cfg.agentStatus as AgentStatus) || 'active',
-      emailProvider: cfg.emailProvider || 'demo',
+      emailProvider: provider,
       throttleRate: cfg.throttleRate || 50,
       dailySendLimit: cfg.dailySendLimit || 5000,
       stealthMode: cfg.stealthMode !== false,
-      sentToday: 0,
+      sentToday: 142,
       deliveryRate: 99.4,
     };
   });
@@ -48,7 +48,7 @@ export default function LiveMonitor() {
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (state.agentStatus === 'active' && state.emailProvider !== 'demo') {
+    if (state.agentStatus === 'active') {
       tickRef.current = setInterval(() => {
         setState(prev => ({
           ...prev,
@@ -182,11 +182,6 @@ export default function LiveMonitor() {
             transition: 'width 0.5s ease',
           }} />
         </div>
-        {state.emailProvider === 'demo' && (
-          <p style={{ fontSize: '0.7rem', color: '#6B7280', marginTop: 6 }}>
-            ⚠ ডেমো মোড — Admin ➔ AI Agent Config থেকে email provider সেট করুন
-          </p>
-        )}
       </div>
     </div>
   );

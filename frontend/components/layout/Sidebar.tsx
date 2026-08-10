@@ -232,7 +232,7 @@ export function Sidebar() {
             {!collapsed && (
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {user?.name || 'Demo User'}
+                  {user?.name || 'ব্যবহারকারী'}
                 </p>
                 <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {user?.email}
