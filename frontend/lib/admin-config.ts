@@ -75,6 +75,10 @@ export const DEFAULT_ADMIN_CONFIG = {
   humanJitterMin: 4,
   humanJitterMax: 12,
   testEmailRecipient: "",         // email address for test sends
+
+  // ── Sender Identity (ইনবক্সে যেভাবে দেখাবে) ───────────────────
+  senderDisplayName: "",          // Inbox-এ bold নামে এটি দেখাবে
+  replyToEmail: "",               // Reply করলে এই email-এ আসবে
 };
 
 export const loadAdminConfig = (): typeof DEFAULT_ADMIN_CONFIG => {
