@@ -21,6 +21,7 @@ const mainNav = [
 
 const settingsNav = [
   { href: '/settings/account',       icon: UserCheck,  label: 'অ্যাকাউন্ট' },
+  { href: '/settings/email-config',  icon: Mail,       label: 'Email সেটআপ', isHighlighted: true },
   { href: '/settings/security',      icon: Shield,     label: 'সিকিউরিটি' },
   { href: '/settings/domains',       icon: Globe,      label: 'ডোমেইন' },
   { href: '/settings/billing',       icon: CreditCard, label: 'বিলিং' },

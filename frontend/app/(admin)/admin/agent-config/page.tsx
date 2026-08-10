@@ -453,9 +453,44 @@ export default function AgentConfigPage() {
               <SaveBtn keys={['smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'smtpSecure']} color="#06B6D4" />
             </div>
 
-            <SectionNote>
-              📍 <strong style={{ color: 'var(--text-primary)' }}>Gmail SMTP:</strong> Google Account → Security → 2-Step Verification চালু করুন → তারপর "App Passwords" → "Mail" সিলেক্ট করে 16-digit password নিন। সেটাই এখানে password হিসেবে দিন।
-            </SectionNote>
+            {/* Gmail App Password Step-by-step guide */}
+            <div style={{
+              marginBottom: 18, padding: '14px 16px', borderRadius: 10,
+              background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.2)',
+            }}>
+              <p style={{ fontSize: '0.82rem', fontWeight: 700, color: '#67E8F9', marginBottom: 10 }}>
+                📋 Gmail App Password বানানোর ধাপ:
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {[
+                  { step: '১', text: 'প্রথমে Google-এ 2-Step Verification চালু করুন', link: 'https://myaccount.google.com/signinoptions/two-step-verification', btnText: '2FA চালু করুন →' },
+                  { step: '২', text: 'তারপর App Passwords পেজে যান — নতুন password বানান', link: 'https://myaccount.google.com/apppasswords', btnText: 'App Password বানান →' },
+                  { step: '৩', text: 'App name এ "Smart Email" লিখুন → Create → 16-digit password copy করুন', link: null, btnText: null },
+                  { step: '৪', text: 'নিচের "App Password" ঘরে paste করুন (space ছাড়া)', link: null, btnText: null },
+                ].map(({ step, text, link, btnText }) => (
+                  <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                      background: 'rgba(6,182,212,0.2)', border: '1px solid rgba(6,182,212,0.4)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '0.7rem', fontWeight: 700, color: '#67E8F9',
+                    }}>{step}</div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', flex: 1 }}>{text}</p>
+                    {link && (
+                      <a href={link} target="_blank" rel="noopener noreferrer" style={{
+                        flexShrink: 0, padding: '5px 12px', borderRadius: 6,
+                        background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)',
+                        color: '#67E8F9', fontSize: '0.75rem', fontWeight: 700,
+                        textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4,
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {btnText} <ExternalLink size={11} />
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div>
@@ -473,22 +508,30 @@ export default function AgentConfigPage() {
                   value={f('smtpPort')} onChange={e => patch('smtpPort', e.target.value)}
                   style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.82rem' }} />
                 <FieldNote>
-                  TLS (নিরাপদ, প্রস্তাবিত): <code>587</code> | SSL: <code>465</code> | Plain (ব্যবহার করবেন না): <code>25</code>
+                  TLS (নিরাপদ, প্রস্তাবিত): <code>587</code> | SSL: <code>465</code>
                 </FieldNote>
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>👤 Username/Email</label>
-                <input className="cyber-input" placeholder="you@gmail.com"
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>👤 Gmail ঠিকানা (Username)</label>
+                <input className="cyber-input" placeholder="yourname@gmail.com"
                   value={f('smtpUser')} onChange={e => patch('smtpUser', e.target.value)}
                   style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.82rem' }} />
-                <FieldNote>Gmail-এর ক্ষেত্রে আপনার পূর্ণ Gmail ঠিকানা দিন।</FieldNote>
+                <FieldNote>আপনার পূর্ণ Gmail ঠিকানা দিন। যেমন: yourname@gmail.com</FieldNote>
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>🔒 Password / App Password</label>
-                <input className="cyber-input" type="password" placeholder="••••••••••••••••"
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>🔒 App Password (16-digit)</label>
+                  <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer"
+                    style={{ fontSize: '0.7rem', color: '#67E8F9', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 4, background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)' }}>
+                    Password নিন <ExternalLink size={10} />
+                  </a>
+                </div>
+                <input className="cyber-input" type="password" placeholder="abcdefghijklmnop"
                   value={f('smtpPass')} onChange={e => patch('smtpPass', e.target.value)}
                   style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.82rem' }} />
-                <FieldNote>⚠️ Gmail-এ আসল password কাজ করবে না। Google "App Password" (16-digit) বানিয়ে দিন।</FieldNote>
+                <FieldNote>
+                  {f('smtpPass') ? '✅ App Password সেট আছে (' + f('smtpPass').length + ' অক্ষর)' : '⚠️ Gmail-এর আসল password দেবেন না — App Password দিন (উপরের লিংক থেকে)'}
+                </FieldNote>
               </div>
             </div>
 
