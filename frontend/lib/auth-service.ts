@@ -38,13 +38,8 @@ export const authService = {
 
   // Login with Email & Password
   async loginWithEmail(email: string, password: string): Promise<{ user: User; workspace: Workspace }> {
-    // Always handle demo credentials directly
-    if (email.toLowerCase() === 'demo@smartemail.com' && password === 'demo1234') {
-      return {
-        user: { uid: 'demo-user-001', email: 'demo@smartemail.com', name: 'Demo User', photoURL: '' },
-        workspace: { id: 'demo-workspace-001', name: 'আমার বিজনেস', plan: 'pro', role: 'owner' }
-      };
-    }
+    const cleanName = email.split('@')[0];
+    const formattedName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
 
     if (auth && isFirebaseConfigured()) {
       try {

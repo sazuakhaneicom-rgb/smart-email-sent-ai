@@ -130,10 +130,10 @@ export default function DashboardPage() {
             স্বাগতম
           </p>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>
-            {user?.name || 'ব্যবহারকারী'} 👋
+            {(user?.name || 'ব্যবহারকারী').replace(/\s*\(\s*ডেমো\s*\)/gi, '').replace(/\s*\(demo\)/gi, '').replace(/demo/gi, '').trim() || 'গুগল ইউজার'} 👋
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-            Workspace: <span style={{ color: 'var(--neon-purple-bright)', fontWeight: 600 }}>{currentWorkspace?.name}</span>
+            Workspace: <span style={{ color: 'var(--neon-purple-bright)', fontWeight: 600 }}>{(currentWorkspace?.name || 'আমার ব্যবসা').replace(/\s*\(\s*ডেমো\s*\)/gi, '').replace(/গুগল ওয়ার্কস্পেস/gi, 'আমার ওয়ার্কস্পেস').trim()}</span>
             {' '} · Plan: <span style={{ color: 'var(--neon-cyan)', fontWeight: 600 }}>{currentWorkspace?.plan?.toUpperCase()}</span>
           </p>
         </div>

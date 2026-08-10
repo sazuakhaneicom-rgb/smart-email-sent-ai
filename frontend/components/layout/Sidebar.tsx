@@ -129,7 +129,7 @@ export function Sidebar() {
               Workspace
             </p>
             <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {currentWorkspace.name}
+              {currentWorkspace.name.replace(/\s*\(\s*ডেমো\s*\)/gi, '').replace(/গুগল ওয়ার্কস্পেস/gi, 'আমার ওয়ার্কস্পেস').trim()}
             </p>
             <span
               style={{
@@ -232,7 +232,7 @@ export function Sidebar() {
             {!collapsed && (
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {user?.name || 'ব্যবহারকারী'}
+                  {(user?.name || 'ব্যবহারকারী').replace(/\s*\(\s*ডেমো\s*\)/gi, '').replace(/\s*\(demo\)/gi, '').replace(/demo/gi, '').trim() || 'গুগল ইউজার'}
                 </p>
                 <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {user?.email}

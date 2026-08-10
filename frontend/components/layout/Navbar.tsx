@@ -212,7 +212,7 @@ export function Navbar() {
                 padding: '14px 16px',
                 borderBottom: '1px solid rgba(139,92,246,0.1)',
               }}>
-                <p style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{user?.name || 'ব্যবহারকারী'}</p>
+                <p style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{(user?.name || 'ব্যবহারকারী').replace(/\s*\(\s*ডেমো\s*\)/gi, '').replace(/\s*\(demo\)/gi, '').replace(/demo/gi, '').trim() || 'গুগল ইউজার'}</p>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
               </div>
               {[

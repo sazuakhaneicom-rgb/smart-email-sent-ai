@@ -7,14 +7,12 @@ import { Mail, Lock, Eye, EyeOff, Sparkles, Zap, Shield, ChevronRight } from 'lu
 import { useAuthStore } from '@/store';
 import { authService } from '@/lib/auth-service';
 
-const DEMO_USERS = [
-  {
-    email: 'demo@smartemail.com',
-    password: 'demo1234',
-    user: { uid: 'demo-user-001', email: 'demo@smartemail.com', name: 'Demo User', photoURL: '' },
-    workspace: { id: 'demo-workspace-001', name: 'আমার বিজনেস', plan: 'pro' as const, role: 'owner' as const },
-  },
-];
+const QUICK_LOGIN_USER = {
+  email: 'user@smartemail.com',
+  password: 'password123',
+  user: { uid: 'user-001', email: 'user@smartemail.com', name: 'মোঃ রাহুল হোসেন', photoURL: '' },
+  workspace: { id: 'ws-001', name: 'আমার ব্যবসা', plan: 'pro' as const, role: 'owner' as const },
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -249,7 +247,7 @@ export default function LoginPage() {
                       type="email"
                       className="cyber-input"
                       style={{ paddingLeft: '36px' }}
-                      placeholder="demo@smartemail.com"
+                      placeholder="yourname@gmail.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
