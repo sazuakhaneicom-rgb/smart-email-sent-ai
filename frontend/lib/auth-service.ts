@@ -18,6 +18,24 @@ export const isFirebaseConfigured = (): boolean => {
 };
 
 export const authService = {
+  // Listen to Firebase Auth state changes
+  initAuthListener(onUserChanged: (user: User | null) => void) {
+    if (auth && isFirebaseConfigured()) {
+      return auth.onAuthStateChanged((fbUser) => {
+        if (fbUser) {
+          const user: User = {
+            uid: fbUser.uid,
+            email: fbUser.email || '',
+            name: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
+            photoURL: fbUser.photoURL || '',
+          };
+          onUserChanged(user);
+        }
+      });
+    }
+    return () => {};
+  },
+
   // Login with Email & Password
   async loginWithEmail(email: string, password: string): Promise<{ user: User; workspace: Workspace }> {
     // Always handle demo credentials directly

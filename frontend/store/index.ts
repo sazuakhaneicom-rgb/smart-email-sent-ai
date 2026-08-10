@@ -25,12 +25,14 @@ interface AuthState {
   currentWorkspace: Workspace | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isHydrated: boolean;
 
   // Actions
   setUser: (user: User | null) => void;
   setWorkspaces: (workspaces: Workspace[]) => void;
   setCurrentWorkspace: (workspace: Workspace) => void;
   setLoading: (loading: boolean) => void;
+  setHydrated: (hydrated: boolean) => void;
   logout: () => void;
 }
 
@@ -44,11 +46,14 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       workspaces: [],
       currentWorkspace: null,
-      isLoading: false,   // persist hydration-এর পরে false-ই থাকবে
+      isLoading: true,
       isAuthenticated: false,
+      isHydrated: false,
+
+      setHydrated: (isHydrated) => set({ isHydrated, isLoading: false }),
 
       setUser: (user) =>
-        set({ user, isAuthenticated: !!user, isLoading: false }),
+        set({ user, isAuthenticated: !!user, isLoading: false, isHydrated: true }),
 
       setWorkspaces: (workspaces) => set({ workspaces }),
 
@@ -63,17 +68,20 @@ export const useAuthStore = create<AuthState>()(
           workspaces: [],
           currentWorkspace: null,
           isAuthenticated: false,
+          isLoading: false,
         }),
     }),
     {
       name: 'auth-storage',
-      // user, isAuthenticated সহ persist করলে page refresh-এও লগইন থাকবে
       partialize: (state) => ({
         user: state.user,
         workspaces: state.workspaces,
         currentWorkspace: state.currentWorkspace,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+      },
     }
   )
 );

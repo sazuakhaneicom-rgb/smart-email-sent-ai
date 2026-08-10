@@ -9,15 +9,22 @@ import { Zap } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, isHydrated, user } = useAuthStore();
+  const [mounted, setMounted] = React.useState(false);
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace('/login');
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (mounted && (isHydrated || !isLoading)) {
+      if (!isAuthenticated && !user) {
+        router.replace('/login');
+      }
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, isHydrated, mounted, user, router]);
 
-  if (isLoading) {
+  if (!mounted || isLoading || (!isHydrated && !isAuthenticated && !user)) {
     return (
       <div style={{
         minHeight: '100vh', background: 'var(--bg-void)',
@@ -57,7 +64,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated && !user) return null;
 
   return (
     <div style={{
