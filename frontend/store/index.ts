@@ -40,37 +40,62 @@ interface AuthState {
 // Auth Store
 // ============================================
 
+function getInitialAuthState() {
+  if (typeof window === 'undefined') {
+    return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
+  }
+  try {
+    const raw = localStorage.getItem('auth-storage');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const s = parsed.state || parsed;
+      if (s.user || s.isAuthenticated) {
+        return {
+          user: s.user || null,
+          workspaces: s.workspaces || [],
+          currentWorkspace: s.currentWorkspace || null,
+          isAuthenticated: !!(s.isAuthenticated || s.user),
+        };
+      }
+    }
+  } catch (e) {}
+  return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
-      user: null,
-      workspaces: [],
-      currentWorkspace: null,
-      isLoading: true,
-      isAuthenticated: false,
-      isHydrated: false,
+    (set) => {
+      const initial = getInitialAuthState();
+      return {
+        user: initial.user,
+        workspaces: initial.workspaces,
+        currentWorkspace: initial.currentWorkspace,
+        isLoading: false,
+        isAuthenticated: initial.isAuthenticated,
+        isHydrated: true,
 
-      setHydrated: (isHydrated) => set({ isHydrated, isLoading: false }),
+        setHydrated: (isHydrated) => set({ isHydrated, isLoading: false }),
 
-      setUser: (user) =>
-        set({ user, isAuthenticated: !!user, isLoading: false, isHydrated: true }),
+        setUser: (user) =>
+          set({ user, isAuthenticated: !!user, isLoading: false, isHydrated: true }),
 
-      setWorkspaces: (workspaces) => set({ workspaces }),
+        setWorkspaces: (workspaces) => set({ workspaces }),
 
-      setCurrentWorkspace: (workspace) =>
-        set({ currentWorkspace: workspace }),
+        setCurrentWorkspace: (workspace) =>
+          set({ currentWorkspace: workspace }),
 
-      setLoading: (isLoading) => set({ isLoading }),
+        setLoading: (isLoading) => set({ isLoading }),
 
-      logout: () =>
-        set({
-          user: null,
-          workspaces: [],
-          currentWorkspace: null,
-          isAuthenticated: false,
-          isLoading: false,
-        }),
-    }),
+        logout: () =>
+          set({
+            user: null,
+            workspaces: [],
+            currentWorkspace: null,
+            isAuthenticated: false,
+            isLoading: false,
+          }),
+      };
+    },
     {
       name: 'auth-storage',
       partialize: (state) => ({
@@ -79,9 +104,6 @@ export const useAuthStore = create<AuthState>()(
         currentWorkspace: state.currentWorkspace,
         isAuthenticated: state.isAuthenticated,
       }),
-      onRehydrateStorage: () => (state) => {
-        state?.setHydrated(true);
-      },
     }
   )
 );
