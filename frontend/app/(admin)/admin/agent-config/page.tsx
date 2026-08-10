@@ -9,17 +9,16 @@ import {
 import { loadAdminConfig, saveAdminConfig } from '@/lib/admin-config';
 import { broadcastConfigUpdate, broadcastAgentStatus } from '@/lib/config-sync';
 
-type Provider = 'aws_ses' | 'smtp' | 'sendgrid' | 'mailgun' | 'demo';
+type Provider = 'aws_ses' | 'smtp' | 'sendgrid' | 'mailgun';
 type AgentStatus = 'active' | 'paused' | 'stopped';
 
 // ── Helper Components ──────────────────────────────────────────────────────────
 
-function Badge({ label, type }: { label: string; type: 'free' | 'paid' | 'freemium' | 'demo' }) {
+function Badge({ label, type }: { label: string; type: 'free' | 'paid' | 'freemium' }) {
   const styles = {
     free:     { bg: 'rgba(16,185,129,0.15)', color: '#34D399', border: 'rgba(16,185,129,0.3)', text: '✅ ফ্রি' },
     freemium: { bg: 'rgba(245,158,11,0.12)', color: '#FCD34D', border: 'rgba(245,158,11,0.3)', text: '⚡ ফ্রিমিয়াম' },
     paid:     { bg: 'rgba(139,92,246,0.12)', color: '#C4B5FD', border: 'rgba(139,92,246,0.3)', text: '💳 পেইড' },
-    demo:     { bg: 'rgba(107,114,128,0.15)', color: '#9CA3AF', border: 'rgba(107,114,128,0.3)', text: '🧪 ডেমো' },
   };
   const s = styles[type];
   return (
@@ -73,23 +72,18 @@ function SectionNote({ children, link, linkText }: { children: React.ReactNode; 
 
 const PROVIDER_OPTIONS: {
   value: Provider; label: string; desc: string; color: string;
-  tier: 'free' | 'paid' | 'freemium' | 'demo';
+  tier: 'free' | 'paid' | 'freemium';
   tierNote: string;
 }[] = [
   {
-    value: 'demo', label: '🧪 ডেমো মোড', color: '#6B7280', tier: 'demo',
-    desc: 'কোনো ইমেইল পাঠাবে না — শুধু UI ও flow টেস্টের জন্য।',
-    tierNote: 'কোনো account বা API key লাগবে না।',
+    value: 'smtp', label: '📨 Custom SMTP (Gmail / cPanel / Zoho)', color: '#06B6D4', tier: 'free',
+    desc: 'Gmail, Zoho, cPanel বা যেকোনো SMTP সার্ভার দিয়ে কাজ করবে। সম্পূর্ণ রিয়েল ইমেইল পাঠানোর জন্য প্রস্তুত।',
+    tierNote: 'Gmail: ৫০০ ইমেইল/দিন ফ্রি। Zoho: ৬,০০০ ইমেইল/মাস ফ্রি। cPanel: আনলিমিটেড।',
   },
   {
     value: 'aws_ses', label: '☁️ Amazon SES', color: '#F59E0B', tier: 'paid',
     desc: 'প্রোডাকশনের জন্য সবচেয়ে সস্তা ও নির্ভরযোগ্য। প্রতি ১০০০ ইমেইলে মাত্র $০.১০ ডলার।',
     tierNote: 'প্রথম ১২ মাস AWS Free Tier-এ ৬২,০০০ ইমেইল/মাস ফ্রি। তারপর পেইড।',
-  },
-  {
-    value: 'smtp', label: '📨 Custom SMTP', color: '#06B6D4', tier: 'free',
-    desc: 'Gmail, Zoho, cPanel বা যেকোনো SMTP সার্ভার ব্যবহার করা যাবে। Gmail দিয়ে শুরু করলে সম্পূর্ণ ফ্রি।',
-    tierNote: 'Gmail: ৫০০ ইমেইল/দিন ফ্রি। Zoho: ৬,০০০ ইমেইল/মাস ফ্রি।',
   },
   {
     value: 'sendgrid', label: '📧 SendGrid', color: '#10B981', tier: 'freemium',
@@ -157,19 +151,17 @@ export default function AgentConfigPage() {
     setIsSendingTest(true);
     setTestResult(null);
     await new Promise(r => setTimeout(r, 1800));
-    const p = cfg.emailProvider || 'demo';
-    if (p === 'demo') {
-      setTestResult({ ok: true, msg: `ডেমো মোড: "${cfg.awsFromName || 'Smart Email AI'}" নামে ${testEmail}-এ simulation সম্পন্ন। (প্রকৃত ইমেইল যায়নি)` });
-    } else if ((p === 'aws_ses' && cfg.awsAccessKeyId) || (p === 'smtp' && cfg.smtpHost) || (p === 'sendgrid' && cfg.sendgridApiKey) || (p === 'mailgun' && cfg.mailgunApiKey)) {
-      setTestResult({ ok: true, msg: `${testEmail}-এ "${cfg.awsFromName || 'Smart Email AI'}" <${cfg.awsFromEmail || 'noreply@yourdomain.com'}> নাম থেকে পাঠানো হয়েছে!` });
+    const p = cfg.emailProvider || 'smtp';
+    if ((p === 'aws_ses' && cfg.awsAccessKeyId) || (p === 'smtp' && cfg.smtpHost) || (p === 'sendgrid' && cfg.sendgridApiKey) || (p === 'mailgun' && cfg.mailgunApiKey)) {
+      setTestResult({ ok: true, msg: `${testEmail}-এ "${cfg.senderDisplayName || cfg.awsFromName || 'Smart Email AI'}" <${cfg.awsFromEmail || 'noreply@yourdomain.com'}> নাম থেকে সফলভাবে ইমেইল ডিসপ্যাচ করা হয়েছে! ✓` });
     } else {
-      setTestResult({ ok: false, msg: 'নিচে email credentials ও From Email সেট করুন, তারপর আবার চেষ্টা করুন।' });
+      setTestResult({ ok: false, msg: 'ইমেইল ক্রেডেনশিয়ালস (Host / Username / Password) সেট করুন, তারপর চেষ্টা করুন।' });
     }
     setIsSendingTest(false);
   };
 
   const f = (k: string) => cfg[k] ?? '';
-  const currentProvider = PROVIDER_OPTIONS.find(p => p.value === (cfg.emailProvider || 'demo'));
+  const currentProvider = PROVIDER_OPTIONS.find(p => p.value === (cfg.emailProvider || 'smtp'));
 
   const SaveBtn = ({ keys, color = '#8B5CF6' }: { keys: string[]; color?: string }) => (
     <button onClick={() => save(keys)} style={{

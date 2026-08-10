@@ -54,7 +54,7 @@ export const DEFAULT_ADMIN_CONFIG = {
 
   // ── AI Agent Runtime Config ──────────────────────────────────
   agentStatus: "active",          // 'active' | 'paused' | 'stopped'
-  emailProvider: "demo",          // 'aws_ses' | 'smtp' | 'sendgrid' | 'mailgun' | 'demo'
+  emailProvider: "smtp",          // 'aws_ses' | 'smtp' | 'sendgrid' | 'mailgun'
 
   // SMTP (alternative to SES)
   smtpHost: "",
@@ -93,7 +93,11 @@ export const loadAdminConfig = (): typeof DEFAULT_ADMIN_CONFIG => {
   if (typeof window === 'undefined') return DEFAULT_ADMIN_CONFIG;
   try {
     const data = localStorage.getItem('admin_config');
-    return data ? { ...DEFAULT_ADMIN_CONFIG, ...JSON.parse(data) } : DEFAULT_ADMIN_CONFIG;
+    const loaded = data ? { ...DEFAULT_ADMIN_CONFIG, ...JSON.parse(data) } : DEFAULT_ADMIN_CONFIG;
+    if (loaded.emailProvider === 'demo') {
+      loaded.emailProvider = 'smtp';
+    }
+    return loaded;
   } catch (e) {
     return DEFAULT_ADMIN_CONFIG;
   }

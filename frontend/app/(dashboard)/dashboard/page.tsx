@@ -130,7 +130,7 @@ export default function DashboardPage() {
             স্বাগতম
           </p>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>
-            {user?.name || 'Demo User'} 👋
+            {user?.name || 'ব্যবহারকারী'} 👋
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
             Workspace: <span style={{ color: 'var(--neon-purple-bright)', fontWeight: 600 }}>{currentWorkspace?.name}</span>

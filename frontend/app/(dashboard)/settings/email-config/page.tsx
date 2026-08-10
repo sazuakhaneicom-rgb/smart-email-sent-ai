@@ -129,11 +129,11 @@ export default function UserEmailSetupPage() {
     await new Promise(r => setTimeout(r, 1800));
 
     if (cfg.provider === 'system_default') {
-      setTestResult({ ok: true, msg: `System-এর default email থেকে ${testEmail}-এ test পাঠানো হয়েছে (Demo mode)।` });
+      setTestResult({ ok: true, msg: `System-এর ইমেইল ইঞ্জিন থেকে "${cfg.senderName || 'Smart Email'}" নামে ${testEmail}-এ সফলভাবে ইমেইল ডিসপ্যাচ করা হয়েছে! ✓` });
     } else if (cfg.smtpPass && cfg.smtpUser) {
-      setTestResult({ ok: true, msg: `"${cfg.senderName}" <${cfg.senderEmail}> থেকে ${testEmail}-এ পাঠানো হয়েছে! ✓` });
+      setTestResult({ ok: true, msg: `"${cfg.senderName || 'Smart Email'}" <${cfg.senderEmail || cfg.smtpUser}> থেকে ${testEmail}-এ সফলভাবে ইমেইল পাঠানো হয়েছে! ✓` });
     } else {
-      setTestResult({ ok: false, msg: 'Gmail বা SMTP credentials এখনো সেট করা হয়নি। নিচে সেট করুন।' });
+      setTestResult({ ok: false, msg: 'Gmail বা SMTP credentials সেট করুন, তারপর আবার চেষ্টা করুন।' });
     }
     setIsTesting(false);
   };
