@@ -1,3 +1,5 @@
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return [{ token: 'sample-token' }];
 }

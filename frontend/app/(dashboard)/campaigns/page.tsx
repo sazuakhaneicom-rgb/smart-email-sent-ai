@@ -245,7 +245,7 @@ export default function CampaignsPage() {
                             <Eye size={13} /> ইনবক্স স্ট্যাটাস
                           </button>
                           <Link
-                            href={`/analytics/campaigns/${c.id}`}
+                            href={`/analytics/campaigns/1?id=${c.id}`}
                             style={{
                               padding: '6px 10px', borderRadius: 8,
                               background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)',

@@ -29,11 +29,15 @@ export default function AnalyticsClient({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     try {
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const queryId = urlParams?.get('id');
+      const targetId = queryId || params.id;
+
       const key = `campaigns_${userId}`;
       const raw = localStorage.getItem(key);
       if (raw) {
         const list: CampaignItem[] = JSON.parse(raw);
-        const match = list.find(c => c.id === params.id) || list[0] || null;
+        const match = list.find(c => c.id === targetId) || list[0] || null;
         setCampaign(match);
       }
     } catch (e) {}
