@@ -43,40 +43,26 @@ interface AuthState {
 // Auth Store
 // ============================================
 
-// Detect fake/dev UIDs that should be cleared
-function isFakeUid(uid: string): boolean {
-  return (
-    uid.startsWith('user-') ||
-    uid.startsWith('google-user-') ||
-    uid === 'user-001' ||
-    uid === 'admin-001' ||
-    uid.startsWith('demo-')
-  );
-}
-
 function getInitialAuthState() {
-  const defaultUser = { uid: 'usr-default', email: 'user@smartemail.com', name: 'স্মার্ট ইউজার' };
-  const defaultWs: Workspace = { id: 'ws-default', name: 'স্মার্ট ওয়ার্কস্পেস', plan: 'free', role: 'owner' };
-
   if (typeof window === 'undefined') {
-    return { user: defaultUser, workspaces: [defaultWs], currentWorkspace: defaultWs, isAuthenticated: true };
+    return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
   }
   try {
     const raw = localStorage.getItem('auth-storage');
     if (raw) {
       const parsed = JSON.parse(raw);
       const s = parsed.state || parsed;
-      if (s.user && s.user.email) {
+      if (s.user && s.user.email && s.isAuthenticated) {
         return {
           user: s.user,
-          workspaces: s.workspaces?.length ? s.workspaces : [defaultWs],
-          currentWorkspace: s.currentWorkspace || defaultWs,
+          workspaces: s.workspaces || [],
+          currentWorkspace: s.currentWorkspace || null,
           isAuthenticated: true,
         };
       }
     }
   } catch (e) {}
-  return { user: defaultUser, workspaces: [defaultWs], currentWorkspace: defaultWs, isAuthenticated: true };
+  return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
 }
 
 
