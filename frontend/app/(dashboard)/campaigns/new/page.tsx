@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CheckCircle2, ArrowLeft, ArrowRight, Calendar, Send, Info,
-  Sparkles, FileText, Mail, Eye, Save, AlertCircle, RefreshCw, Upload, Users
+  Sparkles, FileText, Mail, Eye, Save, AlertCircle, RefreshCw, Upload, Users,
+  ClipboardList, FileSpreadsheet, Plus, X
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
@@ -15,6 +16,14 @@ interface TemplateItem {
   name: string;
   subject: string;
   body: string;
+}
+
+// Regex to extract all email addresses from any string or file content
+function extractEmailsFromText(text: string): string[] {
+  if (!text) return [];
+  const regex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  const matches = text.match(regex) || [];
+  return Array.from(new Set(matches.map(e => e.toLowerCase())));
 }
 
 export default function NewCampaignPage() {
@@ -33,6 +42,15 @@ export default function NewCampaignPage() {
 
   // Real User Contacts & Templates
   const [userContacts, setUserContacts] = useState<any[]>([]);
+  const [useSavedContacts, setUseSavedContacts] = useState(true);
+
+  // Manual & File Upload Recipients
+  const [recipientTab, setRecipientTab] = useState<'saved' | 'manual' | 'file'>('manual');
+  const [manualText, setManualText] = useState('');
+  const [uploadedFileName, setUploadedFileName] = useState('');
+  const [uploadedFileEmails, setUploadedFileEmails] = useState<string[]>([]);
+  const [dragActive, setDragActive] = useState(false);
+
   const [userTemplates, setUserTemplates] = useState<TemplateItem[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
@@ -76,7 +94,9 @@ export default function NewCampaignPage() {
       const rawCons = localStorage.getItem(`contacts_${userId}`);
       if (rawCons) {
         const parsed = JSON.parse(rawCons);
-        setUserContacts(Array.isArray(parsed) ? parsed : []);
+        const arr = Array.isArray(parsed) ? parsed : [];
+        setUserContacts(arr);
+        if (arr.length > 0) setRecipientTab('saved');
       }
     } catch (e) {}
 
@@ -91,6 +111,38 @@ export default function NewCampaignPage() {
       }
     } catch (e) {}
   }, [userId, user]);
+
+  const parsedManualEmails = extractEmailsFromText(manualText);
+
+  // Total calculated unique recipients
+  const getAllRecipients = () => {
+    const emails = new Set<string>();
+
+    if (useSavedContacts) {
+      userContacts.forEach(c => {
+        if (c.email) emails.add(c.email.toLowerCase());
+      });
+    }
+
+    parsedManualEmails.forEach(e => emails.add(e));
+    uploadedFileEmails.forEach(e => emails.add(e));
+
+    return Array.from(emails);
+  };
+
+  const allRecipients = getAllRecipients();
+
+  const handleFileUpload = (file: File) => {
+    if (!file) return;
+    setUploadedFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      const emails = extractEmailsFromText(content);
+      setUploadedFileEmails(emails);
+    };
+    reader.readAsText(file);
+  };
 
   const handleSelectTemplate = (tpl: TemplateItem) => {
     setSelectedTemplateId(tpl.id);
@@ -156,7 +208,7 @@ export default function NewCampaignPage() {
         senderName: senderName || 'Smart Email Team',
         senderEmail: senderEmail || 'user@example.com',
         status: 'Sent',
-        sentCount: userContacts.length || 0,
+        sentCount: allRecipients.length || 0,
         openRate: '0.0%',
         clickRate: '0.0%',
         createdAt: new Date().toISOString(),
@@ -324,35 +376,137 @@ export default function NewCampaignPage() {
             </div>
           )}
 
-          {/* ── STEP 3: Recipients ─────────────────────────────── */}
+          {/* ── STEP 3: Recipients (Flexible: Saved, Manual Paste, File Upload) ── */}
           {step === 3 && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-xl font-bold">প্রাপক লিস্ট নির্বাচন করুন</h2>
-                <p className="text-sm text-gray-500">যাদের কাছে এই ইমেইল পাঠাতে চান (আপনার অ্যাকাউন্ট কন্টাক্টস)</p>
+              <div className="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                  <h2 className="text-xl font-bold">প্রাপক নির্বাচন করুন</h2>
+                  <p className="text-sm text-gray-500">সেভ করা কন্টাক্টস বেছে নিন, সরাসরি ইমেইল পেস্ট করুন অথবা ফাইল আপলোড করুন</p>
+                </div>
+                <div className="px-3 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-400 font-bold text-xs">
+                  মোট প্রাপক: {allRecipients.length} জন
+                </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-5 h-5 text-[#7C3AED] rounded" />
-                  <div className="flex-1">
-                    <p className="font-bold text-base">আপনার নিবন্ধিত কন্টাক্টস (All Contacts)</p>
-                    <p className="text-xs text-gray-500">সকল আপলোডকৃত ও ইমপোর্টকৃত গ্রাহকগণ</p>
-                  </div>
-                  <p className="font-bold text-base text-[#7C3AED]">{userContacts.length.toLocaleString()} Contacts</p>
-                </label>
+              {/* Recipient Input Mode Tabs */}
+              <div className="flex border-b border-gray-200 dark:border-gray-700 gap-2">
+                <button
+                  onClick={() => setRecipientTab('saved')}
+                  className={`px-4 py-2.5 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${recipientTab === 'saved' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                >
+                  <Users size={16} /> সেভ করা কন্টাক্টস ({userContacts.length})
+                </button>
+                <button
+                  onClick={() => setRecipientTab('manual')}
+                  className={`px-4 py-2.5 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${recipientTab === 'manual' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                >
+                  <ClipboardList size={16} /> ম্যানুয়ালি ইমেইল পেস্ট ({parsedManualEmails.length})
+                </button>
+                <button
+                  onClick={() => setRecipientTab('file')}
+                  className={`px-4 py-2.5 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${recipientTab === 'file' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                >
+                  <FileSpreadsheet size={16} /> ফাইল আপলোড (CSV/TXT) ({uploadedFileEmails.length})
+                </button>
               </div>
 
-              {userContacts.length === 0 && (
-                <div className="p-5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center space-y-2">
-                  <Users size={28} className="mx-auto text-purple-400 opacity-70" />
-                  <p className="font-bold text-sm text-gray-800 dark:text-gray-200">আপনার প্ল্যাটফর্মে এখনো কোনো কন্টাক্ট আপলোড বা ইমপোর্ট করা হয়নি (০ জন কন্টাক্ট)</p>
-                  <p className="text-xs text-gray-500">CSV ফাইল আপলোড করে এক ক্লিকে আপনার গ্রাহক তালিকা যুক্ত করুন:</p>
-                  <Link href="/contacts/import" className="inline-flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-lg font-bold text-xs shadow hover:bg-purple-700 transition-colors">
-                    <Upload size={14} /> কন্টাক্টস ইমপোর্ট করুন
-                  </Link>
+              {/* TAB 1: Saved Contacts */}
+              {recipientTab === 'saved' && (
+                <div className="space-y-4">
+                  {userContacts.length === 0 ? (
+                    <div className="p-6 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center space-y-3">
+                      <Users size={32} className="mx-auto text-purple-400 opacity-60" />
+                      <p className="font-bold text-sm text-gray-700 dark:text-gray-300">আপনার একাউন্টে এখনো কোনো কন্টাক্ট সেভ করা নেই</p>
+                      <p className="text-xs text-gray-500">পাশে "ম্যানুয়ালি ইমেইল পেস্ট" বা "ফাইল আপলোড" ট্যাব ব্যবহার করে কন্টাক্ট যোগ করতে পারেন</p>
+                    </div>
+                  ) : (
+                    <label className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={useSavedContacts}
+                        onChange={e => setUseSavedContacts(e.target.checked)}
+                        className="w-5 h-5 text-[#7C3AED] rounded"
+                      />
+                      <div className="flex-1">
+                        <p className="font-bold text-base">আপনার নিবন্ধিত কন্টাক্টস (All Saved Contacts)</p>
+                        <p className="text-xs text-gray-500">সকল আপলোডকৃত ও সেভকৃত কন্টাক্টসমূহ</p>
+                      </div>
+                      <p className="font-bold text-base text-[#7C3AED]">{userContacts.length.toLocaleString()} Contacts</p>
+                    </label>
+                  )}
                 </div>
               )}
+
+              {/* TAB 2: Manual Copy-Paste */}
+              {recipientTab === 'manual' && (
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-semibold">ইমেইল তালিকা পেস্ট বা টাইপ করুন (কমা বা নিউলাইন দ্বারা আলাদা):</label>
+                    <span className="text-xs text-green-400 font-bold">✔ {parsedManualEmails.length}টি বৈধ ইমেইল বের করা হয়েছে</span>
+                  </div>
+                  <textarea
+                    rows={6}
+                    value={manualText}
+                    onChange={e => setManualText(e.target.value)}
+                    placeholder="যেমন:\nrahim@gmail.com\nkarim@yahoo.com, jabbar@company.com\nsazu@domain.com"
+                    className="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-[#7C3AED] focus:outline-none font-mono text-sm leading-relaxed"
+                  />
+                  <p className="text-xs text-gray-500">
+                    💡 টিপস: আপনি Excel, Sheet বা যেকোনো ফাইল থেকে কলাম কপি করে সরাসরি এখানে পেস্ট করতে পারেন। সিস্টেমে স্বয়ংক্রিয়ভাবে ইমেইল ফিল্টার করে নিবে।
+                  </p>
+                </div>
+              )}
+
+              {/* TAB 3: File Upload (CSV, TXT, Excel) */}
+              {recipientTab === 'file' && (
+                <div className="space-y-4">
+                  <div
+                    onDragOver={e => { e.preventDefault(); setDragActive(true); }}
+                    onDragLeave={() => setDragActive(false)}
+                    onDrop={e => {
+                      e.preventDefault();
+                      setDragActive(false);
+                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleFileUpload(e.dataTransfer.files[0]);
+                      }
+                    }}
+                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${dragActive ? 'border-[#7C3AED] bg-purple-500/10' : 'border-gray-300 dark:border-gray-700 hover:border-[#7C3AED]'}`}
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = '.csv,.txt,.tsv';
+                      input.onchange = (e: any) => {
+                        if (e.target.files?.[0]) handleFileUpload(e.target.files[0]);
+                      };
+                      input.click();
+                    }}
+                  >
+                    <Upload size={40} className="mx-auto text-purple-400 mb-3" />
+                    <p className="font-bold text-base text-gray-800 dark:text-gray-200">ফাইল এনে ছাড়ুন অথবা ফাইল সিলেক্ট করতে ক্লিক করুন</p>
+                    <p className="text-xs text-gray-500 mt-1">সমর্থিত ফরম্যাট: .CSV, .TXT, .TSV (যেকোনো আকারের কন্টাক্ট লিস্ট)</p>
+                  </div>
+
+                  {uploadedFileName && (
+                    <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileSpreadsheet className="text-purple-400" size={24} />
+                        <div>
+                          <p className="font-bold text-sm text-white">{uploadedFileName}</p>
+                          <p className="text-xs text-green-400 font-semibold">{uploadedFileEmails.length}টি ইমেইল পাওয়া গেছে</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => { setUploadedFileName(''); setUploadedFileEmails([]); }}
+                        className="text-gray-400 hover:text-red-400 text-xs font-bold"
+                      >
+                        ফাইল মুছুন
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           )}
 
@@ -376,8 +530,8 @@ export default function NewCampaignPage() {
                   <span className="font-bold">{senderName || 'Smart Email'} &lt;{senderEmail || 'user@email.com'}&gt;</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 font-medium">প্রাপক সংখ্যা:</span>
-                  <span className="font-bold text-green-500">{userContacts.length.toLocaleString()} জন কন্টাক্ট</span>
+                  <span className="text-gray-500 font-medium">মোট প্রাপক সংখ্যা:</span>
+                  <span className="font-bold text-green-500">{allRecipients.length.toLocaleString()} জন ইউনিক কন্টাক্ট</span>
                 </div>
               </div>
 
@@ -411,8 +565,8 @@ export default function NewCampaignPage() {
               <div className="pt-2">
                 <button
                   onClick={handleLaunchCampaign}
-                  disabled={isLaunching}
-                  className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-xl font-bold text-lg hover:opacity-90 shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2"
+                  disabled={isLaunching || allRecipients.length === 0}
+                  className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-xl font-bold text-lg hover:opacity-90 shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLaunching ? (
                     <>
@@ -420,7 +574,7 @@ export default function NewCampaignPage() {
                     </>
                   ) : (
                     <>
-                      <Send size={20} /> ক্যাম্পেইন এখনই পাঠোন
+                      <Send size={20} /> ক্যাম্পেইন এখনই পাঠোন ({allRecipients.length} জন)
                     </>
                   )}
                 </button>
