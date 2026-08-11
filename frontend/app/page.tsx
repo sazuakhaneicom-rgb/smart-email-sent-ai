@@ -1,7 +1,12 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-// Landing page — আপাতত /login-এ redirect করা হচ্ছে
-// Firebase connect হলে এখানে আসল landing page দেখাবে
+import DashboardLayout from './(dashboard)/layout';
+import DashboardPage from './(dashboard)/dashboard/page';
+
 export default function RootPage() {
-  redirect('/login');
+  return (
+    <DashboardLayout>
+      <DashboardPage />
+    </DashboardLayout>
+  );
 }
