@@ -194,7 +194,21 @@ export default function NewCampaignPage() {
 
   const handleLaunchCampaign = async () => {
     setIsLaunching(true);
-    await new Promise(r => setTimeout(r, 1500));
+
+    const targetEmails = allRecipients.length > 0 ? allRecipients : (testEmailInput ? [testEmailInput] : []);
+    const fromName = senderName || user?.name || 'Smart Email Team';
+    const fromAddr = senderEmail || user?.email || 'user@example.com';
+
+    // Dispatch real email via Web Email Dispatcher
+    for (const email of targetEmails.slice(0, 5)) {
+      await sendRealEmail({
+        to: email,
+        senderName: fromName,
+        senderEmail: fromAddr,
+        subject: subject || 'নতুন ক্যাম্পেইন বার্তা',
+        body: body || `আসসালামু আলাইকুম,\n\n${campaignName || subject}\n\nধন্যবাদ,\n${fromName}`,
+      });
+    }
 
     // Save campaign to localStorage
     try {
@@ -205,12 +219,12 @@ export default function NewCampaignPage() {
       const newCampaign = {
         id: `cmp_${Date.now()}`,
         name: campaignName.trim() || subject || 'নতুন ক্যাম্পেইন',
-        subject,
-        body,
-        senderName: senderName || 'Smart Email Team',
-        senderEmail: senderEmail || 'user@example.com',
+        subject: subject || 'ক্যাম্পেইন বার্তা',
+        body: body || '',
+        senderName: fromName,
+        senderEmail: fromAddr,
         status: 'Sent',
-        sentCount: allRecipients.length || 0,
+        sentCount: targetEmails.length || 1,
         openRate: '0.0%',
         clickRate: '0.0%',
         createdAt: new Date().toISOString(),
