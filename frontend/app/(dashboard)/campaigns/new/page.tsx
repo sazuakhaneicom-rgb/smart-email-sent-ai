@@ -10,6 +10,7 @@ import {
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
 import { sendRealEmail } from '@/lib/email-dispatcher';
+import { CelebrationModal } from '@/components/ui/CelebrationModal';
 
 interface TemplateItem {
   id: string;
@@ -64,8 +65,9 @@ export default function NewCampaignPage() {
   const [aiPrompt, setAiPrompt] = useState('');
   const [isAiGenerating, setIsAiGenerating] = useState(false);
 
-  // Launch Status
+  // Launch & Celebration Status
   const [isLaunching, setIsLaunching] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
     // Load Sender info from email-config storage
@@ -218,7 +220,7 @@ export default function NewCampaignPage() {
     } catch (e) {}
 
     setIsLaunching(false);
-    router.push('/campaigns');
+    setShowCelebration(true);
   };
 
   const steps = [
@@ -636,6 +638,17 @@ export default function NewCampaignPage() {
           </div>
         </div>
       )}
+
+      {/* Celebration Modal on Dispatch */}
+      <CelebrationModal
+        isOpen={showCelebration}
+        campaignName={campaignName || subject || 'নতুন ক্যাম্পেইন'}
+        recipientCount={allRecipients.length}
+        onClose={() => {
+          setShowCelebration(false);
+          router.push('/campaigns');
+        }}
+      />
 
     </div>
   );
