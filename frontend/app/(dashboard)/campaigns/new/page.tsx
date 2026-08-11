@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store';
 import { sendRealEmail } from '@/lib/email-dispatcher';
 import { CelebrationModal } from '@/components/ui/CelebrationModal';
+import { SYSTEM_STARTER_TEMPLATES } from '@/lib/system-templates';
 
 interface TemplateItem {
   id: string;
@@ -132,13 +133,21 @@ export default function NewCampaignPage() {
       }
     } catch (e) {}
 
-    // Load templates from localStorage
+    // Load templates from localStorage + system templates
     try {
       const key = `templates_${userId}`;
       const rawTpls = localStorage.getItem(key);
       const list: TemplateItem[] = rawTpls ? JSON.parse(rawTpls) : [];
-      setUserTemplates(list);
-    } catch (e) {}
+      const combined = [...list];
+      SYSTEM_STARTER_TEMPLATES.forEach(sysTpl => {
+        if (!combined.some(t => t.id === sysTpl.id)) {
+          combined.push(sysTpl);
+        }
+      });
+      setUserTemplates(combined);
+    } catch (e) {
+      setUserTemplates(SYSTEM_STARTER_TEMPLATES);
+    }
 
     // Load user contacts from localStorage
     try {

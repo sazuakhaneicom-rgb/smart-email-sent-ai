@@ -28,6 +28,8 @@ function saveTemplates(userId: string, templates: Template[]) {
   localStorage.setItem(`templates_${userId}`, JSON.stringify(templates));
 }
 
+import { CLAUDE_PREMIUM_TEMPLATE } from '@/lib/system-templates';
+
 export default function NewTemplatePage() {
   const router = useRouter();
   const { user } = useAuthStore();
@@ -36,10 +38,18 @@ export default function NewTemplatePage() {
   const [name, setName] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
+  const [invitationLink, setInvitationLink] = useState('https://claude.ai/login');
   const [showPreview, setShowPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+
+  const handleLoadClaudeTemplate = () => {
+    setName(CLAUDE_PREMIUM_TEMPLATE.name);
+    setSubject(CLAUDE_PREMIUM_TEMPLATE.subject);
+    setBody(CLAUDE_PREMIUM_TEMPLATE.body);
+    setShowPreview(true);
+  };
 
   const insertMergeTag = (tag: string) => {
     setBody(prev => prev + `{{${tag}}}`);
@@ -101,7 +111,21 @@ export default function NewTemplatePage() {
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Campaign-এ ব্যবহারের জন্য email template</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            onClick={handleLoadClaudeTemplate}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '9px 16px', borderRadius: 10,
+              background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2))',
+              border: '1px solid rgba(16,185,129,0.4)',
+              color: '#34D399', cursor: 'pointer',
+              fontFamily: "'Anek Bangla', sans-serif", fontWeight: 700, fontSize: '0.875rem',
+            }}
+            title="Claude AI Premium & Invitation Template ১-ক্লিকে লোড করুন"
+          >
+            🤖 Claude AI Template লোড করুন
+          </button>
           <button
             onClick={() => setShowPreview(!showPreview)}
             style={{

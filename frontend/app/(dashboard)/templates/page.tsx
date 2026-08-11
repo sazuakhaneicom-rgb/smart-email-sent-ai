@@ -15,12 +15,22 @@ interface Template {
   updatedAt: string;
 }
 
+import { SYSTEM_STARTER_TEMPLATES } from '@/lib/system-templates';
+
 function loadTemplates(userId: string): Template[] {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === 'undefined') return SYSTEM_STARTER_TEMPLATES;
   try {
     const raw = localStorage.getItem(`templates_${userId}`);
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+    const userList: Template[] = raw ? JSON.parse(raw) : [];
+    
+    const combined = [...userList];
+    SYSTEM_STARTER_TEMPLATES.forEach(sysTpl => {
+      if (!combined.some(t => t.id === sysTpl.id)) {
+        combined.push(sysTpl);
+      }
+    });
+    return combined;
+  } catch { return SYSTEM_STARTER_TEMPLATES; }
 }
 
 function deleteTemplate(userId: string, id: string): Template[] {
