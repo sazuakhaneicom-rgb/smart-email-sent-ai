@@ -54,12 +54,14 @@ export default function SignupPage() {
       setCurrentWorkspace(workspace);
       router.push('/onboarding');
     } catch (err: any) {
-      console.error('Google signup error:', err);
-      setError('Google দিয়ে রেজিস্ট্রেশন সম্পূর্ণ করা যায়নি।');
+      if (err.message !== 'Google সাইন-ইন বাতিল করা হয়েছে।') {
+        setError(err.message || 'Google দিয়ে রেজিস্ট্রেশন সম্পূর্ণ করা যায়নি।');
+      }
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const passwordStrength = formData.password.length > 8 ? 4 : formData.password.length > 5 ? 3 : formData.password.length > 2 ? 2 : formData.password.length > 0 ? 1 : 0;
 

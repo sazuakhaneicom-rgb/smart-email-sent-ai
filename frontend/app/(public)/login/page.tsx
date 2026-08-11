@@ -20,6 +20,10 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (!email.trim() || !password.trim()) {
+      setError('ইমেইল এবং পাসওয়ার্ড দিন।');
+      return;
+    }
     setIsLoading(true);
     try {
       const { user, workspace } = await authService.loginWithEmail(email, password);
@@ -28,12 +32,12 @@ export default function LoginPage() {
       setCurrentWorkspace(workspace);
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError('ইমেইল বা পাসওয়ার্ড সঠিক নয়। দয়া করে সঠিক তথ্য দিন।');
+      setError(err.message || 'লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
     } finally {
       setIsLoading(false);
     }
   };
+
 
 
 
@@ -47,8 +51,9 @@ export default function LoginPage() {
       setCurrentWorkspace(workspace);
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Google login error:', err);
-      setError('Google সাইন-ইন সম্পন্ন করতে ব্যর্থ হয়েছে।');
+      if (err.message !== 'Google সাইন-ইন বাতিল করা হয়েছে।') {
+        setError(err.message || 'Google সাইন-ইন সম্পন্ন করতে ব্যর্থ হয়েছে।');
+      }
     } finally {
       setIsLoading(false);
     }

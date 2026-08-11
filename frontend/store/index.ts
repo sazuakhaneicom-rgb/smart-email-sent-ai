@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
+
 
 // ============================================
 // Types
@@ -93,14 +96,20 @@ export const useAuthStore = create<AuthState>()(
 
         setLoading: (isLoading) => set({ isLoading }),
 
-        logout: () =>
+        logout: () => {
+          // Sign out from Firebase too
+          if (auth) {
+            signOut(auth).catch(() => {});
+          }
           set({
             user: null,
             workspaces: [],
             currentWorkspace: null,
             isAuthenticated: false,
             isLoading: false,
-          }),
+          });
+        },
+
       };
     },
     {
