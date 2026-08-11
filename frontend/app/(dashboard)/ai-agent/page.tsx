@@ -1,15 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Bot, Sparkles, Send, ShieldCheck, Zap, ArrowRight,
   TrendingUp, RefreshCw, CheckCircle2, MessageSquare, Flame, Check,
-  EyeOff, UserCheck, ShieldAlert, Lock, Cpu
+  EyeOff, UserCheck, ShieldAlert, Lock, Cpu, Save, FileText
 } from 'lucide-react';
 import { useAuthStore } from '@/store';
 
 export default function AIAgentPage() {
-  const { currentWorkspace } = useAuthStore();
+  const router = useRouter();
+  const { user, currentWorkspace } = useAuthStore();
+  const userId = user?.uid || 'guest';
+
   const [prompt, setPrompt] = useState('');
   const [stealthMode, setStealthMode] = useState(true);
   const [randomDelay, setRandomDelay] = useState(true);
@@ -25,6 +29,7 @@ export default function AIAgentPage() {
     stealthRating: string;
   }>(null);
   const [isSent, setIsSent] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
@@ -33,7 +38,7 @@ export default function AIAgentPage() {
     setIsSent(false);
 
     // Simulate AI generation process with Stealth Mimicry Engine
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1400));
 
     setGeneratedEmail({
       subject: prompt.includes('অফার')
@@ -46,6 +51,46 @@ export default function AIAgentPage() {
       stealthRating: '১০০% মানুষের তৈরি ইমেইলের মতো (Undetectable Bot Footprint)',
     });
     setIsGenerating(false);
+  };
+
+  const handleSaveAsTemplate = () => {
+    if (!generatedEmail) return;
+    try {
+      const key = `templates_${userId}`;
+      const raw = localStorage.getItem(key);
+      const existing = raw ? JSON.parse(raw) : [];
+
+      const newTemplate = {
+        id: `tpl_${Date.now()}`,
+        name: `AI: ${generatedEmail.subject.slice(0, 30)}...`,
+        subject: generatedEmail.subject,
+        body: generatedEmail.body,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const updated = [newTemplate, ...existing];
+      localStorage.setItem(key, JSON.stringify(updated));
+
+      setToast({ msg: '✅ টেমপ্লেট সফলভাবে সেভ করা হয়েছে! এটি টেমপ্লেট পেজ ও নতুন ক্যাম্পেইনে ব্যবহার করতে পারবেন।', ok: true });
+      setTimeout(() => setToast(null), 4000);
+    } catch (e) {
+      setToast({ msg: 'টেমপ্লেট সেভ করতে সমস্যা হয়েছে।', ok: false });
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
+  const handleStartCampaign = () => {
+    if (!generatedEmail) return;
+    try {
+      sessionStorage.setItem('ai_draft_content', JSON.stringify({
+        subject: generatedEmail.subject,
+        body: generatedEmail.body,
+      }));
+      router.push('/campaigns/new');
+    } catch (e) {
+      router.push('/campaigns/new');
+    }
   };
 
   const handleDispatch = async () => {
@@ -94,7 +139,7 @@ export default function AIAgentPage() {
               </span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-              উন্নত মানবীয় টোন ও স্টেলথ টেকনোলজির মাধ্যমে এমনভাবে ইমেইল তৈরি ও ডিসপ্যাচ করে যা গ্রাহক বা কোনো স্প্যাম ফিল্টার অটোমেটেড বট হিসেবে ধরতে পারে না।
+              উন্নত মানবীয় টোন ও স্টেলথ টেকনোলজির মাধ্যমে ইমেইল তৈরি ও সরাসরি টেমপ্লেটে সংরক্ষণ বা ডিসপ্যাচ সুবিধা।
             </p>
           </div>
         </div>
@@ -111,6 +156,19 @@ export default function AIAgentPage() {
           </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div style={{
+          marginBottom: 16, padding: '12px 18px', borderRadius: 10,
+          background: toast.ok ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+          border: `1px solid ${toast.ok ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+          color: toast.ok ? '#34D399' : '#F87171',
+          fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <CheckCircle2 size={16} /> {toast.msg}
+        </div>
+      )}
 
       {/* Stealth Protection Controls Bar */}
       <div className="glass-card" style={{ padding: '16px 24px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
@@ -224,12 +282,12 @@ export default function AIAgentPage() {
           </button>
         </div>
 
-        {/* Right: AI Output & Dispatch Center */}
+        {/* Right: AI Output & Action Center */}
         <div className="glass-card" style={{ padding: 24, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             <Zap size={20} style={{ color: 'var(--neon-cyan)' }} />
             <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.05rem' }}>
-              ২. স্টেলথ ইমেইল প্রিভিউ ও ডিসপ্যাচ
+              ২. জেনারেটেড ইমেইল ও অ্যাকশন
             </h3>
           </div>
 
@@ -249,7 +307,7 @@ export default function AIAgentPage() {
               {/* Subject */}
               <div style={{ padding: 12, borderRadius: 10, background: 'rgba(7,7,15,0.8)', border: '1px solid rgba(139,92,246,0.2)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                  <p style={{ fontSize: '0.725rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>সাবজেক্ট লাইন (প্রাকৃতিক ও হিউম্যান টোন)</p>
+                  <p style={{ fontSize: '0.725rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>সাবজেক্ট লাইন</p>
                   <span style={{ fontSize: '0.65rem', color: '#34D399', fontWeight: 600 }}>✔ No Bot Clues</span>
                 </div>
                 <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>{generatedEmail.subject}</p>
@@ -263,39 +321,62 @@ export default function AIAgentPage() {
                 </p>
               </div>
 
-              {/* Meta stats */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                <span>🎯 প্রাপক: <strong style={{ color: 'var(--neon-purple-bright)' }}>{generatedEmail.targetSegment}</strong></span>
-                <span>🛡️ স্টেলথ রেটিং: <strong style={{ color: '#34D399' }}>১০০% Undetectable</strong></span>
-              </div>
-
-              {/* Send Button */}
-              {isSent ? (
-                <div style={{
-                  padding: '12px', borderRadius: 12, background: 'rgba(16,185,129,0.15)',
-                  border: '1px solid rgba(16,185,129,0.4)', color: '#34D399',
-                  textAlign: 'center', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                }}>
-                  <CheckCircle2 size={18} />
-                  AI এজেন্ট স্টেলথ মোডে র্যান্ডম হিউম্যান বিহেভিয়ারে ইমেইল পাঠানো শুরু করেছে!
+              {/* Action Buttons: Save to Templates / Start Campaign / Dispatch */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <button
+                    onClick={handleSaveAsTemplate}
+                    style={{
+                      padding: '10px 14px', borderRadius: 10,
+                      background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.35)',
+                      color: '#C4B5FD', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      fontFamily: "'Anek Bangla', sans-serif",
+                    }}
+                  >
+                    <Save size={15} /> টেমপ্লেট হিসেবে সেভ করুন
+                  </button>
+                  <button
+                    onClick={handleStartCampaign}
+                    style={{
+                      padding: '10px 14px', borderRadius: 10,
+                      background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)',
+                      color: '#67E8F9', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      fontFamily: "'Anek Bangla', sans-serif",
+                    }}
+                  >
+                    <FileText size={15} /> এই কন্টেন্ট দিয়ে ক্যাম্পেইন
+                  </button>
                 </div>
-              ) : (
-                <button
-                  onClick={handleDispatch}
-                  style={{
-                    width: '100%', height: '46px',
-                    background: 'linear-gradient(135deg, #10B981, #059669)',
-                    border: '1px solid rgba(16,185,129,0.5)',
-                    borderRadius: 12, color: '#fff', fontWeight: 700, fontSize: '0.95rem',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    boxShadow: '0 0 20px rgba(16,185,129,0.3)',
-                    fontFamily: "'Anek Bangla', sans-serif",
-                  }}
-                >
-                  <Send size={18} />
-                  AI এজেন্ট দিয়ে স্টেলথ মোডে ইমেইল ডিসপ্যাচ করুন
-                </button>
-              )}
+
+                {isSent ? (
+                  <div style={{
+                    padding: '12px', borderRadius: 10, background: 'rgba(16,185,129,0.15)',
+                    border: '1px solid rgba(16,185,129,0.4)', color: '#34D399',
+                    textAlign: 'center', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  }}>
+                    <CheckCircle2 size={16} />
+                    AI এজেন্ট স্টেলথ মোডে র্যান্ডম বিহেভিয়ারে ইমেইল পাঠানো শুরু করেছে!
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleDispatch}
+                    style={{
+                      width: '100%', height: '42px',
+                      background: 'linear-gradient(135deg, #10B981, #059669)',
+                      border: '1px solid rgba(16,185,129,0.5)',
+                      borderRadius: 10, color: '#fff', fontWeight: 700, fontSize: '0.9rem',
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      boxShadow: '0 0 16px rgba(16,185,129,0.3)',
+                      fontFamily: "'Anek Bangla', sans-serif",
+                    }}
+                  >
+                    <Send size={16} />
+                    সরাসরি ডিসপ্যাচ করুন
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
