@@ -1,16 +1,18 @@
 /**
- * Smart Email Sent AI — Real Web Email Dispatcher
- * Sends real emails to recipient's actual inbox using browser-compatible API & Webhook relay.
+ * Smart Email Sent AI — Real Nodemailer SMTP Email Dispatcher
+ * Sends real emails to recipient's actual inbox via Serverless API & Nodemailer SMTP transport.
  */
 
 export interface EmailPayload {
   to: string;
-  senderName: string;
-  senderEmail: string;
+  senderName?: string;
+  senderEmail?: string;
   subject: string;
   body: string;
   smtpPass?: string;
   smtpUser?: string;
+  smtpHost?: string;
+  smtpPort?: string | number;
 }
 
 export interface DispatchResult {
@@ -21,7 +23,7 @@ export interface DispatchResult {
 }
 
 export async function sendRealEmail(payload: EmailPayload): Promise<DispatchResult> {
-  const { to, senderName, senderEmail, subject, body, smtpPass, smtpUser } = payload;
+  const { to, senderName, senderEmail, subject, body, smtpPass, smtpUser, smtpHost, smtpPort } = payload;
 
   if (!to || !to.includes('@')) {
     return {
@@ -31,23 +33,65 @@ export async function sendRealEmail(payload: EmailPayload): Promise<DispatchResu
     };
   }
 
-  const fromName = senderName || 'Smart Email Team';
-  const fromAddr = senderEmail || smtpUser || 'user@example.com';
+  // Load user configuration from localStorage if missing in payload
+  let configSmtpUser = smtpUser || '';
+  let configSmtpPass = smtpPass || '';
+  let configSenderName = senderName || '';
+  let configSenderEmail = senderEmail || '';
+  let configSmtpHost = smtpHost || 'smtp.gmail.com';
+  let configSmtpPort = smtpPort || 587;
 
-  // Check if SMTP or Gmail App password is provided in settings
-  if (smtpPass && smtpPass.length >= 8) {
+  if (typeof window !== 'undefined') {
+    try {
+      const rawUser = localStorage.getItem('auth-storage');
+      const userId = rawUser ? JSON.parse(rawUser)?.state?.user?.uid || 'guest' : 'guest';
+      const rawCfg = localStorage.getItem(`user_email_cfg_${userId}`);
+      if (rawCfg) {
+        const parsed = JSON.parse(rawCfg);
+        if (!configSmtpUser && parsed.smtpUser) configSmtpUser = parsed.smtpUser;
+        if (!configSmtpPass && parsed.smtpPass) configSmtpPass = parsed.smtpPass;
+        if (!configSenderName && parsed.senderName) configSenderName = parsed.senderName;
+        if (!configSenderEmail && parsed.senderEmail) configSenderEmail = parsed.senderEmail;
+        if (parsed.smtpHost) configSmtpHost = parsed.smtpHost;
+        if (parsed.smtpPort) configSmtpPort = parsed.smtpPort;
+      }
+    } catch (e) {}
+  }
+
+  // Dispatch via /api/send-email endpoint
+  try {
+    const res = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: to.trim(),
+        senderName: configSenderName,
+        senderEmail: configSenderEmail,
+        subject: subject || 'ক্যাম্পেইন বার্তা',
+        body: body || '',
+        smtpHost: configSmtpHost,
+        smtpPort: configSmtpPort,
+        smtpUser: configSmtpUser,
+        smtpPass: configSmtpPass,
+      }),
+    });
+
+    const data = await res.json();
+
     return {
-      success: true,
-      message: `✅ আপনার Gmail/SMTP দিয়ে [${to}] ঠিকানায় ইমেইল ডেলিভারি ডিসপ্যাচ করা হয়েছে! (From: ${fromName} <${fromAddr}>)`,
-      deliveryId: `GM-${Date.now().toString(36)}`,
+      success: data.success,
+      message: data.message || (data.success ? `✅ ইমেইলটি সফলভাবে [${to}] ইনবক্সে পৌঁছানো হয়েছে!` : '❌ ইমেইল পাঠাতে সমস্যা হয়েছে।'),
+      deliveryId: data.messageId || `DEL-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (err: any) {
+    console.error('Email dispatcher network error:', err);
+    return {
+      success: false,
+      message: `❌ সেন্ডার প্রসেস ত্রুটি: ${err.message || 'ইমেইল সেন্ড সার্ভারে কানেক্ট হওয়া যায়নি।'}`,
       timestamp: new Date().toISOString(),
     };
   }
-
-  return {
-    success: true,
-    message: `✅ ইমেইলটি [${to}] ঠিকানায় সেন্ড প্রসেসিং সফল হয়েছে! (সরাসরি আসল জিমেইল ইনবক্সে পাঠাতে /settings/email-config পেজে Gmail App Password সেটআপ করুন)`,
-    deliveryId: `DEL-${Date.now().toString(36)}`,
-    timestamp: new Date().toISOString(),
-  };
 }
