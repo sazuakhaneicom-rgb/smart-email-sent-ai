@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from '@/store';
 import { loadAdminConfig } from '@/lib/admin-config';
 import { onConfigSync } from '@/lib/config-sync';
+import { sendRealEmail } from '@/lib/email-dispatcher';
 
 type EmailProvider = 'gmail_smtp' | 'custom_smtp' | 'system_default';
 
@@ -117,14 +118,18 @@ export default function UserEmailSetupPage() {
     if (!testEmail) return;
     setIsTesting(true);
     setTestResult(null);
-    await new Promise(r => setTimeout(r, 1600));
-    if (cfg.provider === 'system_default') {
-      setTestResult({ ok: true, msg: `System থেকে "${cfg.senderName || 'Smart Email'}" নামে ${testEmail}-এ পাঠানো হয়েছে ✓` });
-    } else if (cfg.smtpPass && cfg.smtpUser) {
-      setTestResult({ ok: true, msg: `"${cfg.senderName}" <${cfg.senderEmail || cfg.smtpUser}> থেকে ${testEmail}-এ পাঠানো হয়েছে ✓` });
-    } else {
-      setTestResult({ ok: false, msg: 'Credentials সেট করুন, তারপর আবার চেষ্টা করুন।' });
-    }
+
+    const res = await sendRealEmail({
+      to: testEmail,
+      senderName: cfg.senderName || 'Smart Email User',
+      senderEmail: cfg.senderEmail || cfg.smtpUser || 'user@example.com',
+      subject: '🧪 টেস্ট ইমেইল — Smart Email Sent AI',
+      body: `আসসালামু আলাইকুম,\n\nএটি একটি টেস্ট ইমেইল। আপনার Email সেটআপ সফলভাবে কাজ করছে।\n\nপ্রেরক: ${cfg.senderName || 'আপনার নাম'} <${cfg.senderEmail || cfg.smtpUser || 'email@domain.com'}>\nসময়: ${new Date().toLocaleString()}`,
+      smtpPass: cfg.smtpPass,
+      smtpUser: cfg.smtpUser,
+    });
+
+    setTestResult({ ok: res.success, msg: res.message });
     setIsTesting(false);
   };
 

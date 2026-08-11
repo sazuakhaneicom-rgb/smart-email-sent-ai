@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
+import { sendRealEmail } from '@/lib/email-dispatcher';
 
 interface TemplateItem {
   id: string;
@@ -110,14 +111,20 @@ export default function NewCampaignPage() {
     setIsSendingTest(true);
     setTestResult(null);
 
-    await new Promise(r => setTimeout(r, 1400));
-
     const fromName = senderName || user?.name || 'Smart Email';
     const fromAddr = senderEmail || user?.email || 'noreply@smartemail.com';
 
+    const res = await sendRealEmail({
+      to: testEmailInput.trim(),
+      senderName: fromName,
+      senderEmail: fromAddr,
+      subject: subject || '🧪 ক্যাম্পেইন টেস্ট ইমেইল',
+      body: body || `আসসালামু আলাইকুম,\n\nএটি ক্যাম্পেইনের একটি টেস্ট ইমেইল।\n\nপ্রেরক: ${fromName} <${fromAddr}>`,
+    });
+
     setTestResult({
-      ok: true,
-      msg: `পরীক্ষামূলক ইমেইল সফলভাবে [${testEmailInput}] ঠিকানায় পাঠানো হয়েছে! (From: ${fromName} <${fromAddr}>)`,
+      ok: res.success,
+      msg: res.message,
     });
     setIsSendingTest(false);
   };
