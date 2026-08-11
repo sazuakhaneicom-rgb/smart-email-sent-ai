@@ -63,33 +63,16 @@ function getInitialAuthState() {
     if (raw) {
       const parsed = JSON.parse(raw);
       const s = parsed.state || parsed;
-      if (s.user || s.isAuthenticated) {
-        const user = s.user ? { ...s.user } : null;
-
-        // ─── Auto-clear fake/dev sessions ───
-        if (
-          !user ||
-          isFakeUid(user.uid) ||
-          user.email === 'demo@smartemail.com' ||
-          user.email === 'user@smartemail.com' ||
-          user.email === 'google.user@gmail.com' ||
-          user.email === 'admin@smartemail.com'
-        ) {
-          localStorage.removeItem('auth-storage');
-          return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
-        }
-
+      if (s.user && s.user.email) {
         return {
-          user,
+          user: s.user,
           workspaces: s.workspaces || [],
           currentWorkspace: s.currentWorkspace || null,
           isAuthenticated: true,
         };
       }
     }
-  } catch (e) {
-    localStorage.removeItem('auth-storage');
-  }
+  } catch (e) {}
   return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
 }
 

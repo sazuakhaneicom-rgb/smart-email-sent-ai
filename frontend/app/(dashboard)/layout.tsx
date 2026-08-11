@@ -19,7 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     setMounted(true);
 
-    // Validate session against Firebase Auth
+    // Validate session against Firebase Auth if active
     if (auth) {
       const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
         if (fbUser) {
@@ -40,15 +40,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           setWorkspaces([freshWorkspace]);
           setCurrentWorkspace(freshWorkspace);
         } else {
-          // No Firebase session → clear everything and redirect
-          logout();
-          router.replace('/login');
+          // No active Firebase Auth session — fallback to stored persistent session
+          const existingUser = useAuthStore.getState().user;
+          if (!existingUser) {
+            logout();
+          }
         }
         setFirebaseChecked(true);
       });
       return () => unsubscribe();
     } else {
-      // Firebase not available — rely on stored state
+      // Firebase not configured — rely on stored state
       setFirebaseChecked(true);
     }
   }, []);
