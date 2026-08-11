@@ -34,17 +34,37 @@ const DEFAULT: UserEmailConfig = {
   smtpPass: '',
 };
 
-function load(uid: string): UserEmailConfig {
-  if (typeof window === 'undefined') return DEFAULT;
-  try {
-    const raw = localStorage.getItem(`user_email_cfg_${uid}`);
-    return raw ? { ...DEFAULT, ...JSON.parse(raw) } : DEFAULT;
-  } catch { return DEFAULT; }
+// Stable key: saves under email-based key + global fallback — never gets lost on uid change
+function getStorageKey(uid: string, email?: string): string {
+  if (email) return `user_email_cfg_email_${email}`;
+  return `user_email_cfg_${uid}`;
 }
 
-function save(uid: string, cfg: UserEmailConfig) {
+function load(uid: string, email?: string): UserEmailConfig {
+  if (typeof window === 'undefined') return DEFAULT;
+  try {
+    // Try email-based key first (most stable)
+    if (email) {
+      const emailRaw = localStorage.getItem(`user_email_cfg_email_${email}`);
+      if (emailRaw) return { ...DEFAULT, ...JSON.parse(emailRaw) };
+    }
+    // Fallback to uid-based key
+    const raw = localStorage.getItem(`user_email_cfg_${uid}`);
+    if (raw) return { ...DEFAULT, ...JSON.parse(raw) };
+    // Fallback to global key
+    const globalRaw = localStorage.getItem('user_email_cfg_global');
+    if (globalRaw) return { ...DEFAULT, ...JSON.parse(globalRaw) };
+  } catch {}
+  return DEFAULT;
+}
+
+function save(uid: string, email: string | undefined, cfg: UserEmailConfig) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(`user_email_cfg_${uid}`, JSON.stringify(cfg));
+  // Save under all keys so it's always findable
+  const data = JSON.stringify(cfg);
+  localStorage.setItem(`user_email_cfg_${uid}`, data);
+  localStorage.setItem('user_email_cfg_global', data);
+  if (email) localStorage.setItem(`user_email_cfg_email_${email}`, data);
 }
 
 const PROVIDERS = [
@@ -80,6 +100,7 @@ const PROVIDERS = [
 export default function UserEmailSetupPage() {
   const { user } = useAuthStore();
   const uid = user?.uid || 'guest';
+  const userEmail = user?.email;
 
   const [cfg, setCfg] = useState<UserEmailConfig>(DEFAULT);
   const [adminCfg, setAdminCfg] = useState<any>({});
@@ -92,11 +113,11 @@ export default function UserEmailSetupPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    setCfg(load(uid));
+    setCfg(load(uid, userEmail));
     setAdminCfg(loadAdminConfig());
     const unsub = onConfigSync(setAdminCfg);
     return () => unsub();
-  }, [uid]);
+  }, [uid, userEmail]);
 
   const patch = (k: keyof UserEmailConfig, v: any) =>
     setCfg(prev => ({ ...prev, [k]: v }));
@@ -107,11 +128,11 @@ export default function UserEmailSetupPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    save(uid, cfg);
+    save(uid, userEmail, cfg);
     await new Promise(r => setTimeout(r, 400));
     setIsSaving(false);
-    setToast({ msg: '✅ Email সেটআপ সেভ হয়েছে!', ok: true });
-    setTimeout(() => setToast(null), 3000);
+    setToast({ msg: '✅ Email সেটআপ সেভ হয়েছে! পেজ রিফ্রেশ করলেও হারাবে না।', ok: true });
+    setTimeout(() => setToast(null), 4000);
   };
 
   const handleTest = async () => {
