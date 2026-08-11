@@ -62,17 +62,10 @@ export default function SignupPage() {
     }
   };
 
-
   const passwordStrength = formData.password.length > 8 ? 4 : formData.password.length > 5 ? 3 : formData.password.length > 2 ? 2 : formData.password.length > 0 ? 1 : 0;
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex',
-      background: 'var(--bg-void)',
-      fontFamily: "'Anek Bangla', sans-serif",
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
+    <div className="min-h-screen w-full flex bg-[var(--bg-void)] font-['Anek_Bangla'] relative overflow-x-hidden">
       {/* Background Grid */}
       <div style={{
         position: 'absolute', inset: 0,
@@ -85,113 +78,85 @@ export default function SignupPage() {
       {/* Top Glow Orb */}
       <div style={{
         position: 'absolute', top: '-200px', left: '50%', transform: 'translateX(-50%)',
-        width: '800px', height: '600px',
+        width: '100%', maxWidth: '800px', height: '600px',
         background: 'radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 
-      <div style={{ display: 'flex', width: '100%', position: 'relative', zIndex: 1 }}>
+      <div className="flex w-full min-h-screen relative z-10">
 
         {/* LEFT PANEL */}
-        <div style={{
-          flex: '0 0 50%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: '60px 64px',
-          borderRight: '1px solid rgba(139,92,246,0.12)',
-        }} className="hidden md:flex">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 48 }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: 14,
-              background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 24px rgba(139,92,246,0.5)',
-            }}>
-              <Zap size={24} style={{ color: '#fff' }} />
+        <div className="hidden md:flex flex-col justify-center flex-1 p-12 lg:p-16 border-r border-purple-500/10">
+          <div className="flex items-center gap-3.5 mb-10">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-[0_0_24px_rgba(139,92,246,0.5)]">
+              <Zap size={24} className="text-white" />
             </div>
             <div>
-              <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#E8E8F0', lineHeight: 1.1 }}>Smart Email</p>
-              <p style={{ fontSize: '0.7rem', color: 'var(--neon-cyan)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Sent AI Platform</p>
+              <p className="text-xl font-extrabold text-gray-100 leading-tight">Smart Email</p>
+              <p className="text-[11px] color-[var(--neon-cyan)] tracking-widest uppercase font-bold">Sent AI Platform</p>
             </div>
           </div>
 
-          <div style={{ marginBottom: 40 }}>
-            <h1 style={{
-              fontSize: '2.8rem', fontWeight: 800, lineHeight: 1.15,
-              marginBottom: 16, color: '#E8E8F0',
-            }}>
+          <div className="mb-10">
+            <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight mb-4 text-gray-100">
               বিনামূল্যে<br />
-              <span style={{
-                background: 'linear-gradient(135deg, #A78BFA, #06B6D4)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>আজই শুরু করুন</span>
+              <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                আজই শুরু করুন
+              </span>
             </h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.7 }}>
+            <p className="text-gray-400 text-base leading-relaxed">
               কোনো ক্রেডিট কার্ডের প্রয়োজন নেই। কয়েক সেকেন্ডেই একাউন্ট খুলে ইমেইল ক্যাম্পেইন পাঠানো শুরু করুন।
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex flex-col gap-3 max-w-lg">
             {[
               { icon: '✦', text: '১০০০ ফ্রি ইমেইল প্রতি মাসে', color: '#A78BFA' },
               { icon: '◈', text: 'সহজে ড্র্যাগ অ্যান্ড ড্রপ এডিটর', color: '#22D3EE' },
               { icon: '⬡', text: 'কোনো হিডেন চার্জ নেই', color: '#34D399' },
             ].map((f, i) => (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '12px 16px', borderRadius: 10,
-                background: 'rgba(139,92,246,0.05)',
-                border: '1px solid rgba(139,92,246,0.12)',
-              }}>
-                <span style={{ color: f.color, fontSize: '1rem', fontWeight: 700, flexShrink: 0 }}>{f.icon}</span>
-                <span style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{f.text}</span>
+              <div key={i} className="flex items-center gap-3 p-3.5 rounded-xl bg-purple-500/5 border border-purple-500/10">
+                <span style={{ color: f.color }} className="text-base font-bold flex-shrink-0">{f.icon}</span>
+                <span className="text-gray-200 text-sm font-medium">{f.text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '40px 24px',
-        }}>
-          <div style={{ width: '100%', maxWidth: '440px' }}>
-            <div style={{
-              background: 'rgba(12,12,26,0.9)',
-              border: '1px solid rgba(139,92,246,0.2)',
-              borderRadius: 20,
-              padding: '36px 32px',
-              backdropFilter: 'blur(20px)',
-              boxShadow: '0 0 40px rgba(139,92,246,0.08), 0 20px 60px rgba(0,0,0,0.5)',
-            }}>
-              <div style={{ textAlign: 'center', marginBottom: 28 }}>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#E8E8F0', marginBottom: 6 }}>
+        {/* RIGHT PANEL (Mobile & Desktop Responsive) */}
+        <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 md:p-10 w-full min-h-screen">
+          <div className="w-full max-w-md my-auto py-6">
+
+            {/* Mobile Header Logo */}
+            <div className="flex items-center justify-center gap-2.5 mb-6 md:hidden">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg">
+                <Zap size={20} className="text-white" />
+              </div>
+              <span className="font-extrabold text-gray-100 text-xl">Smart Email Sent AI</span>
+            </div>
+
+            {/* Signup Card */}
+            <div className="bg-[#0C0C1A]/95 border border-purple-500/20 rounded-2xl p-5 sm:p-8 backdrop-blur-xl shadow-[0_0_40px_rgba(139,92,246,0.1)] w-full">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-100 mb-1">
                   নতুন অ্যাকাউন্ট খুলুন
                 </h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                  আপনার ব্যবসা বাড়াতে আজই যুক্ত হোন
+                <p className="text-gray-400 text-sm">
+                  আপনার ব্যবসা বাড়াতে আজই ফ্রি রেজিস্টার করুন
                 </p>
               </div>
 
-              <form style={{ display: 'flex', flexDirection: 'column', gap: 14 }} onSubmit={handleSignupSubmit}>
+              <form className="flex flex-col gap-3.5" onSubmit={handleSignupSubmit}>
                 {/* Name */}
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+                  <label className="text-xs font-semibold text-gray-300 block mb-1">
                     সম্পূর্ণ নাম
                   </label>
-                  <div style={{ position: 'relative' }}>
-                    <User size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                  <div className="relative">
+                    <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                     <input
                       type="text"
-                      className="cyber-input"
-                      style={{ paddingLeft: '36px' }}
+                      className="w-full h-11 pl-10 pr-3 rounded-xl bg-black/60 border border-purple-500/25 text-white text-base focus:outline-none focus:border-purple-500 transition-colors"
                       placeholder="আপনার নাম"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -202,15 +167,14 @@ export default function SignupPage() {
 
                 {/* Email */}
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+                  <label className="text-xs font-semibold text-gray-300 block mb-1">
                     ইমেইল ঠিকানা
                   </label>
-                  <div style={{ position: 'relative' }}>
-                    <Mail size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                  <div className="relative">
+                    <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                     <input
                       type="email"
-                      className="cyber-input"
-                      style={{ paddingLeft: '36px' }}
+                      className="w-full h-11 pl-10 pr-3 rounded-xl bg-black/60 border border-purple-500/25 text-white text-base focus:outline-none focus:border-purple-500 transition-colors"
                       placeholder="name@company.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -221,15 +185,14 @@ export default function SignupPage() {
 
                 {/* Password */}
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+                  <label className="text-xs font-semibold text-gray-300 block mb-1">
                     পাসওয়ার্ড
                   </label>
-                  <div style={{ position: 'relative' }}>
-                    <Lock size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                  <div className="relative">
+                    <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      className="cyber-input"
-                      style={{ paddingLeft: '36px', paddingRight: '36px' }}
+                      className="w-full h-11 pl-10 pr-10 rounded-xl bg-black/60 border border-purple-500/25 text-white text-base focus:outline-none focus:border-purple-500 transition-colors"
                       placeholder="কমপক্ষে ৬ অক্ষর"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -238,23 +201,22 @@ export default function SignupPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 p-1"
                     >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                   {/* Strength meter */}
                   {formData.password && (
-                    <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                    <div className="flex gap-1 mt-1.5">
                       {[1, 2, 3, 4].map((level) => (
                         <div
                           key={level}
+                          className="h-1 flex-1 rounded-full transition-all"
                           style={{
-                            height: 3, flex: 1, borderRadius: 2,
                             background: passwordStrength >= level
                               ? level <= 2 ? '#F87171' : level === 3 ? '#F59E0B' : '#10B981'
                               : 'rgba(139,92,246,0.1)',
-                            transition: 'all 0.2s',
                           }}
                         />
                       ))}
@@ -264,15 +226,14 @@ export default function SignupPage() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+                  <label className="text-xs font-semibold text-gray-300 block mb-1">
                     পাসওয়ার্ড নিশ্চিত করুন
                   </label>
-                  <div style={{ position: 'relative' }}>
-                    <Lock size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                  <div className="relative">
+                    <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      className="cyber-input"
-                      style={{ paddingLeft: '36px' }}
+                      className="w-full h-11 pl-10 pr-3 rounded-xl bg-black/60 border border-purple-500/25 text-white text-base focus:outline-none focus:border-purple-500 transition-colors"
                       placeholder="একই পাসওয়ার্ড পুনরায় লিখুন"
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -283,12 +244,7 @@ export default function SignupPage() {
 
                 {/* Error message */}
                 {error && (
-                  <div style={{
-                    padding: '10px 14px', borderRadius: 8,
-                    background: 'rgba(248,113,113,0.08)',
-                    border: '1px solid rgba(248,113,113,0.25)',
-                    color: '#F87171', fontSize: '0.825rem',
-                  }}>
+                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium">
                     {error}
                   </div>
                 )}
@@ -297,19 +253,7 @@ export default function SignupPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  style={{
-                    width: '100%', height: '48px',
-                    background: isLoading ? 'rgba(124,58,237,0.4)' : 'linear-gradient(135deg, #7C3AED, #6D28D9)',
-                    border: '1px solid rgba(139,92,246,0.5)',
-                    borderRadius: 12, color: '#fff',
-                    fontWeight: 700, fontSize: '1rem',
-                    cursor: isLoading ? 'not-allowed' : 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    boxShadow: isLoading ? 'none' : '0 0 20px rgba(139,92,246,0.4)',
-                    transition: 'all 0.2s ease',
-                    fontFamily: "'Anek Bangla', sans-serif",
-                    marginTop: 6,
-                  }}
+                  className="w-full h-12 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white font-bold text-base rounded-xl shadow-lg shadow-purple-600/30 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-1"
                 >
                   {isLoading ? 'অ্যাকাউন্ট তৈরি হচ্ছে...' : <>অ্যাকাউন্ট তৈরি করুন <ChevronRight size={18} /></>}
                 </button>
@@ -319,19 +263,9 @@ export default function SignupPage() {
                   type="button"
                   onClick={handleGoogleSignup}
                   disabled={isLoading}
-                  style={{
-                    width: '100%', height: '44px',
-                    background: 'rgba(139,92,246,0.08)',
-                    border: '1px solid rgba(139,92,246,0.25)',
-                    borderRadius: 12, color: 'var(--text-primary)',
-                    fontWeight: 600, fontSize: '0.9rem',
-                    cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                    transition: 'all 0.2s ease',
-                    fontFamily: "'Anek Bangla', sans-serif",
-                  }}
+                  className="w-full h-11 bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 text-gray-200 font-semibold text-sm rounded-xl flex items-center justify-center gap-2.5 transition-colors"
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -341,9 +275,9 @@ export default function SignupPage() {
                 </button>
               </form>
 
-              <div style={{ marginTop: 24, textAlign: 'center', fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+              <div className="mt-5 text-center text-xs text-gray-400">
                 ইতিমধ্যে অ্যাকাউন্ট আছে?{' '}
-                <Link href="/login" style={{ color: 'var(--neon-purple-bright)', textDecoration: 'none', fontWeight: 600 }}>
+                <Link href="/login" className="text-purple-400 hover:text-purple-300 font-bold">
                   লগইন করুন
                 </Link>
               </div>
