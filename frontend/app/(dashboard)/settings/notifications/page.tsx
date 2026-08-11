@@ -1,114 +1,95 @@
-'use client'
+'use client';
 
-import { SettingsTabs } from '@/components/layout/SettingsTabs'
+import React, { useState } from 'react';
+import { SettingsNavHeader } from '@/components/layout/SettingsNavHeader';
+import { Bell, Mail, ToggleLeft, ToggleRight, CheckCircle2 } from 'lucide-react';
 
 export default function NotificationsSettingsPage() {
+  const [settings, setSettings] = useState({
+    campaignSent: true,
+    domainFailed: true,
+    paymentFailed: true,
+    usageLimit: true,
+    weeklyDigest: false,
+  });
+  const [toast, setToast] = useState<string | null>(null);
+
+  const toggle = (key: keyof typeof settings) => {
+    setSettings(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      setToast('নোটিফিকেশন পছন্দসমূহ সেভ করা হয়েছে!');
+      setTimeout(() => setToast(null), 2500);
+      return next;
+    });
+  };
+
+  const list = [
+    { key: 'campaignSent' as const, title: 'ক্যাম্পেইন ডিসপ্যাচ অ্যালার্ট', desc: 'ক্যাম্পেইন সফলভাবে সেন্ট হলে ইমেইল অ্যালার্ট' },
+    { key: 'domainFailed' as const, title: 'ডোমেইন ভেরিফিকেশন সমস্যা', desc: 'ডোমেইন যাচাইকরণ সমস্যা হলে অবিলম্বে নোটিফিকেশন' },
+    { key: 'paymentFailed' as const, title: 'বিলিং / পেমেন্ট নোটিশ', desc: 'পেমেন্ট বা বিলিং সমস্যা সংক্রান্ত আপডেট' },
+    { key: 'usageLimit' as const, title: 'কোটা ৮০% প্লাস সতর্কবার্তা', desc: 'দৈনিক পাঠানোর সীমা ৮০% ছাড়িয়ে গেলে সতর্কতা' },
+    { key: 'weeklyDigest' as const, title: 'সাপ্তাহিক পারফরম্যান্স রিপোর্ট', desc: 'প্রতি সপ্তাহের শেষে সমাপনী সামারি ডায়জেস্ট' },
+  ];
+
   return (
-    <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto p-6 font-['Anek_Bangla']">
-      <div className="w-full md:w-64 flex-shrink-0">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">সেটিংস</h2>
-        <SettingsTabs />
+    <div style={{ maxWidth: 900, margin: '0 auto', fontFamily: "'Anek Bangla', sans-serif" }}>
+
+      <SettingsNavHeader />
+
+      <div style={{ marginBottom: 20 }}>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>
+          নোটিফিকেশন সেটিংস
+        </h1>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          সিস্টেমের গুরুত্বপূর্ণ আপডেট ও অ্যালার্ট গ্রহনের পছন্দসমূহ
+        </p>
       </div>
-      <div className="flex-1 space-y-6">
-        
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">ইমেইল নোটিফিকেশন</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Campaign Sent</p>
-                <p className="text-sm text-gray-500">ক্যাম্পেইন সফলভাবে পাঠানো হলে</p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#7C3AED]">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-800">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Domain Verify Failed</p>
-                <p className="text-sm text-gray-500">ডোমেইন যাচাইকরণ ব্যর্থ হলে</p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#7C3AED]">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-800">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Payment Failed</p>
-                <p className="text-sm text-gray-500">পেমেন্ট ব্যর্থ হলে</p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#7C3AED]">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-800">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Usage Limit Near</p>
-                <p className="text-sm text-gray-500">লিমিটের কাছাকাছি পৌঁছালে (৮০% এর বেশি)</p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#7C3AED]">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">ইন-অ্যাপ নোটিফিকশন</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Campaign Sent</p>
-                <p className="text-sm text-gray-500">ক্যাম্পেইন সফলভাবে পাঠানো হলে</p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#7C3AED]">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-800">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Domain Verify Failed</p>
-                <p className="text-sm text-gray-500">ডোমেইন যাচাইকরণ ব্যর্থ হলে</p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#7C3AED]">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-800">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Payment Failed</p>
-                <p className="text-sm text-gray-500">পেমেন্ট ব্যর্থ হলে</p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#7C3AED]">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-gray-800">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Usage Limit Near</p>
-                <p className="text-sm text-gray-500">লিমিটের কাছাকাছি পৌঁছালে</p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#7C3AED]">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-              </button>
-            </div>
-          </div>
+      {toast && (
+        <div style={{
+          marginBottom: 16, padding: '12px 16px', borderRadius: 10,
+          background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)',
+          color: '#34D399', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <CheckCircle2 size={16} /> {toast}
         </div>
+      )}
 
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">ওয়িকলি রিপোর্ট</h3>
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <p className="font-medium text-gray-900 dark:text-white">Weekly Email Digest</p>
-              <p className="text-sm text-gray-500">প্রতি সপ্তাহে আপনার পারফরম্যান্সের সারসংক্ষেপ ইমেইল পান</p>
+      <div className="glass-card" style={{ padding: 24 }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Bell size={18} style={{ color: 'var(--neon-purple)' }} />
+          ইমেইল ও সিস্টেম নোটিফিকেশন
+        </h3>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {list.map(item => (
+            <div
+              key={item.key}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '14px 16px', borderRadius: 10, background: 'var(--bg-raised)',
+                border: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: 12,
+              }}
+            >
+              <div>
+                <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  {item.title}
+                </p>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                  {item.desc}
+                </p>
+              </div>
+              <button
+                onClick={() => toggle(item.key)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: settings[item.key] ? '#34D399' : 'var(--text-muted)', padding: 0 }}
+              >
+                {settings[item.key] ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+              </button>
             </div>
-            <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-700">
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-1" />
-            </button>
-          </div>
+          ))}
         </div>
-
       </div>
+
     </div>
-  )
+  );
 }

@@ -1,143 +1,144 @@
-'use client'
+'use client';
 
-import { SettingsTabs } from '@/components/layout/SettingsTabs'
-import { Check, Download, Zap } from 'lucide-react'
-
-const mockInvoices = [
-  { id: 'INV-001', date: 'Aug 01, 2026', amount: '$0.00', plan: 'বিনামূল্যে (Free)', status: 'Paid' },
-]
+import React from 'react';
+import { SettingsNavHeader } from '@/components/layout/SettingsNavHeader';
+import { Check, Download, Zap, CreditCard, ShieldCheck } from 'lucide-react';
+import { useAuthStore } from '@/store';
 
 export default function BillingSettingsPage() {
+  const { currentWorkspace } = useAuthStore();
+  const activePlan = currentWorkspace?.plan || 'free';
+
+  const mockInvoices = [
+    { id: 'INV-001', date: '১০ আগস্ট, ২০২৬', amount: '৳০.০০', plan: 'Free Plan', status: 'পরিশোধিত' },
+  ];
+
   return (
-    <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto p-6 font-['Anek_Bangla']">
-      <div className="w-full md:w-64 flex-shrink-0">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">সেটিংস</h2>
-        <SettingsTabs />
+    <div style={{ maxWidth: 900, margin: '0 auto', fontFamily: "'Anek Bangla', sans-serif" }}>
+
+      <SettingsNavHeader />
+
+      <div style={{ marginBottom: 20 }}>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>
+          বিলিং ও সাবস্ক্রিপশন
+        </h1>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          আপনার বর্তমান প্ল্যান, ব্যবহার সীমা এবং ইনভয়েস ইতিহাস
+        </p>
       </div>
-      <div className="flex-1 space-y-8">
-        
-        {/* Current Plan & Usage */}
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-          <div className="flex justify-between items-start mb-6">
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+        {/* Usage Card */}
+        <div className="glass-card" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                বর্তমান প্ল্যান <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#7C3AED] text-white">বিনামূল্যে (Free)</span>
+              <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--neon-cyan)', fontWeight: 700 }}>
+                বর্তমান প্ল্যান
+              </span>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0 0' }}>
+                {activePlan.toUpperCase()} PLAN
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">পরবর্তী নবায়ন: Sep 01, 2026</p>
             </div>
-            <button className="px-4 py-2 bg-[#7C3AED] text-white rounded-md text-sm font-medium hover:bg-purple-700 transition-colors">
-              আপগ্রড করুন
-            </button>
+            <span style={{ padding: '4px 12px', borderRadius: 999, fontSize: '0.75rem', fontWeight: 700, background: 'rgba(16,185,129,0.12)', color: '#34D399', border: '1px solid rgba(16,185,129,0.3)' }}>
+              সক্রিয় সাবস্ক্রিপশন
+            </span>
           </div>
 
-          <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">ইমেইল পাঠানো</span>
-                <span className="text-gray-500">8,200 / 10,000</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem', marginBottom: 6, color: 'var(--text-secondary)' }}>
+                <span>দৈনিক ইমেইল সীমা</span>
+                <span>০ / ৫০০</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '82%' }}></div>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">কনট্যাক্টস</span>
-                <span className="text-gray-500">3,450 / 5,000</span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div className="bg-green-500 h-2 rounded-full" style={{ width: '69%' }}></div>
+              <div style={{ width: '100%', height: 6, background: 'var(--bg-raised)', borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{ width: '0%', height: '100%', background: 'linear-gradient(90deg, #7C3AED, #06B6D4)' }} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Plans */}
+        {/* Plans Grid */}
         <div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">প্ল্যান পরিবর্তন</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Free Plan */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg p-6 border-2 border-[#7C3AED] relative">
-              <div className="absolute top-0 right-0 bg-[#7C3AED] text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-md font-medium">বর্তমান</div>
-              <h4 className="text-xl font-bold mb-2">Free</h4>
-              <p className="text-3xl font-bold mb-6">$0<span className="text-base font-normal text-gray-500">/mo</span></p>
-              <ul className="space-y-3 mb-6 text-sm">
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> 10,000 Emails/mo</li>
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> 5,000 Contacts</li>
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> Basic Templates</li>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>
+            প্ল্যান অপশনসমূহ
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+            {/* Free */}
+            <div className="glass-card" style={{ padding: 20, border: '1px solid rgba(139,92,246,0.3)' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#34D399', textTransform: 'uppercase' }}>শুরুর জন্য</span>
+              <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>Free</h4>
+              <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', margin: '0 0 14px' }}>০ টাকা <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/মাস</span></p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> ৫০০ ইমেইল/দিন (Gmail)</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> কন্টাক্ট ইমপোর্ট ও লিস্ট</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> রেডিমেড টেমপ্লেট</li>
               </ul>
-              <button className="w-full py-2 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-500 cursor-not-allowed" disabled>
+              <button disabled style={{ width: '100%', padding: '10px', borderRadius: 8, border: '1px solid var(--border-subtle)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-muted)', fontSize: '0.825rem', cursor: 'not-allowed' }}>
                 বর্তমান প্ল্যান
               </button>
             </div>
-            {/* Pro Plan */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-              <h4 className="text-xl font-bold mb-2 flex items-center">Pro <Zap className="w-4 h-4 ml-2 text-yellow-500" /></h4>
-              <p className="text-3xl font-bold mb-6">$29<span className="text-base font-normal text-gray-500">/mo</span></p>
-              <ul className="space-y-3 mb-6 text-sm">
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> 50,000 Emails/mo</li>
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> Unlimited Contacts</li>
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> Premium Templates</li>
+
+            {/* Pro */}
+            <div className="glass-card" style={{ padding: 20, borderColor: 'rgba(6,182,212,0.3)' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#67E8F9', textTransform: 'uppercase' }}>জনপ্রিয়</span>
+              <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>Pro</h4>
+              <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', margin: '0 0 14px' }}>১,৪৯০ টাকা <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/মাস</span></p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> ৫০,০০০ ইমেইল/মাস</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> কাস্টম ডোমেইন (SES/cPanel)</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> AI অটোমেশন ও এনালিটিক্স</li>
               </ul>
-              <button className="w-full py-2 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-md text-sm font-medium transition-colors">
-                আপগ্রড
+              <button style={{ width: '100%', padding: '10px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #06B6D4, #0891B2)', color: '#fff', fontWeight: 700, fontSize: '0.825rem', cursor: 'pointer' }}>
+                আপগ্রেড করুন
               </button>
             </div>
-            {/* Business Plan */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-              <h4 className="text-xl font-bold mb-2">Business</h4>
-              <p className="text-3xl font-bold mb-6">$99<span className="text-base font-normal text-gray-500">/mo</span></p>
-              <ul className="space-y-3 mb-6 text-sm">
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> 250,000 Emails/mo</li>
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> Dedicated IP</li>
-                <li className="flex items-center"><Check className="w-4 h-4 text-green-500 mr-2" /> Priority Support</li>
+
+            {/* Business */}
+            <div className="glass-card" style={{ padding: 20 }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#C4B5FD', textTransform: 'uppercase' }}>ব্যবসার জন্য</span>
+              <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>Business</h4>
+              <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', margin: '0 0 14px' }}>৪,৯৯০ টাকা <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/মাস</span></p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> ২,০০,০০০+ ইমেইল/মাস</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> আনলিমিটেড কন্টাক্টস</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#34D399" /> ডেডিকেটেড আইপি ও সাপোর্ট</li>
               </ul>
-              <button className="w-full py-2 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-md text-sm font-medium transition-colors">
-                আপগ্রড
+              <button style={{ width: '100%', padding: '10px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #7C3AED, #6D28D9)', color: '#fff', fontWeight: 700, fontSize: '0.825rem', cursor: 'pointer' }}>
+                আপগ্রেড করুন
               </button>
             </div>
           </div>
         </div>
 
-        {/* Invoice History */}
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">ইনভয়েস ইতিহাস</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 dark:text-gray-400">
-                  <th className="pb-3 font-medium">তারিখ</th>
-                  <th className="pb-3 font-medium">পরিমাণ</th>
-                  <th className="pb-3 font-medium">প্ল্যান</th>
-                  <th className="pb-3 font-medium">স্ট্যাটাস</th>
-                  <th className="pb-3 font-medium text-right">ডাউনলোড</th>
+        {/* Invoice Table */}
+        <div className="glass-card" style={{ padding: 20 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>
+            ইনভয়েস হিস্ট্রি
+          </h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>ইনভয়েস আইডি</th>
+                <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>তারিখ</th>
+                <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>পরিমাণ</th>
+                <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>স্ট্যাটাস</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mockInvoices.map(inv => (
+                <tr key={inv.id}>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontFamily: 'monospace' }}>{inv.id}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{inv.date}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontWeight: 600 }}>{inv.amount}</td>
+                  <td style={{ padding: '10px 12px', color: '#34D399', fontWeight: 600 }}>{inv.status}</td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {mockInvoices.map(invoice => (
-                  <tr key={invoice.id}>
-                    <td className="py-3 text-gray-900 dark:text-white">{invoice.date}</td>
-                    <td className="py-3 text-gray-900 dark:text-white">{invoice.amount}</td>
-                    <td className="py-3 text-gray-900 dark:text-white">{invoice.plan}</td>
-                    <td className="py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                        {invoice.status}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right">
-                      <button className="text-gray-500 hover:text-[#7C3AED] transition-colors inline-flex justify-end">
-                        <Download className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
 
       </div>
     </div>
-  )
+  );
 }

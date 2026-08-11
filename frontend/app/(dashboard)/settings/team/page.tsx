@@ -1,74 +1,91 @@
-'use client'
+'use client';
 
-import { SettingsTabs } from '@/components/layout/SettingsTabs'
-import { Plus, MoreHorizontal } from 'lucide-react'
+import React from 'react';
+import { SettingsNavHeader } from '@/components/layout/SettingsNavHeader';
+import { Users, Plus, Shield, CheckCircle2 } from 'lucide-react';
+import { useAuthStore } from '@/store';
 
 export default function TeamSettingsPage() {
+  const { user } = useAuthStore();
+  const userName = user?.name || 'ব্যবহারকারী';
+  const userEmail = user?.email || 'user@example.com';
+  const initials = userName.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
+
   return (
-    <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto p-6 font-['Anek_Bangla']">
-      <div className="w-full md:w-64 flex-shrink-0">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">সেটিংস</h2>
-        <SettingsTabs />
+    <div style={{ maxWidth: 900, margin: '0 auto', fontFamily: "'Anek Bangla', sans-serif" }}>
+
+      <SettingsNavHeader />
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>
+            টিম মেম্বারস
+          </h1>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            ওয়ার্কস্পেসে সদস্য ও তাদের রোল ম্যানেজমেন্ট
+          </p>
+        </div>
+        <button
+          disabled
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '9px 18px', borderRadius: 10, border: 'none',
+            background: 'rgba(139,92,246,0.3)',
+            color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: '0.875rem', cursor: 'not-allowed',
+          }}
+        >
+          <Plus size={16} /> টিম সদস্য যোগ করুন (Pro)
+        </button>
       </div>
-      <div className="flex-1 space-y-6">
-        
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-bold text-blue-800 dark:text-blue-300">Phase 2 Feature</h4>
-            <p className="text-sm text-blue-600 dark:text-blue-400">এই ফিচারটি পরবর্তী আপডেটে আসবে।</p>
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">টিম মেম্বারস</h3>
-          <button className="inline-flex items-center px-4 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-md text-sm font-medium transition-colors opacity-50 cursor-not-allowed">
-            <Plus className="w-4 h-4 mr-2" />
-            মেম্বার যোগ করুন
-          </button>
-        </div>
+      <div className="glass-card" style={{ padding: 20 }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>
+          সদস্য তালিকা
+        </h3>
 
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">নাম</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">রোল</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">স্ট্যাটাস</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">অ্যাকশন</th>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <th style={{ padding: '10px 12px', color: 'var(--text-muted)' }}>সদস্য</th>
+                <th style={{ padding: '10px 12px', color: 'var(--text-muted)' }}>রোল</th>
+                <th style={{ padding: '10px 12px', color: 'var(--text-muted)' }}>স্ট্যাটাস</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody>
               <tr>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 font-bold">SA</div>
+                <td style={{ padding: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                      background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#fff', fontSize: '0.85rem', fontWeight: 700,
+                    }}>
+                      {initials}
                     </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">Sazu Akheni</div>
-                      <div className="text-sm text-gray-500">sazu@example.com</div>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-primary)' }}>{userName}</p>
+                      <p style={{ margin: '2px 0 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontFamily: 'monospace' }}>{userEmail}</p>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                <td style={{ padding: '12px' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: 'rgba(139,92,246,0.15)', color: '#A78BFA' }}>
                     Owner
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                    Active
+                <td style={{ padding: '12px' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#34D399', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <CheckCircle2 size={13} /> Active
                   </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button className="text-gray-400 hover:text-gray-500"><MoreHorizontal className="w-5 h-5" /></button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-
       </div>
+
     </div>
-  )
+  );
 }

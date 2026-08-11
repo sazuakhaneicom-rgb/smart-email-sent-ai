@@ -1,93 +1,173 @@
-'use client'
+'use client';
 
-import { SettingsTabs } from '@/components/layout/SettingsTabs'
-import { Smartphone, Monitor, Globe } from 'lucide-react'
+import React, { useState } from 'react';
+import { SettingsNavHeader } from '@/components/layout/SettingsNavHeader';
+import { Smartphone, Monitor, Shield, Save, CheckCircle2, Lock } from 'lucide-react';
 
 export default function SecuritySettingsPage() {
+  const [currentPass, setCurrentPass] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [confirmPass, setConfirmPass] = useState('');
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [twoFA, setTwoFA] = useState(false);
+
+  const handlePasswordSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPass || !newPass) {
+      setToast({ msg: 'বর্তমান ও নতুন পাসওয়ার্ড প্রদান করুন।', ok: false });
+      return;
+    }
+    if (newPass !== confirmPass) {
+      setToast({ msg: 'নতুন পাসওয়ার্ড ও কনফার্ম পাসওয়ার্ড মিলছে না।', ok: false });
+      return;
+    }
+    setToast({ msg: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!', ok: true });
+    setCurrentPass(''); setNewPass(''); setConfirmPass('');
+    setTimeout(() => setToast(null), 3000);
+  };
+
   return (
-    <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto p-6 font-['Anek_Bangla']">
-      <div className="w-full md:w-64 flex-shrink-0">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">সেটিংস</h2>
-        <SettingsTabs />
+    <div style={{ maxWidth: 900, margin: '0 auto', fontFamily: "'Anek Bangla', sans-serif" }}>
+
+      <SettingsNavHeader />
+
+      <div style={{ marginBottom: 20 }}>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>
+          সিকিউরিটি সেটিংস
+        </h1>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          আপনার অ্যাকাউন্টের পাসওয়ার্ড, ২-ফ্যাক্টর অথেনটিকেশন ও সেশন কন্ট্রোল
+        </p>
       </div>
-      <div className="flex-1 space-y-6">
-        
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">পাসওয়ার্ড পরিবর্তন</h3>
-          <form className="space-y-4 max-w-md">
+
+      {toast && (
+        <div style={{
+          marginBottom: 16, padding: '12px 16px', borderRadius: 10,
+          background: toast.ok ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+          border: `1px solid ${toast.ok ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+          color: toast.ok ? '#34D399' : '#F87171',
+          fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <CheckCircle2 size={16} /> {toast.msg}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+        {/* Password Change Card */}
+        <div className="glass-card" style={{ padding: 24 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Lock size={18} style={{ color: 'var(--neon-purple)' }} />
+            পাসওয়ার্ড পরিবর্তন
+          </h3>
+          <form onSubmit={handlePasswordSave} style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 450 }}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">বর্তমান পাসওয়ার্ড</label>
-              <input type="password" placeholder="••••••••" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7C3AED] bg-transparent dark:text-white" />
+              <label style={{ fontSize: '0.825rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                বর্তমান পাসওয়ার্ড
+              </label>
+              <input
+                type="password"
+                className="cyber-input"
+                placeholder="••••••••"
+                value={currentPass}
+                onChange={e => setCurrentPass(e.target.value)}
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">নতুন পাসওয়ার্ড</label>
-              <input type="password" placeholder="••••••••" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7C3AED] bg-transparent dark:text-white" />
+              <label style={{ fontSize: '0.825rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                নতুন পাসওয়ার্ড
+              </label>
+              <input
+                type="password"
+                className="cyber-input"
+                placeholder="••••••••"
+                value={newPass}
+                onChange={e => setNewPass(e.target.value)}
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">পাসওয়ার্ড নিশ্চিত করুন</label>
-              <input type="password" placeholder="••••••••" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7C3AED] bg-transparent dark:text-white" />
+              <label style={{ fontSize: '0.825rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                পাসওয়ার্ড নিশ্চিত করুন
+              </label>
+              <input
+                type="password"
+                className="cyber-input"
+                placeholder="••••••••"
+                value={confirmPass}
+                onChange={e => setConfirmPass(e.target.value)}
+              />
             </div>
-            <div className="pt-2">
-              <button type="button" className="px-4 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-md text-sm font-medium transition-colors">
-                সেভ করুন
+            <div>
+              <button
+                type="submit"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '10px 20px', borderRadius: 10, border: 'none',
+                  background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
+                  color: '#fff', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer',
+                  boxShadow: '0 0 16px rgba(139,92,246,0.3)',
+                  fontFamily: "'Anek Bangla', sans-serif",
+                }}
+              >
+                <Save size={15} /> পাসওয়ার্ড আপডেট করুন
               </button>
             </div>
           </form>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-          <div className="flex items-center justify-between mb-4">
+        {/* 2FA Card */}
+        <div className="glass-card" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">টু-ফ্যাক্টর অথেনটিকেশন (2FA)</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">আপনার অ্যাকাউন্টের নিরাপত্তা বাড়াতে 2FA চালু করুন।</p>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Shield size={18} style={{ color: 'var(--neon-cyan)' }} />
+                টু-ফ্যাক্টর অথেনটিকেশন (2FA)
+              </h3>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+                আপনার অ্যাকাউন্টের নিরাপত্তার জন্য 2FA চালু রাখুন
+              </p>
             </div>
-            <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-700">
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-1" />
+            <button
+              onClick={() => setTwoFA(!twoFA)}
+              style={{
+                padding: '8px 16px', borderRadius: 8, border: 'none',
+                background: twoFA ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)',
+                color: twoFA ? '#34D399' : 'var(--text-secondary)',
+                fontWeight: 700, fontSize: '0.825rem', cursor: 'pointer',
+                fontFamily: "'Anek Bangla', sans-serif",
+              }}
+            >
+              {twoFA ? '✅ 2FA চালু আছে' : '2FA চালু করুন'}
             </button>
-          </div>
-          <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 hidden">
-            {/* QR Code placeholder when enabled */}
-            <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 mx-auto mb-4 flex items-center justify-center text-xs text-gray-500">QR Code</div>
-            <p className="text-center text-sm font-mono text-gray-700 dark:text-gray-300 mb-4">ABCD EFGH IJKL MNOP</p>
-            <div className="flex justify-center">
-              <button className="px-4 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-md text-sm font-medium transition-colors">
-                সেভ করুন
-              </button>
-            </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-800">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">সক্রিয় সেশনসমূহ</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div className="flex items-center">
-                <Monitor className="h-8 w-8 text-gray-400 mr-4" />
+        {/* Sessions Card */}
+        <div className="glass-card" style={{ padding: 24 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>
+            সক্রিয় সেশনসমূহ
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 16px', borderRadius: 10, background: 'var(--bg-raised)',
+              border: '1px solid var(--border-subtle)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Monitor size={22} style={{ color: 'var(--neon-purple)' }} />
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Windows • Chrome</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">192.168.1.1 • Dhaka, BD (বর্তমান সেশন)</p>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Windows • Chrome Browser</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>বর্তমান ডিভাইস (Active)</p>
                 </div>
               </div>
+              <span style={{ fontSize: '0.72rem', padding: '3px 8px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', color: '#34D399', fontWeight: 700 }}>
+                বর্তমান সেশন
+              </span>
             </div>
-            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div className="flex items-center">
-                <Smartphone className="h-8 w-8 text-gray-400 mr-4" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">iPhone 13 • Safari</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">10.0.0.1 • Dhaka, BD (২ ঘন্টা আগে)</p>
-                </div>
-              </div>
-              <button className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 font-medium">বাতিল</button>
-            </div>
-          </div>
-          <div className="mt-6">
-            <button className="px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-md text-sm font-medium transition-colors border border-red-200 dark:border-red-900/50">
-              সব ডিভাইস থেকে লগ আউট
-            </button>
           </div>
         </div>
 
       </div>
     </div>
-  )
+  );
 }
