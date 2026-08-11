@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { mockTemplates, mockLists } from '@/lib/mock-data';
 import { CheckCircle2, ArrowLeft, ArrowRight, Calendar, Send, Info } from 'lucide-react';
 import Link from 'next/link';
 
@@ -93,7 +92,7 @@ export default function NewCampaignPage() {
               <p className="text-gray-500 mb-6">একটি টেমপ্লেট নির্বাচন করুন</p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                {mockTemplates.map((template: any) => (
+                {([] as any[]).map((template: any) => (
                   <div 
                     key={template.id} 
                     onClick={() => setSelectedTemplate(template.id)}
@@ -139,7 +138,7 @@ export default function NewCampaignPage() {
               <p className="text-gray-500 mb-6">কার কাছে এই ইমেইল পাঠাতে চান?</p>
               
               <div className="space-y-3">
-                {mockLists?.map((list: any) => (
+                {([] as any[]).map((list: any) => (
                   <label key={list.id} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${selectedLists.includes(list.id) ? 'border-[#7C3AED] bg-[#7C3AED]/5' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}>
                     <input 
                       type="checkbox" 

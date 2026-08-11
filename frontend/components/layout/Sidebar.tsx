@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store';
 import {
   LayoutDashboard, Mail, Users, FileText, BarChart3,
-  Settings, ChevronLeft, ChevronRight, Zap, LogOut,
-  Building2, CreditCard, Bell, Shield, Globe, UserCheck, Bot, Sparkles,
+  ChevronLeft, ChevronRight, Zap, LogOut,
+  Building2, CreditCard, Bell, Shield, Globe, UserCheck, Bot, X,
 } from 'lucide-react';
 
 const mainNav = [
@@ -29,11 +29,29 @@ const settingsNav = [
   { href: '/settings/team',          icon: Building2,  label: 'টিম' },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user, currentWorkspace } = useAuthStore();
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    if (isMobile && onMobileClose) onMobileClose();
+  }, [pathname]);
 
   const isActive = (href: string) =>
     href === '/dashboard' ? pathname === href : pathname.startsWith(href);
@@ -43,20 +61,24 @@ export function Sidebar() {
     router.replace('/login');
   };
 
+  const cleanName = (name: string) =>
+    name.replace(/\s*\(\s*ডেমো\s*\)/gi, '').replace(/\s*\(demo\)/gi, '').replace(/^demo$/gi, '').trim();
+
   const initials = user?.name
-    ? user.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
+    ? cleanName(user.name).split(' ').filter(Boolean).map((w) => w[0]).join('').toUpperCase().slice(0, 2) || 'U'
     : 'U';
 
-  return (
+  const sidebarContent = (
     <aside
       style={{
-        width: collapsed ? '72px' : '240px',
+        width: isMobile ? '260px' : collapsed ? '72px' : '240px',
         minHeight: '100vh',
+        height: isMobile ? '100vh' : undefined,
         background: 'var(--bg-void)',
         borderRight: '1px solid var(--sidebar-border)',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
+        transition: isMobile ? 'none' : 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
         overflow: 'hidden',
         position: 'relative',
         flexShrink: 0,
@@ -72,7 +94,6 @@ export function Sidebar() {
           pointerEvents: 'none',
         }}
       />
-
       {/* Top glow */}
       <div
         style={{
@@ -87,35 +108,50 @@ export function Sidebar() {
         <div
           style={{
             height: '64px', display: 'flex', alignItems: 'center',
-            padding: collapsed ? '0 16px' : '0 20px',
+            padding: (collapsed && !isMobile) ? '0 16px' : '0 20px',
             borderBottom: '1px solid var(--sidebar-border)',
             gap: '12px',
+            justifyContent: 'space-between',
           }}
         >
-          <div
-            style={{
-              width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
-              background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: 'var(--glow-purple-sm)',
-            }}
-          >
-            <Zap size={18} style={{ color: '#fff' }} />
-          </div>
-          {!collapsed && (
-            <div>
-              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-                Smart Email
-              </p>
-              <p style={{ fontSize: '0.65rem', color: 'var(--neon-cyan)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                Sent AI
-              </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
+              style={{
+                width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+                background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: 'var(--glow-purple-sm)',
+              }}
+            >
+              <Zap size={18} style={{ color: '#fff' }} />
             </div>
+            {(!collapsed || isMobile) && (
+              <div>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                  Smart Email
+                </p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--neon-cyan)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                  Sent AI
+                </p>
+              </div>
+            )}
+          </div>
+          {/* Mobile close button */}
+          {isMobile && (
+            <button
+              onClick={onMobileClose}
+              style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                color: 'var(--text-muted)', padding: 4,
+              }}
+            >
+              <X size={20} />
+            </button>
           )}
         </div>
 
         {/* Workspace badge */}
-        {!collapsed && currentWorkspace && (
+        {(!collapsed || isMobile) && currentWorkspace && (
           <div
             style={{
               margin: '12px 12px 4px',
@@ -129,7 +165,7 @@ export function Sidebar() {
               Workspace
             </p>
             <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {currentWorkspace.name.replace(/\s*\(\s*ডেমো\s*\)/gi, '').replace(/গুগল ওয়ার্কস্পেস/gi, 'আমার ওয়ার্কস্পেস').trim()}
+              {cleanName(currentWorkspace.name) || 'আমার ওয়ার্কস্পেস'}
             </p>
             <span
               style={{
@@ -145,7 +181,7 @@ export function Sidebar() {
         {/* Main Nav */}
         <nav style={{ flex: 1, padding: '8px 10px', overflowY: 'auto' }}>
           <div style={{ marginBottom: '24px' }}>
-            {!collapsed && (
+            {(!collapsed || isMobile) && (
               <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '4px 8px 8px', fontWeight: 600 }}>
                 মেইন মেনু
               </p>
@@ -155,10 +191,10 @@ export function Sidebar() {
                 key={href}
                 href={href}
                 className={`nav-item ${isActive(href) ? 'active' : ''}`}
-                title={collapsed ? label : undefined}
+                title={(collapsed && !isMobile) ? label : undefined}
                 style={{
                   marginBottom: '4px',
-                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
                   ...(isHighlighted ? {
                     background: isActive(href)
                       ? 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(6,182,212,0.25))'
@@ -169,7 +205,7 @@ export function Sidebar() {
                 }}
               >
                 <Icon size={18} style={{ flexShrink: 0, color: isHighlighted ? 'var(--neon-cyan)' : undefined }} />
-                {!collapsed && (
+                {(!collapsed || isMobile) && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                     <span style={{ fontWeight: isHighlighted ? 700 : 500, color: isHighlighted ? '#fff' : undefined }}>{label}</span>
                     {isHighlighted && (
@@ -186,7 +222,7 @@ export function Sidebar() {
           </div>
 
           <div>
-            {!collapsed && (
+            {(!collapsed || isMobile) && (
               <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '4px 8px 8px', fontWeight: 600 }}>
                 সেটিংস
               </p>
@@ -196,11 +232,11 @@ export function Sidebar() {
                 key={href}
                 href={href}
                 className={`nav-item ${isActive(href) ? 'active' : ''}`}
-                title={collapsed ? label : undefined}
-                style={{ marginBottom: '2px', justifyContent: collapsed ? 'center' : 'flex-start' }}
+                title={(collapsed && !isMobile) ? label : undefined}
+                style={{ marginBottom: '2px', justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start' }}
               >
                 <Icon size={16} style={{ flexShrink: 0 }} />
-                {!collapsed && <span style={{ fontSize: '0.825rem' }}>{label}</span>}
+                {(!collapsed || isMobile) && <span style={{ fontSize: '0.825rem' }}>{label}</span>}
               </Link>
             ))}
           </div>
@@ -211,12 +247,12 @@ export function Sidebar() {
           <div
             style={{
               display: 'flex', alignItems: 'center', gap: '10px',
-              padding: collapsed ? '8px' : '10px 12px',
+              padding: (collapsed && !isMobile) ? '8px' : '10px 12px',
               borderRadius: '10px',
               background: 'rgba(139,92,246,0.04)',
               border: '1px solid rgba(139,92,246,0.08)',
               marginBottom: '6px',
-              justifyContent: collapsed ? 'center' : 'flex-start',
+              justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
             }}
           >
             <div
@@ -229,10 +265,10 @@ export function Sidebar() {
             >
               {initials}
             </div>
-            {!collapsed && (
+            {(!collapsed || isMobile) && (
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {(user?.name || 'ব্যবহারকারী').replace(/\s*\(\s*ডেমো\s*\)/gi, '').replace(/\s*\(demo\)/gi, '').replace(/demo/gi, '').trim() || 'গুগল ইউজার'}
+                  {cleanName(user?.name || 'ব্যবহারকারী') || 'গুগল ইউজার'}
                 </p>
                 <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {user?.email}
@@ -243,11 +279,11 @@ export function Sidebar() {
 
           <button
             onClick={handleLogout}
-            title={collapsed ? 'লগআউট' : undefined}
+            title={(collapsed && !isMobile) ? 'লগআউট' : undefined}
             style={{
               width: '100%', display: 'flex', alignItems: 'center',
-              justifyContent: collapsed ? 'center' : 'flex-start',
-              gap: '8px', padding: collapsed ? '8px' : '8px 12px',
+              justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+              gap: '8px', padding: (collapsed && !isMobile) ? '8px' : '8px 12px',
               borderRadius: '8px', border: 'none', background: 'transparent',
               color: 'var(--text-muted)', fontSize: '0.825rem', cursor: 'pointer',
               transition: 'all 0.2s ease',
@@ -262,34 +298,54 @@ export function Sidebar() {
             }}
           >
             <LogOut size={16} style={{ flexShrink: 0 }} />
-            {!collapsed && <span>লগআউট</span>}
+            {(!collapsed || isMobile) && <span>লগআউট</span>}
           </button>
         </div>
 
-        {/* Collapse Toggle */}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          style={{
-            position: 'absolute', right: '-12px', top: '76px',
-            width: '24px', height: '24px', borderRadius: '50%',
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border-default)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', zIndex: 10, color: 'var(--text-muted)',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--neon-purple)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--neon-purple-bright)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
-          }}
-        >
-          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-        </button>
+        {/* Collapse Toggle — desktop only */}
+        {!isMobile && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              position: 'absolute', right: '-12px', top: '76px',
+              width: '24px', height: '24px', borderRadius: '50%',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', zIndex: 10, color: 'var(--text-muted)',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--neon-purple)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--neon-purple-bright)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
+            }}
+          >
+            {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+          </button>
+        )}
       </div>
     </aside>
   );
+
+  if (isMobile) {
+    return (
+      <>
+        {/* Overlay */}
+        <div
+          className={`mobile-sidebar-overlay ${isMobileOpen ? 'open' : ''}`}
+          onClick={onMobileClose}
+        />
+        {/* Drawer */}
+        <div className={`mobile-sidebar-drawer ${isMobileOpen ? 'open' : ''}`}>
+          {sidebarContent}
+        </div>
+      </>
+    );
+  }
+
+  return sidebarContent;
 }

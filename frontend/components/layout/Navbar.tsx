@@ -1,11 +1,15 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Bell, LogOut, Settings, User, ChevronDown, Terminal } from 'lucide-react';
+import { Search, Bell, LogOut, Settings, User, ChevronDown, Terminal, Menu } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store';
 
-export function Navbar() {
+interface NavbarProps {
+  onMenuClick?: () => void;
+}
+
+export function Navbar({ onMenuClick }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, currentWorkspace, logout } = useAuthStore();
@@ -84,8 +88,21 @@ export function Navbar() {
       padding: '0 24px', gap: 16,
       fontFamily: "'Anek Bangla', sans-serif",
     }}>
-      {/* Left — breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      {/* Left — hamburger (mobile) + breadcrumb */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Hamburger button — mobile only */}
+        <button
+          className="mobile-menu-btn"
+          onClick={onMenuClick}
+          style={{
+            width: 36, height: 36, borderRadius: 8, border: 'none',
+            background: 'rgba(139,92,246,0.08)', cursor: 'pointer',
+            alignItems: 'center', justifyContent: 'center',
+            color: 'var(--text-primary)',
+          }}
+        >
+          <Menu size={20} />
+        </button>
         <div style={{
           width: 6, height: 6, borderRadius: '50%',
           background: 'var(--neon-purple)',
@@ -97,8 +114,10 @@ export function Navbar() {
       {/* Right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
 
-        {/* Search */}
-        <button style={iconButtonStyle}
+        {/* Search — hidden on mobile */}
+        <button
+          className="navbar-search"
+          style={iconButtonStyle}
           onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(139,92,246,0.08)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)'; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'; }}
         >

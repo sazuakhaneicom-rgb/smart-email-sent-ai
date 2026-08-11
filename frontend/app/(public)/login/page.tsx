@@ -7,12 +7,6 @@ import { Mail, Lock, Eye, EyeOff, Sparkles, Zap, Shield, ChevronRight } from 'lu
 import { useAuthStore } from '@/store';
 import { authService } from '@/lib/auth-service';
 
-const QUICK_LOGIN_USER = {
-  email: 'user@smartemail.com',
-  password: 'password123',
-  user: { uid: 'user-001', email: 'user@smartemail.com', name: 'মোঃ রাহুল হোসেন', photoURL: '' },
-  workspace: { id: 'ws-001', name: 'আমার ব্যবসা', plan: 'pro' as const, role: 'owner' as const },
-};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,18 +35,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setIsLoading(true);
-    try {
-      const { user, workspace } = await authService.loginWithEmail('demo@smartemail.com', 'demo1234');
-      setUser(user);
-      setWorkspaces([workspace]);
-      setCurrentWorkspace(workspace);
-      router.push('/dashboard');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
 
   const handleGoogleLogin = async () => {
     setError('');

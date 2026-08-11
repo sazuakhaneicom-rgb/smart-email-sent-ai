@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -10,7 +10,8 @@ import { Zap } from 'lucide-react';
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, isLoading, user } = useAuthStore();
-  const [mounted, setMounted] = React.useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   React.useEffect(() => {
     setMounted(true);
@@ -73,10 +74,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       display: 'flex',
       fontFamily: "'Anek Bangla', sans-serif",
     }}>
-      <Sidebar />
+      {/* Desktop Sidebar */}
+      <div className="desktop-sidebar">
+        <Sidebar />
+      </div>
+
+      {/* Mobile Sidebar Drawer */}
+      <Sidebar isMobileOpen={sidebarOpen} onMobileClose={() => setSidebarOpen(false)} />
+
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
-        <Navbar />
-        <main style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
+        <Navbar onMenuClick={() => setSidebarOpen(true)} />
+        <main
+          className="main-content-area"
+          style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}
+        >
           <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
             {children}
           </div>
