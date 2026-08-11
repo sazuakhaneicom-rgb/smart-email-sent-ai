@@ -2,9 +2,17 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Eye, EyeOff, FileText, Mail, Type, AlignLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, FileText, Mail, Type, AlignLeft, CheckCircle2, Link as LinkIcon, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
+import {
+  CLAUDE_PREMIUM_TEMPLATE,
+  CHATGPT_PREMIUM_TEMPLATE,
+  GEMINI_PREMIUM_TEMPLATE,
+  GROK_PREMIUM_TEMPLATE,
+  MIDJOURNEY_PREMIUM_TEMPLATE,
+  Template as SystemTemplate
+} from '@/lib/system-templates';
 
 interface Template {
   id: string;
@@ -28,8 +36,6 @@ function saveTemplates(userId: string, templates: Template[]) {
   localStorage.setItem(`templates_${userId}`, JSON.stringify(templates));
 }
 
-import { CLAUDE_PREMIUM_TEMPLATE } from '@/lib/system-templates';
-
 export default function NewTemplatePage() {
   const router = useRouter();
   const { user } = useAuthStore();
@@ -44,11 +50,19 @@ export default function NewTemplatePage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLoadClaudeTemplate = () => {
-    setName(CLAUDE_PREMIUM_TEMPLATE.name);
-    setSubject(CLAUDE_PREMIUM_TEMPLATE.subject);
-    setBody(CLAUDE_PREMIUM_TEMPLATE.body);
+  const loadAiPreset = (tpl: SystemTemplate) => {
+    setName(tpl.name);
+    setSubject(tpl.subject);
+    setBody(tpl.body);
     setShowPreview(true);
+  };
+
+  const updateInvitationUrlInBody = (newUrl: string) => {
+    setInvitationLink(newUrl);
+    setBody(prev => {
+      if (!prev) return prev;
+      return prev.replace(/href="[^"]*"/g, `href="${newUrl}"`);
+    });
   };
 
   const insertMergeTag = (tag: string) => {
@@ -89,11 +103,11 @@ export default function NewTemplatePage() {
     .replace(/\{\{company\}\}/g, 'আপনার কোম্পানি');
 
   return (
-    <div style={{ fontFamily: "'Anek Bangla', sans-serif", maxWidth: 1100, margin: '0 auto' }}>
+    <div style={{ fontFamily: "'Anek Bangla', sans-serif", maxWidth: 1150, margin: '0 auto' }}>
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: 28, flexWrap: 'wrap', gap: 12,
+        marginBottom: 24, flexWrap: 'wrap', gap: 12,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Link href="/templates" style={{
@@ -106,26 +120,13 @@ export default function NewTemplatePage() {
           </Link>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>
-              নতুন Template তৈরি
+              নতুন AI Email Template তৈরি
             </h1>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Campaign-এ ব্যবহারের জন্য email template</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Campaign-এ ব্যবহারের জন্য প্রিমিয়াম AI ইমেইল টেমপ্লেট</p>
           </div>
         </div>
+
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button
-            onClick={handleLoadClaudeTemplate}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '9px 16px', borderRadius: 10,
-              background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2))',
-              border: '1px solid rgba(16,185,129,0.4)',
-              color: '#34D399', cursor: 'pointer',
-              fontFamily: "'Anek Bangla', sans-serif", fontWeight: 700, fontSize: '0.875rem',
-            }}
-            title="Claude AI Premium & Invitation Template ১-ক্লিকে লোড করুন"
-          >
-            🤖 Claude AI Template লোড করুন
-          </button>
           <button
             onClick={() => setShowPreview(!showPreview)}
             style={{
@@ -158,6 +159,62 @@ export default function NewTemplatePage() {
         </div>
       </div>
 
+      {/* AI Preset Quick Selector Toolbar */}
+      <div style={{
+        background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.25)',
+        borderRadius: 16, padding: 16, marginBottom: 24,
+        display: 'flex', flexDirection: 'column', gap: 12,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#C4B5FD', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Sparkles size={16} style={{ color: '#F59E0B' }} /> ১-ক্লিক AI প্রিমিয়াম ও ইনভিটেশন টেমপ্লেটসমূহ:
+          </p>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ইনভিটেশন লিংক ও সাবজেক্ট কাস্টমাইজযোগ্য</span>
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {[
+            { name: '🤖 Claude AI Premium', tpl: CLAUDE_PREMIUM_TEMPLATE, color: '#34D399' },
+            { name: '🚀 ChatGPT Plus & Team', tpl: CHATGPT_PREMIUM_TEMPLATE, color: '#10A37F' },
+            { name: '✨ Google Gemini Advanced', tpl: GEMINI_PREMIUM_TEMPLATE, color: '#60A5FA' },
+            { name: '⚡ Grok AI (xAI)', tpl: GROK_PREMIUM_TEMPLATE, color: '#E2E8F0' },
+            { name: '🎨 Midjourney v6 Pro', tpl: MIDJOURNEY_PREMIUM_TEMPLATE, color: '#C084FC' },
+          ].map((item) => (
+            <button
+              key={item.name}
+              type="button"
+              onClick={() => loadAiPreset(item.tpl)}
+              style={{
+                padding: '7px 16px', borderRadius: 10,
+                background: 'rgba(255,255,255,0.04)', border: `1px solid ${item.color}50`,
+                color: item.color, fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer',
+                fontFamily: "'Anek Bangla', sans-serif", transition: 'all 0.2s',
+              }}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Dynamic Invitation Link URL Editor Input */}
+        <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#67E8F9', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <LinkIcon size={14} /> ইনভিটেশন লিংক (Invitation URL):
+          </label>
+          <input
+            type="url"
+            value={invitationLink}
+            onChange={e => updateInvitationUrlInBody(e.target.value)}
+            placeholder="https://your-invitation-link.com"
+            style={{
+              flex: 1, minWidth: 280, padding: '8px 14px', borderRadius: 8,
+              background: 'var(--bg-raised)', border: '1px solid rgba(6,182,212,0.4)',
+              color: '#67E8F9', fontSize: '0.85rem', fontFamily: 'monospace',
+            }}
+          />
+        </div>
+      </div>
+
       {error && (
         <div style={{
           marginBottom: 16, padding: '10px 16px', borderRadius: 10,
@@ -182,7 +239,7 @@ export default function NewTemplatePage() {
             </div>
             <input
               type="text"
-              placeholder="যেমন: স্বাগত ইমেইল, ঈদ অফার, নতুন পণ্য..."
+              placeholder="যেমন: Claude AI, ChatGPT Plus, Gemini Invitation..."
               value={name}
               onChange={e => setName(e.target.value)}
               style={{
@@ -193,7 +250,7 @@ export default function NewTemplatePage() {
                 boxSizing: 'border-box',
               }}
             />
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 6 }}>এই নামটি শুধু আপনার জন্য — প্রাপক দেখবে না।</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 6 }}>এই নামটি শুধু আপনার চেনার জন্য — প্রাপক দেখবে না।</p>
           </div>
 
           {/* Subject */}
@@ -208,7 +265,7 @@ export default function NewTemplatePage() {
             </div>
             <input
               type="text"
-              placeholder="যেমন: {{first_name}}, আপনার জন্য বিশেষ অফার!"
+              placeholder="যেমন: {{first_name}}, Welcome to ChatGPT Plus!"
               value={subject}
               onChange={e => setSubject(e.target.value)}
               style={{
@@ -228,9 +285,9 @@ export default function NewTemplatePage() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
               <AlignLeft size={16} style={{ color: '#10B981' }} />
-              <label style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem' }}>Email Body</label>
+              <label style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem' }}>Email Body / HTML</label>
               <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>মার্জ ট্যাগ:</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ট্যাগ:</span>
                 {mergeTags.map(tag => (
                   <button
                     key={tag}
@@ -248,25 +305,22 @@ export default function NewTemplatePage() {
               </div>
             </div>
             <textarea
-              placeholder={`প্রিয় {{first_name}},\n\nআপনার জন্য একটি বিশেষ বার্তা...\n\nধন্যবাদ,\nআপনার দল`}
+              placeholder="Email Body / HTML কন্টেন্ট..."
               value={body}
               onChange={e => setBody(e.target.value)}
-              rows={14}
+              rows={16}
               style={{
                 width: '100%', padding: '14px', borderRadius: 10,
                 background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)',
-                color: 'var(--text-primary)', fontSize: '0.9rem', lineHeight: 1.7,
-                fontFamily: "'Anek Bangla', sans-serif",
+                color: 'var(--text-primary)', fontSize: '0.85rem', lineHeight: 1.6,
+                fontFamily: 'monospace',
                 resize: 'vertical', boxSizing: 'border-box',
               }}
             />
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 6 }}>
-              💡 {'{{first_name}}'} ব্যবহার করলে প্রতিটি প্রাপকের নাম স্বয়ংক্রিয়ভাবে বসে যাবে।
-            </p>
           </div>
         </div>
 
-        {/* Preview */}
+        {/* Live HTML Preview */}
         {showPreview && (
           <div style={{
             background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
@@ -274,35 +328,12 @@ export default function NewTemplatePage() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <Eye size={16} style={{ color: 'var(--neon-cyan)' }} />
-              <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem' }}>Live Preview</h3>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 4 }}>(রাহুল আহমেদ হিসেবে দেখছেন)</span>
+              <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem' }}>Live Design Preview</h3>
             </div>
 
-            {/* Email preview card */}
-            <div style={{ background: '#fff', borderRadius: 10, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-              {/* Email header */}
-              <div style={{ background: '#F8F9FA', padding: '12px 16px', borderBottom: '1px solid #E8EAED' }}>
-                <p style={{ fontSize: '0.75rem', color: '#5F6368', margin: '0 0 4px 0' }}>From: <strong style={{ color: '#202124' }}>আপনার নাম &lt;you@email.com&gt;</strong></p>
-                <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#202124', margin: 0, fontFamily: "'Anek Bangla', sans-serif" }}>
-                  {subject || '(Subject Line)'}
-                </p>
-              </div>
-              {/* Email body */}
-              <div style={{ padding: '20px 16px', minHeight: 200 }}>
-                <div style={{
-                  fontSize: '0.875rem', lineHeight: 1.8, color: '#202124',
-                  fontFamily: "'Anek Bangla', sans-serif",
-                  whiteSpace: 'pre-wrap',
-                }}>
-                  {previewBody || <span style={{ color: '#9AA0A6', fontStyle: 'italic' }}>Email body এখানে দেখাবে...</span>}
-                </div>
-              </div>
-              {/* Unsubscribe footer */}
-              <div style={{ background: '#F8F9FA', padding: '10px 16px', borderTop: '1px solid #E8EAED', textAlign: 'center' }}>
-                <p style={{ fontSize: '0.65rem', color: '#9AA0A6', margin: 0, fontFamily: "'Anek Bangla', sans-serif" }}>
-                  আর ইমেইল পেতে না চাইলে <span style={{ color: '#7C3AED', textDecoration: 'underline' }}>আনসাবস্ক্রাইব করুন</span>
-                </p>
-              </div>
+            {/* Rendered HTML Container */}
+            <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155' }}>
+              <div dangerouslySetInnerHTML={{ __html: previewBody }} />
             </div>
           </div>
         )}
