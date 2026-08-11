@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Sparkles, Zap, Shield, ChevronRight } from 'lucide-react';
@@ -9,12 +9,19 @@ import { authService } from '@/lib/auth-service';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setUser, setWorkspaces, setCurrentWorkspace } = useAuthStore();
+  const { setUser, setWorkspaces, setCurrentWorkspace, isAuthenticated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // If already logged in, go straight to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

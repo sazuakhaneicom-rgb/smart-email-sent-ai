@@ -1,68 +1,32 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Navbar } from '@/components/layout/Navbar';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { useState } from 'react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, user, setUser, setWorkspaces, setCurrentWorkspace, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // If Firebase Auth is configured, listen for auth state
-    if (auth) {
-      const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
-        if (fbUser) {
-          // Real Firebase user — sync
-          const freshUser = {
-            uid: fbUser.uid,
-            email: fbUser.email || '',
-            name: fbUser.displayName || fbUser.email?.split('@')[0] || 'ব্যবহারকারী',
-            photoURL: fbUser.photoURL || '',
-          };
-          const freshWorkspace = {
-            id: `ws-${fbUser.uid.slice(0, 8)}`,
-            name: `${fbUser.displayName || 'ইউজার'}-এর ওয়ার্কস্পেস`,
-            plan: 'free' as const,
-            role: 'owner' as const,
-          };
-          setUser(freshUser);
-          setWorkspaces([freshWorkspace]);
-          setCurrentWorkspace(freshWorkspace);
-          setReady(true);
-        } else {
-          // No Firebase session — check if user logged in via email/password stored in Zustand
-          const storedUser = useAuthStore.getState().user;
-          if (!storedUser) {
-            logout();
-            router.replace('/login');
-          } else {
-            setReady(true);
-          }
-        }
-      });
-      return () => unsubscribe();
-    } else {
-      // Firebase not configured — check Zustand store
-      if (!isAuthenticated || !user) {
-        router.replace('/login');
-      } else {
-        setReady(true);
-      }
-    }
+    setMounted(true);
   }, []);
 
-  // While checking auth, show nothing (no flash)
-  if (!ready) return null;
+  // After hydration, check auth once
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [mounted, isAuthenticated, router]);
 
-  // Not authenticated — render nothing while redirect fires
+  // Don't render until hydrated (prevents flicker)
+  if (!mounted) return null;
+
+  // Not logged in — blank while redirecting
   if (!isAuthenticated || !user) return null;
 
   return (

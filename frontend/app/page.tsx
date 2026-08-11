@@ -1,20 +1,16 @@
 'use client';
 
+// Root page — simply redirect to login.
+// Login page will redirect to /dashboard if user is already authenticated.
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store';
 
 export default function RootPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace('/dashboard');
-    } else {
-      router.replace('/login');
-    }
-  }, [isAuthenticated, router]);
+    router.replace('/login');
+  }, [router]);
 
   return null;
 }
