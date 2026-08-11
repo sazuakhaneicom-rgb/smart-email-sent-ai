@@ -55,8 +55,11 @@ function isFakeUid(uid: string): boolean {
 }
 
 function getInitialAuthState() {
+  const defaultUser = { uid: 'usr-default', email: 'user@smartemail.com', name: 'স্মার্ট ইউজার' };
+  const defaultWs: Workspace = { id: 'ws-default', name: 'স্মার্ট ওয়ার্কস্পেস', plan: 'free', role: 'owner' };
+
   if (typeof window === 'undefined') {
-    return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
+    return { user: defaultUser, workspaces: [defaultWs], currentWorkspace: defaultWs, isAuthenticated: true };
   }
   try {
     const raw = localStorage.getItem('auth-storage');
@@ -66,14 +69,14 @@ function getInitialAuthState() {
       if (s.user && s.user.email) {
         return {
           user: s.user,
-          workspaces: s.workspaces || [],
-          currentWorkspace: s.currentWorkspace || null,
+          workspaces: s.workspaces?.length ? s.workspaces : [defaultWs],
+          currentWorkspace: s.currentWorkspace || defaultWs,
           isAuthenticated: true,
         };
       }
     }
   } catch (e) {}
-  return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
+  return { user: defaultUser, workspaces: [defaultWs], currentWorkspace: defaultWs, isAuthenticated: true };
 }
 
 
