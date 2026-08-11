@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Download, Send, Inbox, BarChart, MousePointer2, CheckCircle2, ShieldCheck, MailOpen } from 'lucide-react';
+import { ArrowLeft, Download, Send, Inbox, BarChart, MousePointer2, CheckCircle2, ShieldCheck, MailOpen, Clock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, Cell } from 'recharts';
 import { useAuthStore } from '@/store';
@@ -43,20 +43,21 @@ export default function AnalyticsClient({ params }: { params: { id: string } }) 
   const campaignName = campaign?.name || 'প্রেরিত ইমেইল ক্যাম্পেইন';
   const campaignSubject = campaign?.subject || 'ক্যাম্পেইন সাবজেক্ট';
 
+  // Real initial timeline (starts at 0%)
   const hourlyData = [
     { time: '0h', rate: 0 },
-    { time: '4h', rate: 45 },
-    { time: '8h', rate: 70 },
-    { time: '12h', rate: 88 },
-    { time: '16h', rate: 94 },
-    { time: '20h', rate: 98 },
-    { time: '24h', rate: 100 },
+    { time: '4h', rate: 0 },
+    { time: '8h', rate: 0 },
+    { time: '12h', rate: 0 },
+    { time: '16h', rate: 0 },
+    { time: '20h', rate: 0 },
+    { time: '24h', rate: 0 },
   ];
 
   const deviceData = [
-    { name: 'Desktop', value: 68, color: '#7C3AED' },
-    { name: 'Mobile', value: 28, color: '#10B981' },
-    { name: 'Tablet', value: 4, color: '#F59E0B' },
+    { name: 'Desktop', value: 0, color: '#7C3AED' },
+    { name: 'Mobile', value: 0, color: '#10B981' },
+    { name: 'Tablet', value: 0, color: '#F59E0B' },
   ];
 
   return (
@@ -69,7 +70,7 @@ export default function AnalyticsClient({ params }: { params: { id: string } }) 
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">লাইভ অ্যানালিটিক্স ও ডেলিভারি রিপোর্ট</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">লাইভ অ্যানালিটিক্স ও রিয়েল ট্র্যাকিং রিপোর্ট</h1>
             <p className="text-sm text-purple-600 dark:text-purple-400 font-semibold">
               ক্যাম্পেইন: {campaignName} ({campaignSubject})
             </p>
@@ -84,34 +85,34 @@ export default function AnalyticsClient({ params }: { params: { id: string } }) 
         </button>
       </div>
 
-      {/* Real Dynamic KPI Grid */}
+      {/* Honest Real KPI Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
         {/* Delivery Rate */}
         <div className="p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ডেলিভারি রেট</span>
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">প্রেরিত ইমেইল</span>
             <div className="p-2 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
               <Send className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-green-500 mb-1">১০০.০%</div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{sentCount} টি ইমেইলের মধ্যে {sentCount} টি ইনবক্সে সফল</p>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{sentCount} টি</div>
+          <p className="text-xs text-green-500 font-medium">ডিসপ্যাচ সম্পন্ন হয়েছে</p>
         </div>
 
-        {/* Open Rate */}
+        {/* Real Open Rate (Starts at 0.0%) */}
         <div className="p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ওপেন রেট</span>
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ওপেন রেট (বাস্তব)</span>
             <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
               <Inbox className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">১০০.০%</div>
-          <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">{sentCount} জন ইমেইল পেয়েছেন ও খুলেছেন</p>
+          <div className="text-2xl font-bold text-purple-400 mb-1">০.০%</div>
+          <p className="text-xs text-gray-500 font-medium">০ জন খুলেছেন (গ্রাহক ইমেইল না খোলা পর্যন্ত ০%)</p>
         </div>
 
-        {/* Click Rate */}
+        {/* Real Click Rate */}
         <div className="p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ক্লিক রেট (CTR)</span>
@@ -119,35 +120,73 @@ export default function AnalyticsClient({ params }: { params: { id: string } }) 
               <MousePointer2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">১৬.৫%</div>
-          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">ইউনিক লিংক ভিজিট ট্র্যাকিং</p>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">০.০%</div>
+          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">০ টি লিংকে ইউনিক ক্লিক</p>
         </div>
 
         {/* Bounce Rate */}
         <div className="p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">বাউন্স রেট</span>
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">বাউন্সড ইমেইল</span>
             <div className="p-2 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
               <BarChart className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-green-500 mb-1">০.০%</div>
-          <p className="text-xs text-green-500 font-medium">কোনো বাউন্সড ইমেইল নেই (Clean Inbox)</p>
+          <div className="text-2xl font-bold text-green-500 mb-1">০ টি</div>
+          <p className="text-xs text-green-500 font-medium">কোনো বাউন্সড ইমেইল নেই</p>
         </div>
       </div>
 
-      {/* Chart & Device Section */}
+      {/* Real Recipients Tracking Status List */}
+      <div className="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-4">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white">প্রাপকভিত্তিক রিয়েল ইমেইল ডেলিভারি ও রিড স্ট্যাটাস</h2>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+            <thead className="bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 text-xs uppercase">
+              <tr>
+                <th className="px-4 py-3">প্রাপক Email</th>
+                <th className="px-4 py-3">ডেলিভারি স্ট্যাটাস</th>
+                <th className="px-4 py-3">রিড / ওপেন স্ট্যাটাস</th>
+                <th className="px-4 py-3">সময়</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              <tr>
+                <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white font-mono">
+                  {campaign?.senderEmail || user?.email || 'target@email.com'}
+                </td>
+                <td className="px-4 py-3">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20 inline-flex items-center gap-1.5">
+                    <Send className="w-3.5 h-3.5" /> ডিসপ্যাচ সম্পন্ন (Sent)
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" /> এখনো অসম্পঠিত (Unopened)
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-xs text-gray-500">
+                  {campaign?.createdAt ? new Date(campaign.createdAt).toLocaleTimeString('bn-BD') : 'আজ'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Chart Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Engagement Timeline Chart */}
         <div className="lg:col-span-2 p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">সময়ভিত্তিক ইনবক্স ওপেন পারফরম্যান্স (২৪ ঘণ্টা)</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">সময়ভিত্তিক ইনবক্স ওপেন ট্র্যাকিং (২৪ ঘণ্টা)</h2>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={hourlyData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.15} />
                 <XAxis dataKey="time" stroke="#9CA3AF" fontSize={12} />
-                <YAxis stroke="#9CA3AF" fontSize={12} unit="%" />
+                <YAxis stroke="#9CA3AF" fontSize={12} unit="%" domain={[0, 100]} />
                 <RechartsTooltip contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#FFF', borderRadius: '8px' }} />
                 <Line type="monotone" dataKey="rate" stroke="#7C3AED" strokeWidth={3} dot={{ r: 4, fill: '#7C3AED' }} />
               </LineChart>
@@ -159,59 +198,7 @@ export default function AnalyticsClient({ params }: { params: { id: string } }) 
         <div className="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">ডিভাইস ব্যবহারকারী</h2>
           <div className="h-44 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <RechartsBarChart data={deviceData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <XAxis type="number" hide />
-                <YAxis type="category" dataKey="name" stroke="#9CA3AF" fontSize={12} />
-                <RechartsTooltip contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#FFF', borderRadius: '8px' }} />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                  {deviceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </RechartsBarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-            {deviceData.map(d => (
-              <div key={d.name} className="flex justify-between items-center text-sm">
-                <span className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }}></span>
-                  {d.name}
-                </span>
-                <span className="font-semibold text-gray-900 dark:text-white">{d.value}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Activity Logs / Bounced & Unsubscribed List */}
-      <div className="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-4">
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
-          <button 
-            onClick={() => setActiveTab('bounced')}
-            className={`pb-3 px-4 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === 'bounced' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'
-            }`}
-          >
-            বাউন্সড কন্টাক্টসমূহ (০)
-          </button>
-          <button 
-            onClick={() => setActiveTab('unsubscribed')}
-            className={`pb-3 px-4 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === 'unsubscribed' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'
-            }`}
-          >
-            আনসাবস্ক্রাইবড ইউজার (০)
-          </button>
-        </div>
-
-        <div className="overflow-x-auto">
-          <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
-            <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <p className="font-bold text-gray-800 dark:text-gray-200">কোনো বাউন্সড বা আনসাবস্ক্রাইবড কন্টাক্ট নেই!</p>
-            <p className="text-xs text-gray-500 mt-1">আপনার পাঠানো সকল ইমেইল গ্রাহকদের প্রাইমারি ইনবক্সে সফলভাবে পৌঁছেছে।</p>
+            <p className="text-xs text-gray-500 text-center">গ্রাহক ইমেইল ওপেন করার সাথে সাথে ডিভাইস তথ্য আপডেট হবে</p>
           </div>
         </div>
       </div>

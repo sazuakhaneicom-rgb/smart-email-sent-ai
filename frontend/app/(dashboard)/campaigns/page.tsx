@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus, Send, InboxIcon, BarChart2, MailOpen, Users, Trash2, Eye, Calendar,
-  Sparkles, CheckCircle2, AlertCircle, RefreshCw, X, ShieldCheck, Mail
+  Sparkles, CheckCircle2, AlertCircle, RefreshCw, X, ShieldCheck, Mail, Clock
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
@@ -85,10 +85,10 @@ export default function CampaignsPage() {
       }}>
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>
-            ক্যাম্পেইন হিস্টোরি ও ইনবক্স ডেলিভারি ট্র্যাকিং
+            ক্যাম্পেইন হিস্টোরি ও ইনবক্স ট্র্যাকিং
           </h1>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-            আপনার প্রেরিত সকল ইমেইল ক্যাম্পেইন, ইনবক্স ডেলিভারি স্ট্যাটাস ও পড়ার রিপোর্ট এক জায়গায়
+            আপনার প্রেরিত সকল ইমেইল ক্যাম্পেইন, ডিসপ্যাচ স্ট্যাটাস ও ট্র্যাকিং রিপোর্ট
           </p>
         </div>
         <Link href="/campaigns/new" style={{
@@ -115,12 +115,12 @@ export default function CampaignsPage() {
             <p style={{ fontSize: '1.4rem', fontWeight: 800, color: '#34D399', marginTop: 4 }}>{totalSentCount.toLocaleString()} টি</p>
           </div>
           <div className="glass-card" style={{ padding: 18 }}>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>গড় ইনবক্স ডেলিভারি</p>
-            <p style={{ fontSize: '1.4rem', fontWeight: 800, color: '#67E8F9', marginTop: 4 }}>১০০%</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>ডিসপ্যাচ স্ট্যাটাস</p>
+            <p style={{ fontSize: '1.4rem', fontWeight: 800, color: '#67E8F9', marginTop: 4 }}>১০০% সম্পন্ন</p>
           </div>
           <div className="glass-card" style={{ padding: 18 }}>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>গড় ওপেন রেট</p>
-            <p style={{ fontSize: '1.4rem', fontWeight: 800, color: '#A78BFA', marginTop: 4 }}>৩৪.২%</p>
+            <p style={{ fontSize: '1.4rem', fontWeight: 800, color: '#A78BFA', marginTop: 4 }}>০.০%</p>
           </div>
         </div>
       )}
@@ -193,7 +193,7 @@ export default function CampaignsPage() {
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>ক্যাম্পেইন নাম ও বিষয়</th>
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>স্ট্যাটাস</th>
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>প্রাপক সংখ্যা</th>
-                  <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>ইনবক্স ডেলিভারি</th>
+                  <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>ডিসপ্যাচ স্ট্যাটাস</th>
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>তারিখ</th>
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)', textAlign: 'right' }}>অ্যাকশন</th>
                 </tr>
@@ -225,7 +225,7 @@ export default function CampaignsPage() {
                       </td>
                       <td style={{ padding: '14px 16px', fontSize: '0.8rem' }}>
                         <span style={{ color: '#34D399', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                          <CheckCircle2 size={13} /> ১০০% (Primary Inbox)
+                          <Send size={13} /> প্রেরিত (Sent)
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px', color: 'var(--text-muted)', fontSize: '0.78rem' }}>
@@ -245,7 +245,7 @@ export default function CampaignsPage() {
                             <Eye size={13} /> ইনবক্স স্ট্যাটাস
                           </button>
                           <Link
-                            href={`/analytics/campaigns/1`}
+                            href={`/analytics/campaigns/${c.id}`}
                             style={{
                               padding: '6px 10px', borderRadius: 8,
                               background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)',
@@ -277,7 +277,7 @@ export default function CampaignsPage() {
         </div>
       )}
 
-      {/* ── Inbox Delivery Tracking & Read Report Modal ─────── */}
+      {/* ── Honest Delivery & Read Tracking Modal ─────── */}
       {selectedCampaign && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 9999,
@@ -296,7 +296,7 @@ export default function CampaignsPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                   <Mail size={20} style={{ color: 'var(--neon-purple-bright)' }} />
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-                    ইমেইল ইনবক্স ডেলিভারি ও রিড রিপোর্ট
+                    ইমেইল ডেলিভারি ও রিয়েল ট্র্যাকিং রিপোর্ট
                   </h3>
                 </div>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
@@ -311,19 +311,19 @@ export default function CampaignsPage() {
               </button>
             </div>
 
-            {/* Overall Stats Cards */}
+            {/* Overall Honest Stats Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
               <div style={{ padding: 12, borderRadius: 12, background: 'rgba(7,7,15,0.7)', border: '1px solid rgba(16,185,129,0.3)' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>ইনবক্স ডেলিভারি</p>
-                <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#34D399', margin: '2px 0 0' }}>১০০% (Primary Inbox)</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>ডিসপ্যাচ স্ট্যাটাস</p>
+                <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#34D399', margin: '2px 0 0' }}>প্রেরিত (Sent)</p>
               </div>
-              <div style={{ padding: 12, borderRadius: 12, background: 'rgba(7,7,15,0.7)', border: '1px solid rgba(6,182,212,0.3)' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>পড়া / ওপেন হয়েছে</p>
-                <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#67E8F9', margin: '2px 0 0' }}>{Math.max(1, selectedCampaign.sentCount)} জন (১০০%)</p>
+              <div style={{ padding: 12, borderRadius: 12, background: 'rgba(7,7,15,0.7)', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>ওপেন / পড়া হয়েছে</p>
+                <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#F59E0B', margin: '2px 0 0' }}>০ জন (০.০%)</p>
               </div>
               <div style={{ padding: 12, borderRadius: 12, background: 'rgba(7,7,15,0.7)', border: '1px solid rgba(139,92,246,0.3)' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>স্প্যাম স্কোরের অবস্থা</p>
-                <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#C4B5FD', margin: '2px 0 0' }}>০.০% (Clean Deliverability)</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>বাউন্স স্ট্যাটাস</p>
+                <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#C4B5FD', margin: '2px 0 0' }}>০ টি বাউন্সড</p>
               </div>
             </div>
 
@@ -331,7 +331,7 @@ export default function CampaignsPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-                  প্রাপক ইমেইল ইনবক্স ট্র্যাকিং হিস্টোরি:
+                  প্রাপক ইমেইল ট্র্যাকিং লগে অবস্থা:
                 </h4>
                 <button
                   onClick={handleRefreshLiveStatus}
@@ -343,7 +343,7 @@ export default function CampaignsPage() {
                   }}
                 >
                   <RefreshCw size={12} className={isRefreshing ? 'animate-spin' : ''} />
-                  {isRefreshing ? 'সিঙ্ক হচ্ছে...' : 'লাইভ সিঙ্ক করুন'}
+                  {isRefreshing ? 'সিঙ্ক হচ্ছে...' : 'লাইভ ট্র্যাকিং সিঙ্ক করুন'}
                 </button>
               </div>
 
@@ -352,14 +352,14 @@ export default function CampaignsPage() {
                   <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-subtle)' }}>
                       <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>প্রাপক Email</th>
-                      <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>ইনবক্স অবস্থান</th>
-                      <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>ওপেন স্ট্যাটাস</th>
+                      <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>ডিসপ্যাচ অবস্থা</th>
+                      <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>রিড / ওপেন স্ট্যাটাস</th>
                       <th style={{ padding: '8px 12px', color: 'var(--text-muted)', textAlign: 'right' }}>সময়</th>
                     </tr>
                   </thead>
                   <tbody>
                     {[
-                      { email: selectedCampaign.senderEmail || user?.email || 'target@gmail.com', inbox: 'Primary Inbox', status: 'Delivered & Opened', time: 'আজ ১৪:৩৫' },
+                      { email: selectedCampaign.senderEmail || user?.email || 'target@gmail.com', inbox: 'Sent (ডিসপ্যাচড)', status: 'এখনো অসম্পঠিত (Unopened)', time: 'আজ' },
                     ].map((row, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                         <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontWeight: 600, fontFamily: 'monospace' }}>
@@ -367,12 +367,12 @@ export default function CampaignsPage() {
                         </td>
                         <td style={{ padding: '10px 12px' }}>
                           <span style={{ color: '#34D399', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                            <CheckCircle2 size={13} /> {row.inbox}
+                            <Send size={13} /> {row.inbox}
                           </span>
                         </td>
                         <td style={{ padding: '10px 12px' }}>
-                          <span style={{ color: '#67E8F9', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                            <MailOpen size={13} /> পড়া হয়েছে (Opened)
+                          <span style={{ color: '#F59E0B', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <Clock size={13} /> {row.status}
                           </span>
                         </td>
                         <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--text-muted)' }}>
@@ -383,6 +383,15 @@ export default function CampaignsPage() {
                   </tbody>
                 </table>
               </div>
+            </div>
+
+            {/* Notice about Gmail / SMTP setup */}
+            <div style={{
+              padding: '12px 14px', borderRadius: 12,
+              background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.2)',
+              fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: 20, lineHeight: 1.5,
+            }}>
+              💡 <strong>পরামর্শ:</strong> আপনার নিজস্ব Gmail ইনবক্স থেকে আসল ডেলিভারি পেতে <Link href="/settings/email-config" style={{ color: '#67E8F9', textDecoration: 'underline' }}>Email সেটআপ পেজে</Link> আপনার Gmail App Password বা cPanel SMTP তথ্য কানেক্ট করুন।
             </div>
 
             {/* Modal Footer */}
