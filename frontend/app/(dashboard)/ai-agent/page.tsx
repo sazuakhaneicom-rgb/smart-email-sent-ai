@@ -45,7 +45,7 @@ export default function AIAgentPage() {
         ? `শুভকামনা রইল! আপনার জন্য বিশেষ উপহার ও দারুণ নিউজ`
         : `হাই {{first_name}}, আপনার সাথে একটি বিষয় শেয়ার করার ছিল`,
       body: `আসসালামু আলাইকুম {{first_name}} ভাই/আপু,\n\nআশা করি ভালো আছেন। ${prompt}\n\nআপনার যদি কোনো প্রশ্ন থাকে, এই ইমেইলের রিপ্লাই দিলেই আমি সরাসরি উত্তর দিব।\n\nধন্যবাদ ও শুভেচ্ছা,\n${currentWorkspace?.name || 'স্মার্ট ইমেইল টিম'}`,
-      targetSegment: 'সক্রিয় গ্রাহকগণ (৯,২৪০ কন্টাক্ট)',
+      targetSegment: 'সকল সক্রিয় গ্রাহকগণ (All Active Contacts)',
       spamScore: '০.০৫% (মানবিক টোন certified)',
       deliveryRate: '৯৯.৮% (inbox guaranteed)',
       stealthRating: '১০০% মানুষের তৈরি ইমেইলের মতো (Undetectable Bot Footprint)',

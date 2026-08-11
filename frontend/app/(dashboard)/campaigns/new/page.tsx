@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CheckCircle2, ArrowLeft, ArrowRight, Calendar, Send, Info,
-  Sparkles, FileText, Mail, Eye, Save, AlertCircle, RefreshCw
+  Sparkles, FileText, Mail, Eye, Save, AlertCircle, RefreshCw, Upload, Users
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
@@ -29,10 +29,10 @@ export default function NewCampaignPage() {
   const [subject, setSubject] = useState('');
   const [senderName, setSenderName] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
-  const [replyTo, setReplyTo] = useState('');
   const [body, setBody] = useState('');
 
-  // Templates
+  // Real User Contacts & Templates
+  const [userContacts, setUserContacts] = useState<any[]>([]);
   const [userTemplates, setUserTemplates] = useState<TemplateItem[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
@@ -69,6 +69,15 @@ export default function NewCampaignPage() {
       const rawTpls = localStorage.getItem(key);
       const list: TemplateItem[] = rawTpls ? JSON.parse(rawTpls) : [];
       setUserTemplates(list);
+    } catch (e) {}
+
+    // Load user contacts from localStorage
+    try {
+      const rawCons = localStorage.getItem(`contacts_${userId}`);
+      if (rawCons) {
+        const parsed = JSON.parse(rawCons);
+        setUserContacts(Array.isArray(parsed) ? parsed : []);
+      }
     } catch (e) {}
 
     // Check if redirected from AI Agent with pre-filled content
@@ -147,9 +156,9 @@ export default function NewCampaignPage() {
         senderName: senderName || 'Smart Email Team',
         senderEmail: senderEmail || 'user@example.com',
         status: 'Sent',
-        sentCount: 3456,
-        openRate: '32.4%',
-        clickRate: '8.1%',
+        sentCount: userContacts.length || 0,
+        openRate: '0.0%',
+        clickRate: '0.0%',
         createdAt: new Date().toISOString(),
       };
 
@@ -320,24 +329,30 @@ export default function NewCampaignPage() {
             <div className="space-y-6">
               <div>
                 <h2 className="text-xl font-bold">প্রাপক লিস্ট নির্বাচন করুন</h2>
-                <p className="text-sm text-gray-500">যাদের কাছে এই ইমেইল পাঠাতে চান</p>
+                <p className="text-sm text-gray-500">যাদের কাছে এই ইমেইল পাঠাতে চান (আপনার অ্যাকাউন্ট কন্টাক্টস)</p>
               </div>
 
               <div className="space-y-3">
-                {[
-                  { id: 1, name: 'সক্রিয় গ্রাহক তালিকা', count: 9240, type: 'Customer' },
-                  { id: 2, name: 'নতুন নিবন্ধিত ইউজারগণ', count: 1890, type: 'Leads' },
-                ].map((list) => (
-                  <label key={list.id} className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 cursor-pointer">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 text-[#7C3AED] rounded" />
-                    <div className="flex-1">
-                      <p className="font-bold text-base">{list.name}</p>
-                      <p className="text-xs text-gray-500">{list.type} Segment</p>
-                    </div>
-                    <p className="font-bold text-base text-[#7C3AED]">{list.count.toLocaleString()} Contacts</p>
-                  </label>
-                ))}
+                <label className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="w-5 h-5 text-[#7C3AED] rounded" />
+                  <div className="flex-1">
+                    <p className="font-bold text-base">আপনার নিবন্ধিত কন্টাক্টস (All Contacts)</p>
+                    <p className="text-xs text-gray-500">সকল আপলোডকৃত ও ইমপোর্টকৃত গ্রাহকগণ</p>
+                  </div>
+                  <p className="font-bold text-base text-[#7C3AED]">{userContacts.length.toLocaleString()} Contacts</p>
+                </label>
               </div>
+
+              {userContacts.length === 0 && (
+                <div className="p-5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center space-y-2">
+                  <Users size={28} className="mx-auto text-purple-400 opacity-70" />
+                  <p className="font-bold text-sm text-gray-800 dark:text-gray-200">আপনার প্ল্যাটফর্মে এখনো কোনো কন্টাক্ট আপলোড বা ইমপোর্ট করা হয়নি (০ জন কন্টাক্ট)</p>
+                  <p className="text-xs text-gray-500">CSV ফাইল আপলোড করে এক ক্লিকে আপনার গ্রাহক তালিকা যুক্ত করুন:</p>
+                  <Link href="/contacts/import" className="inline-flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-lg font-bold text-xs shadow hover:bg-purple-700 transition-colors">
+                    <Upload size={14} /> কন্টাক্টস ইমপোর্ট করুন
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
@@ -362,7 +377,7 @@ export default function NewCampaignPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 font-medium">প্রাপক সংখ্যা:</span>
-                  <span className="font-bold text-green-500">১১,১৩০ জন কন্টাক্ট</span>
+                  <span className="font-bold text-green-500">{userContacts.length.toLocaleString()} জন কন্টাক্ট</span>
                 </div>
               </div>
 
