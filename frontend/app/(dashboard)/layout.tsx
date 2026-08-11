@@ -109,12 +109,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       display: 'flex',
       fontFamily: "'Anek Bangla', sans-serif",
     }}>
-      {/* Desktop Sidebar */}
-      <div className="desktop-sidebar">
-        <Sidebar />
-      </div>
-
-      {/* Mobile Sidebar Drawer */}
+      {/* Sidebar handles both Desktop and Mobile Drawer */}
       <Sidebar isMobileOpen={sidebarOpen} onMobileClose={() => setSidebarOpen(false)} />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>

@@ -347,5 +347,10 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
     );
   }
 
-  return sidebarContent;
+  return (
+    <div className="desktop-sidebar">
+      {sidebarContent}
+    </div>
+  );
 }
+
