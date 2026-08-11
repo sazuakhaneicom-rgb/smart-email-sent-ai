@@ -5,9 +5,9 @@ export function generateStaticParams() {
 import { ArrowLeft, Play, Copy, ExternalLink, Calendar, Users, Mail, LayoutTemplate, Activity } from 'lucide-react'
 import Link from 'next/link'
 
-export default function CampaignDetailPage({ params }: { params: { id: string } }) {
-  // Mock data for display
-  const isDraft = false // Toggle this to see draft state
+export default async function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const isDraft = false;
   
   return (
     <div className="p-6 max-w-5xl mx-auto font-['Anek_Bangla'] space-y-8">
@@ -28,7 +28,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                 {isDraft ? 'Draft' : 'Sent'}
               </span>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Campaign ID: {params.id}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Campaign ID: {resolvedParams.id}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -81,7 +81,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
               <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                 <Activity className="w-5 h-5 mr-2 text-[#7C3AED]" /> Quick Stats
               </h3>
-              <Link href={`/analytics/campaigns/${params.id}`} className="text-sm font-medium text-[#7C3AED] hover:text-purple-700 flex items-center">
+              <Link href={`/analytics/campaigns/${resolvedParams.id}`} className="text-sm font-medium text-[#7C3AED] hover:text-purple-700 flex items-center">
                 View Full Report <ExternalLink className="w-4 h-4 ml-1" />
               </Link>
             </div>

@@ -4,6 +4,7 @@ export function generateStaticParams() {
 
 import AnalyticsClient from './AnalyticsClient';
 
-export default function CampaignReportPage({ params }: { params: { id: string } }) {
-  return <AnalyticsClient params={params} />;
+export default async function CampaignReportPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  return <AnalyticsClient params={resolvedParams} />;
 }
