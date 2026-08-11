@@ -345,10 +345,33 @@ export default function NewCampaignPage() {
               </div>
 
               <div>
-                <div className="flex justify-between mb-1">
+                <div className="flex justify-between items-center mb-1.5">
                   <label className="block text-sm font-semibold">Email সাবজেক্ট (ইনবক্সে যা দেখাবে)</label>
                   <span className="text-xs text-gray-500">{subject.length}/150</span>
                 </div>
+
+                {/* Quick Clickable Dynamic Tags */}
+                <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                  <span className="text-xs text-purple-400 font-semibold mr-1">ট্যাগ যোগ করুন:</span>
+                  {[
+                    { tag: '{{first_name}}', label: 'গ্রাহকের নাম' },
+                    { tag: '{{last_name}}', label: 'শেষ নাম' },
+                    { tag: '{{company}}', label: 'কোম্পানি' },
+                    { tag: '{{email}}', label: 'ইমেইল' },
+                  ].map((item) => (
+                    <button
+                      key={item.tag}
+                      type="button"
+                      onClick={() => setSubject(prev => prev + (prev.length > 0 && !prev.endsWith(' ') ? ' ' : '') + item.tag)}
+                      className="px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 hover:text-white text-xs font-bold font-mono transition-all flex items-center gap-1"
+                      title={`সাবজেক্টে ${item.label} যোগ করুন`}
+                    >
+                      + {item.tag}
+                      <span className="text-[10px] opacity-70 font-normal">({item.label})</span>
+                    </button>
+                  ))}
+                </div>
+
                 <input
                   type="text"
                   value={subject}
@@ -431,7 +454,28 @@ export default function NewCampaignPage() {
 
               {/* Body Text Area */}
               <div>
-                <label className="block text-sm font-semibold mb-2">ইমেইল কন্টেন্ট (Body):</label>
+                <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
+                  <label className="block text-sm font-semibold">ইমেইল কন্টেন্ট (Body):</label>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-xs text-purple-400 font-semibold mr-1">ট্যাগ ইনসার্ট:</span>
+                    {[
+                      { tag: '{{first_name}}', label: 'নাম' },
+                      { tag: '{{last_name}}', label: 'শেষ নাম' },
+                      { tag: '{{company}}', label: 'কোম্পানি' },
+                      { tag: '{{email}}', label: 'ইমেইল' },
+                    ].map((item) => (
+                      <button
+                        key={item.tag}
+                        type="button"
+                        onClick={() => setBody(prev => prev + (prev.length > 0 && !prev.endsWith(' ') ? ' ' : '') + item.tag)}
+                        className="px-2 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 text-xs font-mono font-bold transition-all"
+                        title={`কন্টেন্টে ${item.tag} ইনসার্ট করুন`}
+                      >
+                        + {item.tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <textarea
                   rows={8}
                   value={body}
