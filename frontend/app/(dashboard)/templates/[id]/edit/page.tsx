@@ -1,9 +1,11 @@
+// Required by static export — returns placeholder so build succeeds
+// Actual editing happens at /templates/editor?id=xxx
 export function generateStaticParams() {
-  return [{ id: '1' }, { id: '2' }, { id: '3' }];
+  return [{ id: 'placeholder' }];
 }
 
 import EditTemplateClient from './EditTemplateClient';
 
-export default function EditTemplatePage({ params }: { params: { id: string } }) {
-  return <EditTemplateClient params={params} />;
+export default function EditTemplatePage() {
+  return <EditTemplateClient />;
 }

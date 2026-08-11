@@ -81,29 +81,6 @@ export default function ApiKeysPage() {
         { key: 'awsFromEmail', label: 'Default Sender Email', placeholder: 'noreply@yourdomain.com' },
         { key: 'awsFromName', label: 'Default Sender Name', placeholder: 'Smart Email AI' },
       ]
-    },
-    {
-      title: 'Payment Gateway (SSLCommerz & Stripe)',
-      icon: CreditCard,
-      color: '#10B981',
-      description: '📍 কোথা থেকে পাবেন: SSLCommerz Merchant Panel ➔ My Stores (Store ID/Pass) এবং Stripe Dashboard ➔ Developers ➔ API Keys',
-      fields: [
-        { key: 'sslcommerzStoreId', label: 'SSLCommerz Store ID', placeholder: 'your_store_id' },
-        { key: 'sslcommerzStorePass', label: 'SSLCommerz Store Password', placeholder: 'your_store_password' },
-        { key: 'stripeSecretKey', label: 'Stripe Secret Key', placeholder: 'sk_test_...' },
-        { key: 'stripeWebhookSecret', label: 'Stripe Webhook Secret', placeholder: 'whsec_...' },
-      ]
-    },
-    {
-      title: 'Security Keys & Admin Passwords',
-      icon: Key,
-      color: '#8B5CF6',
-      description: '📍 কোথায় কী কাজ: JWT সিক্রেট দিয়ে ইউজার সেশন এনক্রিপ্ট হয় এবং আনসাবস্ক্রাইব কী দিয়ে ইমেইলের আনসাবস্ক্রাইব লিংক তৈরি হয়।',
-      fields: [
-        { key: 'jwtSecret', label: 'JWT Secret Key', placeholder: 'কমপক্ষে ৩২ অক্ষরের র্যান্ডম টেক্সট' },
-        { key: 'unsubscribeSecret', label: 'Unsubscribe Secret', placeholder: 'কমপক্ষে ৩২ অক্ষরের র্যান্ডম টেক্সট' },
-        { key: 'adminPassword', label: 'Admin Panel Password', placeholder: 'admin123' },
-      ]
     }
   ];
 

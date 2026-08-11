@@ -6,8 +6,6 @@ import { LayoutDashboard, Key, Settings, Users, Activity, Shield, ArrowLeft, Ter
 
 const adminNav = [
   { href: '/admin', icon: LayoutDashboard, label: 'ওভারভিউ', exact: true },
-  { href: '/admin/agent-config', icon: Bot, label: '🤖 AI Agent Config', highlight: true },
-  { href: '/admin/hosting', icon: Server, label: 'হোস্টিং ও মাইগ্রেশন' },
   { href: '/admin/api-keys', icon: Key, label: 'API Keys' },
   { href: '/admin/settings', icon: Settings, label: 'গ্লোবাল সেটিংস' },
   { href: '/admin/users', icon: Users, label: 'ইউজার ম্যানেজমেন্ট' },

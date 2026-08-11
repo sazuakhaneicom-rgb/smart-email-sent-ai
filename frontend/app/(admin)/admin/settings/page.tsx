@@ -14,7 +14,7 @@ export default function SettingsPage() {
   const handleSave = (keys: string[]) => {
     const dataToSave = keys.reduce((acc, key) => ({ ...acc, [key]: config[key] }), {});
     saveAdminConfig(dataToSave);
-    setToast('গ্লোবাল সেটিংস সেভ করা হয়েছে!');
+    setToast('সেটিংস সেভ করা হয়েছে!');
     setTimeout(() => setToast(''), 3000);
   };
 
@@ -63,20 +63,25 @@ export default function SettingsPage() {
       <div style={{ background: 'rgba(7,7,15,0.6)', border: `1px solid rgba(139,92,246,0.15)`, borderRadius: '12px', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.02)' }}>
           <Globe size={20} color="#06B6D4" />
-          <h2 style={{ color: '#06B6D4', fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>Site Configuration</h2>
+          <h2 style={{ color: '#06B6D4', fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>সাইট কনফিগারেশন</h2>
         </div>
         <div style={{ padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          {['siteName', 'siteUrl', 'apiBaseUrl', 'supportEmail'].map(key => (
-            <div key={key}>
-              <label style={{ display: 'block', color: '#8888A8', fontSize: '0.8rem', marginBottom: '6px' }}>{key}</label>
-              <input
-                type="text" value={config[key] || ''} onChange={(e) => handleChange(key, e.target.value)}
-                style={{ width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(139,92,246,0.2)', padding: '10px 12px', borderRadius: '6px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
-          ))}
+          <div>
+            <label style={{ display: 'block', color: '#8888A8', fontSize: '0.8rem', marginBottom: '6px' }}>সাইটের নাম</label>
+            <input
+              type="text" value={config['siteName'] || ''} onChange={(e) => handleChange('siteName', e.target.value)}
+              style={{ width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(139,92,246,0.2)', padding: '10px 12px', borderRadius: '6px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', color: '#8888A8', fontSize: '0.8rem', marginBottom: '6px' }}>সাপোর্ট ইমেইল</label>
+            <input
+              type="text" value={config['supportEmail'] || ''} onChange={(e) => handleChange('supportEmail', e.target.value)}
+              style={{ width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(139,92,246,0.2)', padding: '10px 12px', borderRadius: '6px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
           <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-            <button onClick={() => handleSave(['siteName', 'siteUrl', 'apiBaseUrl', 'supportEmail'])} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#E8E8F0', borderRadius: '6px', cursor: 'pointer' }}>
+            <button onClick={() => handleSave(['siteName', 'supportEmail'])} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#E8E8F0', borderRadius: '6px', cursor: 'pointer' }}>
               <Save size={14} /> সেভ করুন
             </button>
           </div>
@@ -88,15 +93,17 @@ export default function SettingsPage() {
         <div style={{ background: 'rgba(7,7,15,0.6)', border: `1px solid rgba(139,92,246,0.15)`, borderRadius: '12px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.02)' }}>
             <Mail size={20} color="#8B5CF6" />
-            <h2 style={{ color: '#8B5CF6', fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>Email Defaults</h2>
+            <h2 style={{ color: '#8B5CF6', fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>ইমেইল ডিফল্টস</h2>
           </div>
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {['defaultFromName', 'defaultFromEmail'].map(key => (
-              <div key={key}>
-                <label style={{ display: 'block', color: '#8888A8', fontSize: '0.8rem', marginBottom: '6px' }}>{key}</label>
-                <input type="text" value={config[key] || ''} onChange={(e) => handleChange(key, e.target.value)} style={{ width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(139,92,246,0.2)', padding: '10px 12px', borderRadius: '6px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box' }} />
-              </div>
-            ))}
+            <div>
+              <label style={{ display: 'block', color: '#8888A8', fontSize: '0.8rem', marginBottom: '6px' }}>ডিফল্ট সেন্ডারের নাম</label>
+              <input type="text" value={config['defaultFromName'] || ''} onChange={(e) => handleChange('defaultFromName', e.target.value)} style={{ width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(139,92,246,0.2)', padding: '10px 12px', borderRadius: '6px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', color: '#8888A8', fontSize: '0.8rem', marginBottom: '6px' }}>ডিফল্ট সেন্ডারের ইমেইল</label>
+              <input type="text" value={config['defaultFromEmail'] || ''} onChange={(e) => handleChange('defaultFromEmail', e.target.value)} style={{ width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(139,92,246,0.2)', padding: '10px 12px', borderRadius: '6px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
               <button onClick={() => handleSave(['defaultFromName', 'defaultFromEmail'])} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#E8E8F0', borderRadius: '6px', cursor: 'pointer' }}>
                 <Save size={14} /> সেভ
@@ -108,13 +115,12 @@ export default function SettingsPage() {
         <div style={{ background: 'rgba(7,7,15,0.6)', border: `1px solid rgba(139,92,246,0.15)`, borderRadius: '12px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.02)' }}>
             <ToggleLeft size={20} color="#10B981" />
-            <h2 style={{ color: '#10B981', fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>Feature Flags</h2>
+            <h2 style={{ color: '#10B981', fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>ফিচার ফ্ল্যাগস</h2>
           </div>
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Toggle label="Enable New Signups" checked={config.signupEnabled !== false} onChange={(v) => handleChange('signupEnabled', v)} />
-            <Toggle label="Maintenance Mode" checked={config.maintenanceMode === true} onChange={(v) => handleChange('maintenanceMode', v)} />
+            <Toggle label="নতুন সাইনআপ চালু করুন (Public Signup)" checked={config.signupEnabled !== false} onChange={(v) => handleChange('signupEnabled', v)} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-              <button onClick={() => handleSave(['signupEnabled', 'maintenanceMode'])} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#E8E8F0', borderRadius: '6px', cursor: 'pointer' }}>
+              <button onClick={() => handleSave(['signupEnabled'])} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#E8E8F0', borderRadius: '6px', cursor: 'pointer' }}>
                 <Save size={14} /> সেভ
               </button>
             </div>
@@ -126,25 +132,27 @@ export default function SettingsPage() {
       <div style={{ background: 'rgba(7,7,15,0.6)', border: `1px solid rgba(139,92,246,0.15)`, borderRadius: '12px', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.02)' }}>
           <Shield size={20} color="#F59E0B" />
-          <h2 style={{ color: '#F59E0B', fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>Plan Limits</h2>
+          <h2 style={{ color: '#F59E0B', fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>প্ল্যান লিমিটস</h2>
         </div>
         <div style={{ padding: '20px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
           {['free', 'pro', 'business'].map(plan => (
             <div key={plan} style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(139,92,246,0.1)' }}>
               <h3 style={{ color: '#E8E8F0', margin: '0 0 16px 0', textTransform: 'capitalize', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>{plan} Plan</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {['emailsPerMonth', 'contactsLimit', 'workspaceMembersLimit'].map(limitKey => (
-                  <div key={limitKey}>
-                    <label style={{ display: 'block', color: '#8888A8', fontSize: '0.75rem', marginBottom: '4px' }}>{limitKey}</label>
-                    <input type="number" value={config[`${plan}_${limitKey}`] || ''} onChange={(e) => handleChange(`${plan}_${limitKey}`, e.target.value)} style={{ width: '100%', background: 'rgba(7,7,15,0.8)', border: '1px solid rgba(139,92,246,0.3)', padding: '8px', borderRadius: '4px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box', fontSize: '0.85rem' }} />
-                  </div>
-                ))}
+                <div>
+                  <label style={{ display: 'block', color: '#8888A8', fontSize: '0.75rem', marginBottom: '4px' }}>প্রতিদিন সর্বোচ্চ ইমেইল</label>
+                  <input type="number" value={config[`${plan}_emailsPerDay`] || ''} onChange={(e) => handleChange(`${plan}_emailsPerDay`, e.target.value)} style={{ width: '100%', background: 'rgba(7,7,15,0.8)', border: '1px solid rgba(139,92,246,0.3)', padding: '8px', borderRadius: '4px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box', fontSize: '0.85rem' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', color: '#8888A8', fontSize: '0.75rem', marginBottom: '4px' }}>ওয়ার্কস্পেসে সর্বোচ্চ কন্ট্যাক্ট</label>
+                  <input type="number" value={config[`${plan}_contactsLimit`] || ''} onChange={(e) => handleChange(`${plan}_contactsLimit`, e.target.value)} style={{ width: '100%', background: 'rgba(7,7,15,0.8)', border: '1px solid rgba(139,92,246,0.3)', padding: '8px', borderRadius: '4px', color: '#E8E8F0', outline: 'none', boxSizing: 'border-box', fontSize: '0.85rem' }} />
+                </div>
               </div>
             </div>
           ))}
           <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
             <button onClick={() => {
-              const keysToSave = ['free', 'pro', 'business'].flatMap(p => ['emailsPerMonth', 'contactsLimit', 'workspaceMembersLimit'].map(l => `${p}_${l}`));
+              const keysToSave = ['free', 'pro', 'business'].flatMap(p => ['emailsPerDay', 'contactsLimit'].map(l => `${p}_${l}`));
               handleSave(keysToSave);
             }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#E8E8F0', borderRadius: '6px', cursor: 'pointer' }}>
               <Save size={14} /> সেভ লিমিটস

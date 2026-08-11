@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Save, Eye, EyeOff, FileText, Mail, AlignLeft, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Save, Eye, EyeOff, FileText, Mail, Type, AlignLeft, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
 
@@ -28,15 +28,11 @@ function saveTemplates(userId: string, templates: Template[]) {
   localStorage.setItem(`templates_${userId}`, JSON.stringify(templates));
 }
 
-export default function EditTemplateClient() {
+export default function NewTemplatePage() {
   const router = useRouter();
-  const params = useParams();
-  const id = params.id as string;
   const { user } = useAuthStore();
   const userId = user?.uid || 'guest';
 
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [name, setName] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
@@ -44,21 +40,6 @@ export default function EditTemplateClient() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (!id || typeof window === 'undefined') return;
-    const templates = loadTemplates(userId);
-    const template = templates.find(t => t.id === id);
-
-    if (template) {
-      setName(template.name);
-      setSubject(template.subject);
-      setBody(template.body);
-    } else {
-      setNotFound(true);
-    }
-    setLoading(false);
-  }, [id, userId]);
 
   const insertMergeTag = (tag: string) => {
     setBody(prev => prev + `{{${tag}}}`);
@@ -71,46 +52,23 @@ export default function EditTemplateClient() {
     setError('');
     setIsSaving(true);
 
-    const templates = loadTemplates(userId);
-    const index = templates.findIndex(t => t.id === id);
+    const newTemplate: Template = {
+      id: `tpl-${Date.now().toString(36)}`,
+      name: name.trim(),
+      subject: subject.trim(),
+      body: body.trim(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-    if (index >= 0) {
-      templates[index] = {
-        ...templates[index],
-        name: name.trim(),
-        subject: subject.trim(),
-        body: body.trim(),
-        updatedAt: new Date().toISOString(),
-      };
-      saveTemplates(userId, templates);
-      setSaved(true);
-      setTimeout(() => {
-        router.push('/templates');
-      }, 1000);
-    } else {
-      setError('Template পাওয়া যায়নি');
-      setIsSaving(false);
-    }
+    const existing = loadTemplates(userId);
+    saveTemplates(userId, [...existing, newTemplate]);
+
+    setSaved(true);
+    setTimeout(() => {
+      router.push('/templates');
+    }, 1000);
   };
-
-  if (loading) {
-    return <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>লোড হচ্ছে...</div>;
-  }
-
-  if (notFound) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center', fontFamily: "'Anek Bangla', sans-serif" }}>
-        <h2 style={{ color: 'var(--text-primary)', marginBottom: 16 }}>Template পাওয়া যায়নি</h2>
-        <Link href="/templates" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px',
-          background: 'rgba(139,92,246,0.1)', color: 'var(--neon-purple-bright)',
-          borderRadius: 8, textDecoration: 'none',
-        }}>
-          <ArrowLeft size={16} /> ফিরে যান
-        </Link>
-      </div>
-    );
-  }
 
   const mergeTags = ['first_name', 'last_name', 'email', 'company'];
 
@@ -138,7 +96,7 @@ export default function EditTemplateClient() {
           </Link>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>
-              Template Edit করুন
+              নতুন Template তৈরি
             </h1>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Campaign-এ ব্যবহারের জন্য email template</p>
           </div>
@@ -167,10 +125,11 @@ export default function EditTemplateClient() {
               background: saved ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #7C3AED, #6D28D9)',
               color: '#fff', cursor: isSaving || saved ? 'not-allowed' : 'pointer',
               fontFamily: "'Anek Bangla', sans-serif", fontWeight: 700, fontSize: '0.9rem',
-              boxShadow: '0 0 20px rgba(139,92,246,0.3)', opacity: isSaving ? 0.7 : 1,
+              boxShadow: '0 0 20px rgba(139,92,246,0.3)',
+              opacity: isSaving ? 0.7 : 1,
             }}
           >
-            {saved ? <><CheckCircle2 size={16} /> আপডেট হয়েছে!</> : <><Save size={16} /> {isSaving ? 'সেভ হচ্ছে...' : 'আপডেট করুন'}</>}
+            {saved ? <><CheckCircle2 size={16} /> সেভ হয়েছে!</> : <><Save size={16} /> {isSaving ? 'সেভ হচ্ছে...' : 'সেভ করুন'}</>}
           </button>
         </div>
       </div>
@@ -206,9 +165,11 @@ export default function EditTemplateClient() {
                 width: '100%', padding: '12px 14px', borderRadius: 10,
                 background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)',
                 color: 'var(--text-primary)', fontSize: '0.95rem',
-                fontFamily: "'Anek Bangla', sans-serif", boxSizing: 'border-box',
+                fontFamily: "'Anek Bangla', sans-serif",
+                boxSizing: 'border-box',
               }}
             />
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 6 }}>এই নামটি শুধু আপনার জন্য — প্রাপক দেখবে না।</p>
           </div>
 
           {/* Subject */}
@@ -230,7 +191,8 @@ export default function EditTemplateClient() {
                 width: '100%', padding: '12px 14px', borderRadius: 10,
                 background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)',
                 color: 'var(--text-primary)', fontSize: '0.95rem',
-                fontFamily: "'Anek Bangla', sans-serif", boxSizing: 'border-box',
+                fontFamily: "'Anek Bangla', sans-serif",
+                boxSizing: 'border-box',
               }}
             />
           </div>
@@ -252,7 +214,8 @@ export default function EditTemplateClient() {
                     style={{
                       padding: '2px 8px', borderRadius: 5, fontSize: '0.7rem',
                       background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.25)',
-                      color: 'var(--neon-purple-bright)', cursor: 'pointer', fontFamily: 'monospace',
+                      color: 'var(--neon-purple-bright)', cursor: 'pointer',
+                      fontFamily: 'monospace',
                     }}
                   >
                     {`{{${tag}}}`}
@@ -290,21 +253,27 @@ export default function EditTemplateClient() {
               <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem' }}>Live Preview</h3>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 4 }}>(রাহুল আহমেদ হিসেবে দেখছেন)</span>
             </div>
+
+            {/* Email preview card */}
             <div style={{ background: '#fff', borderRadius: 10, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+              {/* Email header */}
               <div style={{ background: '#F8F9FA', padding: '12px 16px', borderBottom: '1px solid #E8EAED' }}>
                 <p style={{ fontSize: '0.75rem', color: '#5F6368', margin: '0 0 4px 0' }}>From: <strong style={{ color: '#202124' }}>আপনার নাম &lt;you@email.com&gt;</strong></p>
                 <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#202124', margin: 0, fontFamily: "'Anek Bangla', sans-serif" }}>
                   {subject || '(Subject Line)'}
                 </p>
               </div>
+              {/* Email body */}
               <div style={{ padding: '20px 16px', minHeight: 200 }}>
                 <div style={{
                   fontSize: '0.875rem', lineHeight: 1.8, color: '#202124',
-                  fontFamily: "'Anek Bangla', sans-serif", whiteSpace: 'pre-wrap',
+                  fontFamily: "'Anek Bangla', sans-serif",
+                  whiteSpace: 'pre-wrap',
                 }}>
                   {previewBody || <span style={{ color: '#9AA0A6', fontStyle: 'italic' }}>Email body এখানে দেখাবে...</span>}
                 </div>
               </div>
+              {/* Unsubscribe footer */}
               <div style={{ background: '#F8F9FA', padding: '10px 16px', borderTop: '1px solid #E8EAED', textAlign: 'center' }}>
                 <p style={{ fontSize: '0.65rem', color: '#9AA0A6', margin: 0, fontFamily: "'Anek Bangla', sans-serif" }}>
                   আর ইমেইল পেতে না চাইলে <span style={{ color: '#7C3AED', textDecoration: 'underline' }}>আনসাবস্ক্রাইব করুন</span>
