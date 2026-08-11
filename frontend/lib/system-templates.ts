@@ -18,11 +18,17 @@ export const CHATGPT_PREMIUM_TEMPLATE: Template = {
   body: `<div style="background-color: #050B14; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px 15px; color: #E2E8F0;">
   <div style="max-width: 600px; margin: 0 auto; background: #0D1527; border: 1px solid #1E293B; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.65);">
     
-    <!-- Top Header -->
-    <div style="padding: 36px 24px 22px; text-align: center; border-bottom: 1px solid #1E293B; background: linear-gradient(180deg, #06231C 0%, #0D1527 100%);">
-      <h1 style="margin: 0; font-size: 32px; font-weight: 900; color: #10A37F; letter-spacing: -0.5px;">🤖 CHATGPT</h1>
-      <p style="margin: 6px 0 0; font-size: 14px; color: #34D399; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
-        One AI. Endless Possibilities.
+    <!-- Official Logo & Top Header -->
+    <div style="padding: 36px 24px 24px; text-align: center; border-bottom: 1px solid #1E293B; background: linear-gradient(180deg, #06231C 0%, #0D1527 100%);">
+      <!-- Official OpenAI / ChatGPT SVG Logo Badge -->
+      <div style="width: 64px; height: 64px; margin: 0 auto 14px; background: rgba(16, 163, 127, 0.15); border: 2px solid #10A37F; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(16, 163, 127, 0.4);">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.04 6.04 0 0 0-6.51-2.9 6.07 6.07 0 0 0-4.81-2.13A6.07 6.07 0 0 0 4.6 2.86a6.04 6.04 0 0 0-4.14 4.54 5.98 5.98 0 0 0 .5 5.93 5.98 5.98 0 0 0 .52 4.91 6.04 6.04 0 0 0 6.51 2.9 6.07 6.07 0 0 0 4.81 2.13 6.07 6.07 0 0 0 5.84-2.98 6.04 6.04 0 0 0 4.14-4.54 5.98 5.98 0 0 0-.5-5.93zm-9.74 11.53a4.42 4.42 0 0 1-2.82-.41l.15-.08 4.68-2.7a.82.82 0 0 0 .41-.72v-5.46l1.63.94v5.18a4.44 4.44 0 0 1-4.05 3.25zm-8.8-3.77a4.42 4.42 0 0 1-.53-2.8l.15.09 4.68 2.7a.82.82 0 0 0 .82 0l4.73-2.73v1.89l-4.49 2.59a4.44 4.44 0 0 1-5.36-1.74zm-1.07-9.56a4.42 4.42 0 0 1 2.29-2.4l-.01.17v5.4a.82.82 0 0 0 .41.72l4.73 2.73-1.63.94-4.49-2.59a4.44 4.44 0 0 1-1.3-4.97zm10.74-4.96a4.42 4.42 0 0 1 2.82.41l-.15.08-4.68 2.7a.82.82 0 0 0-.41.72v5.46l-1.63-.94V6.31a4.44 4.44 0 0 1 4.05-3.25zm8.8 3.77a4.42 4.42 0 0 1 .53 2.8l-.15-.09-4.68-2.7a.82.82 0 0 0-.82 0l-4.73 2.73V7.64l4.49-2.59a4.44 4.44 0 0 1 5.36 1.74zm1.07 9.56a4.42 4.42 0 0 1-2.29 2.4l.01-.17v-5.4a.82.82 0 0 0-.41-.72l-4.73-2.73 1.63-.94 4.49 2.59a4.44 4.44 0 0 1 1.3 4.97z" fill="#10A37F"/>
+        </svg>
+      </div>
+      <h1 style="margin: 0; font-size: 30px; font-weight: 900; color: #10A37F; letter-spacing: -0.5px;">ChatGPT Plus & Team</h1>
+      <p style="margin: 6px 0 0; font-size: 13px; color: #34D399; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+        Official OpenAI Premium Plan Activated
       </p>
     </div>
 
@@ -88,11 +94,18 @@ export const CLAUDE_PREMIUM_TEMPLATE: Template = {
   body: `<div style="background-color: #0A0D14; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px 15px; color: #E2E8F0;">
   <div style="max-width: 600px; margin: 0 auto; background: #111622; border: 1px solid #1E293B; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.65);">
     
-    <!-- Top Header -->
-    <div style="padding: 36px 24px 22px; text-align: center; border-bottom: 1px solid #1E293B; background: linear-gradient(180deg, #161F32 0%, #111622 100%);">
-      <h1 style="margin: 0; font-size: 32px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.5px;">🧠 CLAUDE</h1>
-      <p style="margin: 6px 0 0; font-size: 14px; color: #10B981; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
-        Think Deeper. Build Better.
+    <!-- Official Logo & Top Header -->
+    <div style="padding: 36px 24px 24px; text-align: center; border-bottom: 1px solid #1E293B; background: linear-gradient(180deg, #161F32 0%, #111622 100%);">
+      <!-- Official Anthropic Claude SVG Logo Badge -->
+      <div style="width: 64px; height: 64px; margin: 0 auto 14px; background: rgba(16, 185, 129, 0.12); border: 2px solid #10B981; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" fill="#D97706" />
+          <path d="M18 2L19.2 5.3L22.5 6.5L19.2 7.7L18 11L16.8 7.7L13.5 6.5L16.8 5.3L18 2Z" fill="#10B981" />
+        </svg>
+      </div>
+      <h1 style="margin: 0; font-size: 30px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.5px;">Claude AI</h1>
+      <p style="margin: 6px 0 0; font-size: 13px; color: #10B981; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+        Official Anthropic Premium Plan Activated
       </p>
     </div>
 
@@ -154,11 +167,24 @@ export const GEMINI_PREMIUM_TEMPLATE: Template = {
   body: `<div style="background-color: #090B10; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px 15px; color: #E2E8F0;">
   <div style="max-width: 600px; margin: 0 auto; background: #121624; border: 1px solid #232B42; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.65);">
     
-    <!-- Top Header -->
-    <div style="padding: 36px 24px 22px; text-align: center; border-bottom: 1px solid #232B42; background: linear-gradient(135deg, #1E1B4B 0%, #1E293B 50%, #31103F 100%);">
-      <h1 style="margin: 0; font-size: 32px; font-weight: 900; background: linear-gradient(90deg, #60A5FA, #A78BFA, #F472B6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">✨ GOOGLE GEMINI</h1>
-      <p style="margin: 6px 0 0; font-size: 14px; color: #A78BFA; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
-        Your AI. Connected to Google.
+    <!-- Official Logo & Top Header -->
+    <div style="padding: 36px 24px 24px; text-align: center; border-bottom: 1px solid #232B42; background: linear-gradient(135deg, #1E1B4B 0%, #1E293B 50%, #31103F 100%);">
+      <!-- Official Google Gemini 4-Point Star Logo -->
+      <div style="width: 64px; height: 64px; margin: 0 auto 14px; background: rgba(66, 133, 244, 0.15); border: 2px solid #4285F4; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(66, 133, 244, 0.4);">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" fill="url(#gemini-grad-logo)"/>
+          <defs>
+            <linearGradient id="gemini-grad-logo" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4285F4"/>
+              <stop offset="0.5" stop-color="#9333EA"/>
+              <stop offset="1" stop-color="#EC4899"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h1 style="margin: 0; font-size: 30px; font-weight: 900; background: linear-gradient(90deg, #60A5FA, #A78BFA, #F472B6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Google Gemini</h1>
+      <p style="margin: 6px 0 0; font-size: 13px; color: #A78BFA; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+        Official Google AI Premium Plan Activated
       </p>
     </div>
 
@@ -223,11 +249,17 @@ export const GROK_PREMIUM_TEMPLATE: Template = {
   body: `<div style="background-color: #030303; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px 15px; color: #E2E8F0;">
   <div style="max-width: 600px; margin: 0 auto; background: #0A0A0C; border: 1px solid #222226; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.85);">
     
-    <!-- Top Header -->
-    <div style="padding: 36px 24px 22px; text-align: center; border-bottom: 1px solid #222226; background: linear-gradient(180deg, #18181B 0%, #0A0A0C 100%);">
-      <h1 style="margin: 0; font-size: 32px; font-weight: 900; color: #FFFFFF; letter-spacing: 1px;">⚡ GROK</h1>
-      <p style="margin: 6px 0 0; font-size: 14px; color: #A1A1AA; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
-        Ask. Explore. Create.
+    <!-- Official Logo & Top Header -->
+    <div style="padding: 36px 24px 24px; text-align: center; border-bottom: 1px solid #222226; background: linear-gradient(180deg, #18181B 0%, #0A0A0C 100%);">
+      <!-- Official xAI Grok SVG Logo Badge -->
+      <div style="width: 64px; height: 64px; margin: 0 auto 14px; background: rgba(255, 255, 255, 0.1); border: 2px solid #FFFFFF; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(255, 255, 255, 0.25);">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <h1 style="margin: 0; font-size: 30px; font-weight: 900; color: #FFFFFF; letter-spacing: 1px;">Grok AI (xAI)</h1>
+      <p style="margin: 6px 0 0; font-size: 13px; color: #A1A1AA; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+        Official xAI Supercomputer Unlocked
       </p>
     </div>
 
@@ -293,11 +325,17 @@ export const MIDJOURNEY_PREMIUM_TEMPLATE: Template = {
   body: `<div style="background-color: #06050D; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px 15px; color: #E2E8F0;">
   <div style="max-width: 600px; margin: 0 auto; background: #0E0C1C; border: 1px solid #231E3D; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.75);">
     
-    <!-- Top Header -->
-    <div style="padding: 36px 24px 22px; text-align: center; border-bottom: 1px solid #231E3D; background: linear-gradient(180deg, #1C173B 0%, #0E0C1C 100%);">
-      <h1 style="margin: 0; font-size: 32px; font-weight: 900; color: #818CF8; letter-spacing: -0.5px;">🎨 MIDJOURNEY</h1>
-      <p style="margin: 6px 0 0; font-size: 14px; color: #C084FC; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
-        Imagine It. Create It.
+    <!-- Official Logo & Top Header -->
+    <div style="padding: 36px 24px 24px; text-align: center; border-bottom: 1px solid #231E3D; background: linear-gradient(180deg, #1C173B 0%, #0E0C1C 100%);">
+      <!-- Official Midjourney Sailboat SVG Logo Badge -->
+      <div style="width: 64px; height: 64px; margin: 0 auto 14px; background: rgba(129, 140, 248, 0.15); border: 2px solid #818CF8; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(129, 140, 248, 0.4);">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L4 19H10.5L12 15L13.5 19H20L12 2ZM12 6L16 15H8L12 6Z" fill="#818CF8"/>
+        </svg>
+      </div>
+      <h1 style="margin: 0; font-size: 30px; font-weight: 900; color: #818CF8; letter-spacing: -0.5px;">Midjourney v6 Pro</h1>
+      <p style="margin: 6px 0 0; font-size: 13px; color: #C084FC; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+        Official Midjourney Pro Plan Activated
       </p>
     </div>
 
@@ -342,7 +380,7 @@ export const MIDJOURNEY_PREMIUM_TEMPLATE: Template = {
       </div>
 
       <!-- Footer Signoff -->
-      <div style="margin-top: 24px; font-size: 12px; color: #64748B; border-top: 1px solid #231E3D; padding-top: 16px; text-align: center;">
+      <div style="margin-top: 24px; font-size: 12px; color: #64748B; border-top: 1px solid #232B42; padding-top: 16px; text-align: center;">
         © 2026 Midjourney Inc. All rights reserved.
       </div>
     </div>
