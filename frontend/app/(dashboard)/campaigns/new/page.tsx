@@ -48,9 +48,58 @@ export default function NewCampaignPage() {
   // Manual & File Upload Recipients
   const [recipientTab, setRecipientTab] = useState<'saved' | 'manual' | 'file'>('manual');
   const [manualText, setManualText] = useState('');
+  const [manualChips, setManualChips] = useState<string[]>([]);
+  const [chipInput, setChipInput] = useState('');
+  const [invalidEmailError, setInvalidEmailError] = useState<string | null>(null);
+  const [showRawTextarea, setShowRawTextarea] = useState(false);
+
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [uploadedFileEmails, setUploadedFileEmails] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
+
+  const isValidEmail = (email: string) => {
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim());
+  };
+
+  const addEmailChip = (value: string) => {
+    const trimmed = value.trim().toLowerCase().replace(/[,;\s]+$/, '');
+    if (!trimmed) return;
+
+    if (!isValidEmail(trimmed)) {
+      setInvalidEmailError(`❌ "${trimmed}" একটি অকার্যকর ইমেইল ঠিকানা! সঠিক ফরম্যাট টাইপ করুন (যেমন: name@domain.com)`);
+      return;
+    }
+
+    setInvalidEmailError(null);
+    if (!manualChips.includes(trimmed)) {
+      setManualChips(prev => [...prev, trimmed]);
+    }
+    setChipInput('');
+  };
+
+  const handleChipKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (['Enter', ',', ' ', 'Tab'].includes(e.key)) {
+      e.preventDefault();
+      addEmailChip(chipInput);
+    }
+  };
+
+  const handlePasteEmails = (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const text = e.clipboardData.getData('text');
+    if (!text) return;
+
+    const extracted = extractEmailsFromText(text);
+    if (extracted.length > 0) {
+      e.preventDefault();
+      setManualChips(prev => Array.from(new Set([...prev, ...extracted])));
+      setChipInput('');
+      setInvalidEmailError(null);
+    }
+  };
+
+  const removeChip = (emailToRemove: string) => {
+    setManualChips(prev => prev.filter(email => email !== emailToRemove));
+  };
 
   const [userTemplates, setUserTemplates] = useState<TemplateItem[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
@@ -114,7 +163,9 @@ export default function NewCampaignPage() {
     } catch (e) {}
   }, [userId, user]);
 
-  const parsedManualEmails = extractEmailsFromText(manualText);
+  const parsedManualEmails = Array.from(
+    new Set([...manualChips, ...extractEmailsFromText(manualText)])
+  );
 
   // Total calculated unique recipients
   const getAllRecipients = () => {
@@ -454,23 +505,100 @@ export default function NewCampaignPage() {
                 </div>
               )}
 
-              {/* TAB 2: Manual Copy-Paste */}
+              {/* TAB 2: Interactive Smart Email Chips & Copy-Paste */}
               {recipientTab === 'manual' && (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <label className="block text-sm font-semibold">ইমেইল তালিকা পেস্ট বা টাইপ করুন (কমা বা নিউলাইন দ্বারা আলাদা):</label>
-                    <span className="text-xs text-green-400 font-bold">✔ {parsedManualEmails.length}টি বৈধ ইমেইল বের করা হয়েছে</span>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap justify-between items-center gap-2">
+                    <label className="block text-sm font-semibold">
+                      ইমেইল টাইপ বা পেস্ট করুন (Enter বা Comma (,) চেপে যোগ করুন):
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-green-400 font-bold px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30">
+                        ✔ {parsedManualEmails.length}টি সংগৃহীত বৈধ ইমেইল
+                      </span>
+                      {manualChips.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => { setManualChips([]); setManualText(''); setInvalidEmailError(null); }}
+                          className="text-xs text-red-400 hover:underline font-semibold"
+                        >
+                          সব মুছুন
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <textarea
-                    rows={6}
-                    value={manualText}
-                    onChange={e => setManualText(e.target.value)}
-                    placeholder="যেমন:\nrahim@gmail.com\nkarim@yahoo.com, jabbar@company.com\nsazu@domain.com"
-                    className="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-[#7C3AED] focus:outline-none font-mono text-sm leading-relaxed"
-                  />
-                  <p className="text-xs text-gray-500">
-                    💡 টিপস: আপনি Excel, Sheet বা যেকোনো ফাইল থেকে কলাম কপি করে সরাসরি এখানে পেস্ট করতে পারেন। সিস্টেমে স্বয়ংক্রিয়ভাবে ইমেইল ফিল্টার করে নিবে।
-                  </p>
+
+                  {/* Invalid Email Alert Warning */}
+                  {invalidEmailError && (
+                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center justify-between animate-shake">
+                      <span>{invalidEmailError}</span>
+                      <button onClick={() => setInvalidEmailError(null)} className="text-red-400 hover:text-white p-1">
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Smart Email Chip Container */}
+                  <div className="p-4 rounded-xl border border-purple-500/30 bg-black/60 focus-within:ring-2 focus-within:ring-[#7C3AED] min-h-[140px] flex flex-wrap align-content-start gap-2 transition-all">
+                    {/* Rendered Valid Email Chips */}
+                    {manualChips.map((email, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-900/60 to-cyan-900/60 border border-cyan-500/40 text-cyan-300 font-mono text-xs font-semibold shadow-sm animate-fadeIn"
+                      >
+                        <CheckCircle2 size={13} className="text-green-400" />
+                        {email}
+                        <button
+                          type="button"
+                          onClick={() => removeChip(email)}
+                          className="hover:text-red-400 text-cyan-400/70 transition-colors p-0.5 ml-1"
+                          title="ইমেইল রিমুভ করুন"
+                        >
+                          <X size={13} />
+                        </button>
+                      </span>
+                    ))}
+
+                    {/* Single Chip Input Field */}
+                    <input
+                      type="text"
+                      value={chipInput}
+                      onChange={e => { setChipInput(e.target.value); setInvalidEmailError(null); }}
+                      onKeyDown={handleChipKeyDown}
+                      onBlur={() => { if (chipInput.trim()) addEmailChip(chipInput); }}
+                      onPaste={handlePasteEmails}
+                      placeholder={manualChips.length === 0 ? "যেমন: rahim@gmail.com টাইপ করে Enter চাপুন অথবা পেস্ট করুন..." : "আরও ইমেইল টাইপ করে Enter চাপুন..."}
+                      className="flex-1 min-w-[240px] bg-transparent text-white font-mono text-sm focus:outline-none py-1 px-1 placeholder:text-gray-500"
+                    />
+                  </div>
+
+                  {/* Toggle raw multiline textarea */}
+                  <div className="flex justify-between items-center text-xs">
+                    <p className="text-gray-400">
+                      💡 টিপস: আপনি Excel, Google Sheet বা ফাইল থেকে কলাম কপি করে সরাসরি বক্সে পেস্ট (Ctrl+V) করতে পারেন।
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowRawTextarea(!showRawTextarea)}
+                      className="text-purple-400 hover:text-purple-300 font-semibold underline ml-2 whitespace-nowrap"
+                    >
+                      {showRawTextarea ? 'চিপ ভিউতে ফিরে যান' : 'বাল্ক টেক্সটবক্স অন করুন'}
+                    </button>
+                  </div>
+
+                  {/* Optional Raw Textarea */}
+                  {showRawTextarea && (
+                    <div className="pt-2">
+                      <label className="block text-xs font-semibold text-gray-400 mb-1">বাল্ক টেক্সটবক্স (লাইন ধরে পেস্ট করুন):</label>
+                      <textarea
+                        rows={4}
+                        value={manualText}
+                        onChange={e => setManualText(e.target.value)}
+                        placeholder="rahim@gmail.com&#10;karim@yahoo.com&#10;sazu@company.com"
+                        className="w-full p-3 rounded-lg border border-gray-700 bg-gray-900 font-mono text-xs text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
