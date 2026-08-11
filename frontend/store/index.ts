@@ -43,6 +43,17 @@ interface AuthState {
 // Auth Store
 // ============================================
 
+// Detect fake/dev UIDs that should be cleared
+function isFakeUid(uid: string): boolean {
+  return (
+    uid.startsWith('user-') ||
+    uid.startsWith('google-user-') ||
+    uid === 'user-001' ||
+    uid === 'admin-001' ||
+    uid.startsWith('demo-')
+  );
+}
+
 function getInitialAuthState() {
   if (typeof window === 'undefined') {
     return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
@@ -53,24 +64,35 @@ function getInitialAuthState() {
       const parsed = JSON.parse(raw);
       const s = parsed.state || parsed;
       if (s.user || s.isAuthenticated) {
-        let user = s.user ? { ...s.user } : null;
-        if (user && user.name) {
-          user.name = user.name.replace(/\s*\(ডেমো\)/g, '').replace(/Demo User/g, 'ব্যবহারকারী');
-          if (user.email === 'demo@smartemail.com') {
-            user.email = 'user@smartemail.com';
-          }
+        const user = s.user ? { ...s.user } : null;
+
+        // ─── Auto-clear fake/dev sessions ───
+        if (
+          !user ||
+          isFakeUid(user.uid) ||
+          user.email === 'demo@smartemail.com' ||
+          user.email === 'user@smartemail.com' ||
+          user.email === 'google.user@gmail.com' ||
+          user.email === 'admin@smartemail.com'
+        ) {
+          localStorage.removeItem('auth-storage');
+          return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
         }
+
         return {
           user,
           workspaces: s.workspaces || [],
           currentWorkspace: s.currentWorkspace || null,
-          isAuthenticated: !!(s.isAuthenticated || user),
+          isAuthenticated: true,
         };
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    localStorage.removeItem('auth-storage');
+  }
   return { user: null, workspaces: [], currentWorkspace: null, isAuthenticated: false };
 }
+
 
 export const useAuthStore = create<AuthState>()(
   persist(

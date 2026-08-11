@@ -6,26 +6,61 @@ import { useAuthStore } from '@/store';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Navbar } from '@/components/layout/Navbar';
 import { Zap } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, isLoading, user } = useAuthStore();
+  const { isAuthenticated, user, setUser, setWorkspaces, setCurrentWorkspace, logout } = useAuthStore();
   const [mounted, setMounted] = useState(false);
+  const [firebaseChecked, setFirebaseChecked] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
+
+    // Validate session against Firebase Auth
+    if (auth) {
+      const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+        if (fbUser) {
+          // Firebase session valid — sync user info
+          const freshUser = {
+            uid: fbUser.uid,
+            email: fbUser.email || '',
+            name: fbUser.displayName || fbUser.email?.split('@')[0] || 'ব্যবহারকারী',
+            photoURL: fbUser.photoURL || '',
+          };
+          const freshWorkspace = {
+            id: `ws-${fbUser.uid.slice(0, 8)}`,
+            name: `${fbUser.displayName || 'ইউজার'}-এর ওয়ার্কস্পেস`,
+            plan: 'free' as const,
+            role: 'owner' as const,
+          };
+          setUser(freshUser);
+          setWorkspaces([freshWorkspace]);
+          setCurrentWorkspace(freshWorkspace);
+        } else {
+          // No Firebase session → clear everything and redirect
+          logout();
+          router.replace('/login');
+        }
+        setFirebaseChecked(true);
+      });
+      return () => unsubscribe();
+    } else {
+      // Firebase not available — rely on stored state
+      setFirebaseChecked(true);
+    }
   }, []);
 
-  React.useEffect(() => {
-    if (mounted && !isLoading) {
-      if (!isAuthenticated && !user) {
-        router.replace('/login');
-      }
+  // Guard: redirect if not authenticated after check
+  useEffect(() => {
+    if (mounted && firebaseChecked && !isAuthenticated && !user) {
+      router.replace('/login');
     }
-  }, [isAuthenticated, isLoading, mounted, user, router]);
+  }, [mounted, firebaseChecked, isAuthenticated, user, router]);
 
-  if (!mounted || isLoading) {
+  if (!mounted || !firebaseChecked) {
     return (
       <div style={{
         minHeight: '100vh', background: 'var(--bg-void)',
