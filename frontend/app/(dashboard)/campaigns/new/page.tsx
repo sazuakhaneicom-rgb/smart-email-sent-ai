@@ -5,22 +5,29 @@ import { useRouter } from 'next/navigation';
 import {
   CheckCircle2, ArrowLeft, ArrowRight, Calendar, Send, Info,
   Sparkles, FileText, Mail, Eye, Save, AlertCircle, RefreshCw, Upload, Users,
-  ClipboardList, FileSpreadsheet, Plus, X
+  ClipboardList, FileSpreadsheet, Plus, X, Link as LinkIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
 import { sendRealEmail } from '@/lib/email-dispatcher';
 import { CelebrationModal } from '@/components/ui/CelebrationModal';
-import { SYSTEM_STARTER_TEMPLATES } from '@/lib/system-templates';
+import {
+  SYSTEM_STARTER_TEMPLATES,
+  CLAUDE_PREMIUM_TEMPLATE,
+  CHATGPT_PREMIUM_TEMPLATE,
+  GEMINI_PREMIUM_TEMPLATE,
+  GROK_PREMIUM_TEMPLATE,
+  MIDJOURNEY_PREMIUM_TEMPLATE
+} from '@/lib/system-templates';
 
 interface TemplateItem {
   id: string;
   name: string;
   subject: string;
   body: string;
+  createdAt?: string;
 }
 
-// Regex to extract all email addresses from any string or file content
 function extractEmailsFromText(text: string): string[] {
   if (!text) return [];
   const regex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -33,14 +40,16 @@ export default function NewCampaignPage() {
   const { user } = useAuthStore();
   const userId = user?.uid || 'guest';
 
+  // Stepper State
   const [step, setStep] = useState(1);
 
   // Form State
   const [campaignName, setCampaignName] = useState('');
-  const [subject, setSubject] = useState('');
+  const [subject, setSubject] = useState(CLAUDE_PREMIUM_TEMPLATE.subject);
   const [senderName, setSenderName] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
-  const [body, setBody] = useState('');
+  const [body, setBody] = useState(CLAUDE_PREMIUM_TEMPLATE.body);
+  const [invitationUrl, setInvitationUrl] = useState('https://claude.ai/login');
 
   // Real User Contacts & Templates
   const [userContacts, setUserContacts] = useState<any[]>([]);
@@ -58,6 +67,24 @@ export default function NewCampaignPage() {
   const [uploadedFileEmails, setUploadedFileEmails] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
 
+  const [userTemplates, setUserTemplates] = useState<TemplateItem[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(CLAUDE_PREMIUM_TEMPLATE.id);
+
+  // Test Email
+  const [testEmailInput, setTestEmailInput] = useState('');
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  // AI Generator Modal
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+
+  // Launch & Celebration Status
+  const [isLaunching, setIsLaunching] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // Validation helpers for email chips
   const isValidEmail = (email: string) => {
     return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim());
   };
@@ -67,7 +94,7 @@ export default function NewCampaignPage() {
     if (!trimmed) return;
 
     if (!isValidEmail(trimmed)) {
-      setInvalidEmailError(`❌ "${trimmed}" একটি অকার্যকর ইমেইল ঠিকানা! সঠিক ফরম্যাট টাইপ করুন (যেমন: name@domain.com)`);
+      setInvalidEmailError(`❌ "${trimmed}" একটি অকার্যকর ইমেইল ঠিকানা! সঠিক ফরম্যাট দিন (যেমন: name@domain.com)`);
       return;
     }
 
@@ -101,23 +128,6 @@ export default function NewCampaignPage() {
   const removeChip = (emailToRemove: string) => {
     setManualChips(prev => prev.filter(email => email !== emailToRemove));
   };
-
-  const [userTemplates, setUserTemplates] = useState<TemplateItem[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-
-  // Test Email
-  const [testEmailInput, setTestEmailInput] = useState('');
-  const [isSendingTest, setIsSendingTest] = useState(false);
-  const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
-
-  // AI Generator Modal in Step 2
-  const [showAiModal, setShowAiModal] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [isAiGenerating, setIsAiGenerating] = useState(false);
-
-  // Launch & Celebration Status
-  const [isLaunching, setIsLaunching] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
     // Load Sender info from email-config storage
@@ -160,16 +170,26 @@ export default function NewCampaignPage() {
       }
     } catch (e) {}
 
-    // Check if redirected from AI Agent with pre-filled content
-    try {
-      const rawAi = sessionStorage.getItem('ai_draft_content');
-      if (rawAi) {
-        const parsed = JSON.parse(rawAi);
-        if (parsed.subject) setSubject(parsed.subject);
-        if (parsed.body) setBody(parsed.body);
-        sessionStorage.removeItem('ai_draft_content');
+    // Check if redirected from /templates with prebuilt ID & link
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlTplId = params.get('templateId');
+      const urlInvite = params.get('inviteLink');
+
+      if (urlTplId) {
+        const found = SYSTEM_STARTER_TEMPLATES.find(t => t.id === urlTplId);
+        if (found) {
+          setSelectedTemplateId(found.id);
+          setSubject(found.subject);
+          let b = found.body;
+          if (urlInvite) {
+            b = b.replace(/href="[^"]*"/g, `href="${urlInvite}"`);
+            setInvitationUrl(urlInvite);
+          }
+          setBody(b);
+        }
       }
-    } catch (e) {}
+    }
   }, [userId, user]);
 
   const parsedManualEmails = Array.from(
@@ -186,87 +206,113 @@ export default function NewCampaignPage() {
       });
     }
 
-    parsedManualEmails.forEach(e => emails.add(e));
-    uploadedFileEmails.forEach(e => emails.add(e));
+    if (recipientTab === 'manual') {
+      parsedManualEmails.forEach(e => emails.add(e.toLowerCase()));
+    } else if (recipientTab === 'file') {
+      uploadedFileEmails.forEach(e => emails.add(e.toLowerCase()));
+    }
 
     return Array.from(emails);
   };
 
   const allRecipients = getAllRecipients();
 
+  const handleSelectTemplate = (tpl: TemplateItem) => {
+    setSelectedTemplateId(tpl.id);
+    setSubject(tpl.subject);
+    if (!campaignName) setCampaignName(tpl.name);
+    let updatedBody = tpl.body;
+    if (invitationUrl) {
+      updatedBody = updatedBody.replace(/href="[^"]*"/g, `href="${invitationUrl}"`);
+    }
+    setBody(updatedBody);
+  };
+
+  const handleUpdateInvitationUrl = (url: string) => {
+    setInvitationUrl(url);
+    setBody(prev => {
+      if (!prev) return prev;
+      return prev.replace(/href="[^"]*"/g, `href="${url}"`);
+    });
+  };
+
+  // Handle CSV/TXT File Upload
   const handleFileUpload = (file: File) => {
     if (!file) return;
     setUploadedFileName(file.name);
     const reader = new FileReader();
     reader.onload = (e) => {
-      const content = e.target?.result as string;
-      const emails = extractEmailsFromText(content);
-      setUploadedFileEmails(emails);
+      const text = e.target?.result as string;
+      if (text) {
+        const emails = extractEmailsFromText(text);
+        setUploadedFileEmails(emails);
+      }
     };
     reader.readAsText(file);
   };
 
-  const handleSelectTemplate = (tpl: TemplateItem) => {
-    setSelectedTemplateId(tpl.id);
-    setSubject(tpl.subject || subject);
-    setBody(tpl.body || body);
-  };
-
+  // AI Content Generator
   const handleAiGenerate = async () => {
     if (!aiPrompt.trim()) return;
     setIsAiGenerating(true);
     await new Promise(r => setTimeout(r, 1200));
 
-    const genSubject = aiPrompt.includes('অফার')
-      ? `বিশেষ উপহার! আপনার জন্য দুর্দান্ত সুযোগ`
-      : `প্রিয় {{first_name}}, আপনার জন্য একটি বিশেষ ইমেইল`;
+    const generatedSubject = `🎉 বিশেষ অফার: ${aiPrompt.trim()}!`;
+    const generatedBody = `প্রিয় {{first_name}},\n\n${aiPrompt.trim()}\n\nআমাদের বিশেষ প্রিমিয়াম অফার পেতে নিচের বাটনে চাপ দিন।\n\nধন্যবাদ,\n${senderName || 'স্মার্ট ইমেইল টিম'}`;
 
-    const genBody = `আসসালামু আলাইকুম {{first_name}} ভাই/আপু,\n\n${aiPrompt}\n\nধন্যবাদ ও শুভেচ্ছা,\n${senderName || 'আপনার প্রিয় ব্র্যান্ড'}`;
-
-    setSubject(genSubject);
-    setBody(genBody);
+    setSubject(generatedSubject);
+    setBody(generatedBody);
     setIsAiGenerating(false);
     setShowAiModal(false);
+    setAiPrompt('');
   };
 
+  // Handle Test Email Dispatch
   const handleSendTestEmail = async () => {
-    if (!testEmailInput.trim()) return;
+    if (!testEmailInput || !testEmailInput.includes('@')) {
+      setTestResult({ ok: false, msg: 'একটি সঠিক ইমেইল ঠিকানা লিখুন' });
+      return;
+    }
     setIsSendingTest(true);
     setTestResult(null);
 
-    const fromName = senderName || user?.name || 'Smart Email';
-    const fromAddr = senderEmail || user?.email || 'noreply@smartemail.com';
+    const testBody = body
+      .replace(/\{\{first_name\}\}/g, 'টেস্ট ইউজার')
+      .replace(/\{\{last_name\}\}/g, 'আহমেদ')
+      .replace(/\{\{email\}\}/g, testEmailInput)
+      .replace(/\{\{company\}\}/g, 'স্মার্ট ইমেইল');
 
-    const res = await sendRealEmail({
-      to: testEmailInput.trim(),
-      senderName: fromName,
-      senderEmail: fromAddr,
-      subject: subject || '🧪 ক্যাম্পেইন টেস্ট ইমেইল',
-      body: body || `আসসালামু আলাইকুম,\n\nএটি ক্যাম্পেইনের একটি টেস্ট ইমেইল।\n\nপ্রেরক: ${fromName} <${fromAddr}>`,
+    const result = await sendRealEmail({
+      to: testEmailInput,
+      senderName,
+      senderEmail,
+      subject: `[TEST] ${subject || 'টেস্ট ইমেইল'}`,
+      body: testBody,
     });
 
-    setTestResult({
-      ok: res.success,
-      msg: res.message,
-    });
     setIsSendingTest(false);
+    setTestResult({ ok: result.success, msg: result.message });
   };
 
+  // Final Campaign Launch Dispatch
   const handleLaunchCampaign = async () => {
     setIsLaunching(true);
 
-    const targetEmails = allRecipients.length > 0 ? allRecipients : (testEmailInput ? [testEmailInput] : []);
-    const fromName = senderName || user?.name || 'Smart Email Team';
-    const fromAddr = senderEmail || user?.email || 'user@example.com';
+    const targetEmails = allRecipients.length > 0 ? allRecipients : [senderEmail || user?.email || 'target@example.com'];
+    const fromName = senderName || 'স্মার্ট ইমেইল টিম';
+    const fromAddr = senderEmail || 'user@example.com';
 
-    // Dispatch real email via Web Email Dispatcher
-    for (const email of targetEmails.slice(0, 5)) {
+    for (const recipient of targetEmails.slice(0, 3)) {
+      const finalBody = body
+        .replace(/\{\{first_name\}\}/g, 'সম্মানিত গ্রাহক')
+        .replace(/\{\{email\}\}/g, recipient);
+
       await sendRealEmail({
-        to: email,
+        to: recipient,
         senderName: fromName,
         senderEmail: fromAddr,
-        subject: subject || 'নতুন ক্যাম্পেইন বার্তা',
-        body: body || `আসসালামু আলাইকুম,\n\n${campaignName || subject}\n\nধন্যবাদ,\n${fromName}`,
+        subject,
+        body: finalBody,
       });
     }
 
@@ -298,23 +344,25 @@ export default function NewCampaignPage() {
   };
 
   const steps = [
-    { id: 1, name: 'বিস্তারিত' },
-    { id: 2, name: 'কন্টেন্ট ও টেমপ্লেট' },
+    { id: 1, name: 'টেমপ্লেট ও কন্টেন্ট সেটআপ' },
+    { id: 2, name: 'ক্যাম্পেইন ও প্রেরক তথ্য' },
     { id: 3, name: 'প্রাপক নির্বাচন' },
     { id: 4, name: 'রিভিউ ও ডিসপ্যাচ' },
   ];
 
   return (
-    <div className="p-6 max-w-4xl mx-auto font-['Anek_Bangla'] text-gray-900 dark:text-gray-100">
+    <div className="p-6 max-w-5xl mx-auto font-['Anek_Bangla'] text-gray-900 dark:text-gray-100">
       
       {/* Header */}
-      <div className="mb-6 flex items-center gap-4">
-        <Link href="/campaigns" className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-          <ArrowLeft size={20} />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold">নতুন Email Campaign</h1>
-          <p className="text-sm text-gray-500">আপনার গ্রাহকদের কাছে আকর্ষণীয় ইমেইল পাঠান</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/campaigns" className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+            <ArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">নতুন AI Email Campaign তৈরি</h1>
+            <p className="text-sm text-gray-500">টেমপ্লেট নির্বাচন করুন, ইনভিটেশন লিংক বসান এবং রিয়েল ডেলিভারি সেন্ড করুন</p>
+          </div>
         </div>
       </div>
 
@@ -327,41 +375,85 @@ export default function NewCampaignPage() {
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step >= s.id ? 'bg-[#7C3AED] text-white shadow-md shadow-[#7C3AED]/30' : 'bg-gray-200 dark:bg-gray-800 text-gray-500 border border-gray-300 dark:border-gray-700'}`}>
                 {step > s.id ? <CheckCircle2 size={16} /> : s.id}
               </div>
-              <span className={`text-xs font-medium hidden sm:block ${step >= s.id ? 'text-[#7C3AED]' : 'text-gray-500'}`}>{s.name}</span>
+              <span className={`text-xs font-semibold hidden sm:block ${step >= s.id ? 'text-[#7C3AED]' : 'text-gray-500'}`}>{s.name}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Main Content Box */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 min-h-[480px] flex flex-col">
-        <div className="p-8 flex-1">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 min-h-[500px] flex flex-col">
+        <div className="p-6 md:p-8 flex-1">
 
-          {/* ── STEP 1: Details ───────────────────────────────── */}
+          {/* ── STEP 1: Template Selection & Invitation Setup ─── */}
           {step === 1 && (
-            <div className="max-w-xl mx-auto space-y-6">
-              <h2 className="text-xl font-bold">ক্যাম্পেইনের নাম ও বিষয়</h2>
+            <div className="space-y-6">
+              <div className="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                  <h2 className="text-xl font-bold">ধাপ ১: AI টেমপ্লেট ও ইনভিটেশন লিংক কাস্টমাইজেশন</h2>
+                  <p className="text-sm text-gray-500">নিচ থেকে প্রিমিয়াম টেমপ্লেট বেছে নিন এবং ইনভিটেশন লিংক ও সাবজেক্ট সেট করুন</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAiModal(true)}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-lg font-bold text-sm shadow-md hover:opacity-90 flex items-center gap-2"
+                >
+                  <Sparkles size={16} /> AI দিয়ে কন্টেন্ট জেনারেট
+                </button>
+              </div>
 
+              {/* Template Selector Cards */}
               <div>
-                <label className="block text-sm font-semibold mb-1">ক্যাম্পেইনের নাম (আপনার চেনার জন্য)</label>
+                <label className="block text-sm font-bold text-purple-400 mb-3">
+                  ১-ক্লিক AI প্রিমিয়াম টেমপ্লেট নির্বাচন করুন ({userTemplates.length}):
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {userTemplates.map((tpl) => (
+                    <div
+                      key={tpl.id}
+                      onClick={() => handleSelectTemplate(tpl)}
+                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedTemplateId === tpl.id ? 'border-[#7C3AED] bg-purple-500/10 shadow-md' : 'border-gray-200 dark:border-gray-700 hover:border-purple-400 bg-gray-50 dark:bg-gray-900'}`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-bold text-sm truncate">{tpl.name}</p>
+                        {selectedTemplateId === tpl.id && <CheckCircle2 size={18} className="text-[#7C3AED]" />}
+                      </div>
+                      <p className="text-xs text-purple-400 font-semibold truncate mb-1">📧 {tpl.subject}</p>
+                      <p className="text-[11px] text-gray-500 line-clamp-2">
+                        {tpl.body.replace(/<[^>]*>?/gm, '').substring(0, 80)}...
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dedicated Invitation Link Input Box */}
+              <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/5 space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="block text-sm font-bold text-cyan-300 flex items-center gap-1.5">
+                    <LinkIcon size={16} /> আপনার ইনভিটেশন লিংক (Invitation URL Box):
+                  </label>
+                  <span className="text-xs text-gray-400 font-medium">ইনপুট দিলে বাটনের লিংক লাইভ বদলে যাবে</span>
+                </div>
                 <input
-                  type="text"
-                  placeholder="যেমন: বৈশাখী ডিসকাউন্ট অফার ২০২৬"
-                  value={campaignName}
-                  onChange={(e) => setCampaignName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-[#7C3AED] focus:outline-none"
+                  type="url"
+                  value={invitationUrl}
+                  onChange={e => handleUpdateInvitationUrl(e.target.value)}
+                  placeholder="https://your-custom-invitation-link.com"
+                  className="w-full px-4 py-2.5 rounded-lg border border-cyan-500/40 bg-gray-900 text-cyan-300 font-mono text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                 />
               </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-sm font-semibold">Email সাবজেক্ট (ইনবক্সে যা দেখাবে)</label>
+              {/* Subject Input Field with Quick Dynamic Tags */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="block text-sm font-bold">Email সাবজেক্ট (Subject Line):</label>
                   <span className="text-xs text-gray-500">{subject.length}/150</span>
                 </div>
 
-                {/* Quick Clickable Dynamic Tags */}
-                <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                  <span className="text-xs text-purple-400 font-semibold mr-1">ট্যাগ যোগ করুন:</span>
+                {/* Quick Dynamic Tags Badges */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs text-purple-400 font-semibold mr-1">ট্যাগ ইনসার্ট:</span>
                   {[
                     { tag: '{{first_name}}', label: 'গ্রাহকের নাম' },
                     { tag: '{{last_name}}', label: 'শেষ নাম' },
@@ -372,11 +464,9 @@ export default function NewCampaignPage() {
                       key={item.tag}
                       type="button"
                       onClick={() => setSubject(prev => prev + (prev.length > 0 && !prev.endsWith(' ') ? ' ' : '') + item.tag)}
-                      className="px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 hover:text-white text-xs font-bold font-mono transition-all flex items-center gap-1"
-                      title={`সাবজেক্টে ${item.label} যোগ করুন`}
+                      className="px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 text-xs font-bold font-mono transition-all flex items-center gap-1"
                     >
                       + {item.tag}
-                      <span className="text-[10px] opacity-70 font-normal">({item.label})</span>
                     </button>
                   ))}
                 </div>
@@ -386,24 +476,53 @@ export default function NewCampaignPage() {
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   maxLength={150}
-                  placeholder="যেমন: {{first_name}}, আপনার জন্য বিশেষ উপহার!"
+                  placeholder="যেমন: {{first_name}}, Welcome to Claude AI Premium!"
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-[#7C3AED] focus:outline-none text-base"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Live Rendered HTML Design Preview */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Eye size={16} className="text-cyan-400" />
+                  <label className="block text-sm font-bold">লাইভ ডিজাইন প্রিভিউ (Live Rendered Preview):</label>
+                </div>
+                <div className="border border-gray-700 rounded-xl overflow-hidden shadow-lg bg-black">
+                  <div dangerouslySetInnerHTML={{ __html: body }} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 2: Campaign & Sender Details ──────────────── */}
+          {step === 2 && (
+            <div className="max-w-xl mx-auto space-y-6">
+              <h2 className="text-xl font-bold">ধাপ ২: ক্যাম্পেইনের নাম ও প্রেরক তথ্য</h2>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1">ক্যাম্পেইনের নাম (আপনার চেনার জন্য)</label>
+                <input
+                  type="text"
+                  placeholder="যেমন: Claude AI Premium Invite August"
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-[#7C3AED] focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-1">প্রেরকের নাম</label>
+                  <label className="block text-sm font-semibold mb-1">প্রেরকের নাম (Sender Name)</label>
                   <input
                     type="text"
                     value={senderName}
                     onChange={(e) => setSenderName(e.target.value)}
-                    placeholder="যেমন: রাহুল ফ্যাশন"
+                    placeholder="যেমন: Claude AI Team"
                     className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-[#7C3AED] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-1">প্রেরকের Email</label>
+                  <label className="block text-sm font-semibold mb-1">প্রেরকের Email (Sender Email)</label>
                   <input
                     type="email"
                     value={senderEmail}
@@ -413,95 +532,26 @@ export default function NewCampaignPage() {
                   />
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* ── STEP 2: Content & Templates ───────────────────── */}
-          {step === 2 && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center flex-wrap gap-4">
-                <div>
-                  <h2 className="text-xl font-bold">ইমেইল কন্টেন্ট ও টেমপ্লেট নির্বাচন</h2>
-                  <p className="text-sm text-gray-500">তৈরি করা টেমপ্লেট বেছে নিন অথবা AI দিয়ে নতুন লেখা জেনারেট করুন</p>
-                </div>
-                <button
-                  onClick={() => setShowAiModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-lg font-bold text-sm shadow-md hover:opacity-90 flex items-center gap-2"
-                >
-                  <Sparkles size={16} /> AI দিয়ে কন্টেন্ট লিখুন
-                </button>
-              </div>
-
-              {/* Saved Templates Grid */}
-              <div>
-                <p className="text-sm font-semibold mb-3 text-purple-600 dark:text-purple-400">আপনার সেভ করা টেমপ্লেটসমূহ ({userTemplates.length}):</p>
-                {userTemplates.length === 0 ? (
-                  <div className="p-6 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center">
-                    <p className="text-sm text-gray-500 mb-2">আপনার কোনো সেভ করা টেমপ্লেট নেই।</p>
-                    <Link href="/templates/new" target="_blank" className="text-xs text-[#7C3AED] underline font-bold">
-                      + নতুন টেমপ্লেট তৈরি করুন
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {userTemplates.map((tpl) => (
-                      <div
-                        key={tpl.id}
-                        onClick={() => handleSelectTemplate(tpl)}
-                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedTemplateId === tpl.id ? 'border-[#7C3AED] bg-purple-500/10' : 'border-gray-200 dark:border-gray-700 hover:border-purple-400'}`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="font-bold text-sm text-gray-900 dark:text-white truncate">{tpl.name}</p>
-                          {selectedTemplateId === tpl.id && <CheckCircle2 size={16} className="text-[#7C3AED]" />}
-                        </div>
-                        <p className="text-xs text-gray-500 line-clamp-2">{tpl.subject || tpl.body}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Body Text Area */}
-              <div>
-                <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
-                  <label className="block text-sm font-semibold">ইমেইল কন্টেন্ট (Body):</label>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-xs text-purple-400 font-semibold mr-1">ট্যাগ ইনসার্ট:</span>
-                    {[
-                      { tag: '{{first_name}}', label: 'নাম' },
-                      { tag: '{{last_name}}', label: 'শেষ নাম' },
-                      { tag: '{{company}}', label: 'কোম্পানি' },
-                      { tag: '{{email}}', label: 'ইমেইল' },
-                    ].map((item) => (
-                      <button
-                        key={item.tag}
-                        type="button"
-                        onClick={() => setBody(prev => prev + (prev.length > 0 && !prev.endsWith(' ') ? ' ' : '') + item.tag)}
-                        className="px-2 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 text-xs font-mono font-bold transition-all"
-                        title={`কন্টেন্টে ${item.tag} ইনসার্ট করুন`}
-                      >
-                        + {item.tag}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              {/* Advanced Raw HTML Editor Option */}
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                <label className="block text-xs font-semibold text-gray-400">অ্যাডভান্সড HTML কন্টেন্ট কোড এডিটর:</label>
                 <textarea
-                  rows={8}
+                  rows={6}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  placeholder="প্রিয় {{first_name}},\n\nআপনার কন্টেন্ট লিখুন..."
-                  className="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-[#7C3AED] focus:outline-none font-mono text-sm leading-relaxed"
+                  className="w-full p-3 rounded-lg border border-gray-700 bg-gray-900 font-mono text-xs text-white focus:outline-none focus:border-purple-500"
                 />
               </div>
             </div>
           )}
 
-          {/* ── STEP 3: Recipients (Flexible: Saved, Manual Paste, File Upload) ── */}
+          {/* ── STEP 3: Recipients ─────────────────────────────── */}
           {step === 3 && (
             <div className="space-y-6">
               <div className="flex justify-between items-center flex-wrap gap-4">
                 <div>
-                  <h2 className="text-xl font-bold">প্রাপক নির্বাচন করুন</h2>
+                  <h2 className="text-xl font-bold">ধাপ ৩: প্রাপক নির্বাচন করুন</h2>
                   <p className="text-sm text-gray-500">সেভ করা কন্টাক্টস বেছে নিন, সরাসরি ইমেইল পেস্ট করুন অথবা ফাইল আপলোড করুন</p>
                 </div>
                 <div className="px-3 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-400 font-bold text-xs">
@@ -512,22 +562,25 @@ export default function NewCampaignPage() {
               {/* Recipient Input Mode Tabs */}
               <div className="flex border-b border-gray-200 dark:border-gray-700 gap-2">
                 <button
+                  type="button"
                   onClick={() => setRecipientTab('saved')}
-                  className={`px-4 py-2.5 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${recipientTab === 'saved' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                  className={`py-2 px-4 font-bold text-sm border-b-2 transition-colors ${recipientTab === 'saved' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                 >
-                  <Users size={16} /> সেভ করা কন্টাক্টস ({userContacts.length})
+                  নিবন্ধিত কন্টাক্টস ({userContacts.length})
                 </button>
                 <button
+                  type="button"
                   onClick={() => setRecipientTab('manual')}
-                  className={`px-4 py-2.5 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${recipientTab === 'manual' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                  className={`py-2 px-4 font-bold text-sm border-b-2 transition-colors ${recipientTab === 'manual' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                 >
-                  <ClipboardList size={16} /> ম্যানুয়ালি ইমেইল পেস্ট ({parsedManualEmails.length})
+                  ম্যানুয়ালি চিপ পেস্ট ({parsedManualEmails.length})
                 </button>
                 <button
+                  type="button"
                   onClick={() => setRecipientTab('file')}
-                  className={`px-4 py-2.5 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${recipientTab === 'file' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                  className={`py-2 px-4 font-bold text-sm border-b-2 transition-colors ${recipientTab === 'file' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                 >
-                  <FileSpreadsheet size={16} /> ফাইল আপলোড (CSV/TXT) ({uploadedFileEmails.length})
+                  ফাইল আপলোড ({uploadedFileEmails.length})
                 </button>
               </div>
 
@@ -537,8 +590,8 @@ export default function NewCampaignPage() {
                   {userContacts.length === 0 ? (
                     <div className="p-6 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center space-y-3">
                       <Users size={32} className="mx-auto text-purple-400 opacity-60" />
-                      <p className="font-bold text-sm text-gray-700 dark:text-gray-300">আপনার একাউন্টে এখনো কোনো কন্টাক্ট সেভ করা নেই</p>
-                      <p className="text-xs text-gray-500">পাশে "ম্যানুয়ালি ইমেইল পেস্ট" বা "ফাইল আপলোড" ট্যাব ব্যবহার করে কন্টাক্ট যোগ করতে পারেন</p>
+                      <p className="font-bold text-sm">আপনার একাউন্টে এখনো কোনো কন্টাক্ট সেভ করা নেই</p>
+                      <p className="text-xs text-gray-500">পাশে "ম্যানুয়ালি চিপ পেস্ট" বা "ফাইল আপলোড" ট্যাব ব্যবহার করতে পারেন</p>
                     </div>
                   ) : (
                     <label className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 cursor-pointer">
@@ -558,7 +611,7 @@ export default function NewCampaignPage() {
                 </div>
               )}
 
-              {/* TAB 2: Interactive Smart Email Chips & Copy-Paste */}
+              {/* TAB 2: Interactive Smart Email Chips */}
               {recipientTab === 'manual' && (
                 <div className="space-y-4">
                   <div className="flex flex-wrap justify-between items-center gap-2">
@@ -581,9 +634,8 @@ export default function NewCampaignPage() {
                     </div>
                   </div>
 
-                  {/* Invalid Email Alert Warning */}
                   {invalidEmailError && (
-                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center justify-between animate-shake">
+                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center justify-between">
                       <span>{invalidEmailError}</span>
                       <button onClick={() => setInvalidEmailError(null)} className="text-red-400 hover:text-white p-1">
                         <X size={14} />
@@ -591,28 +643,24 @@ export default function NewCampaignPage() {
                     </div>
                   )}
 
-                  {/* Smart Email Chip Container */}
                   <div className="p-4 rounded-xl border border-purple-500/30 bg-black/60 focus-within:ring-2 focus-within:ring-[#7C3AED] min-h-[140px] flex flex-wrap align-content-start gap-2 transition-all">
-                    {/* Rendered Valid Email Chips */}
                     {manualChips.map((email, idx) => (
                       <span
                         key={idx}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-900/60 to-cyan-900/60 border border-cyan-500/40 text-cyan-300 font-mono text-xs font-semibold shadow-sm animate-fadeIn"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-900/60 to-cyan-900/60 border border-cyan-500/40 text-cyan-300 font-mono text-xs font-semibold shadow-sm"
                       >
                         <CheckCircle2 size={13} className="text-green-400" />
                         {email}
                         <button
                           type="button"
                           onClick={() => removeChip(email)}
-                          className="hover:text-red-400 text-cyan-400/70 transition-colors p-0.5 ml-1"
-                          title="ইমেইল রিমুভ করুন"
+                          className="hover:text-red-400 text-cyan-400/70 p-0.5 ml-1"
                         >
                           <X size={13} />
                         </button>
                       </span>
                     ))}
 
-                    {/* Single Chip Input Field */}
                     <input
                       type="text"
                       value={chipInput}
@@ -624,38 +672,10 @@ export default function NewCampaignPage() {
                       className="flex-1 min-w-[240px] bg-transparent text-white font-mono text-sm focus:outline-none py-1 px-1 placeholder:text-gray-500"
                     />
                   </div>
-
-                  {/* Toggle raw multiline textarea */}
-                  <div className="flex justify-between items-center text-xs">
-                    <p className="text-gray-400">
-                      💡 টিপস: আপনি Excel, Google Sheet বা ফাইল থেকে কলাম কপি করে সরাসরি বক্সে পেস্ট (Ctrl+V) করতে পারেন।
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setShowRawTextarea(!showRawTextarea)}
-                      className="text-purple-400 hover:text-purple-300 font-semibold underline ml-2 whitespace-nowrap"
-                    >
-                      {showRawTextarea ? 'চিপ ভিউতে ফিরে যান' : 'বাল্ক টেক্সটবক্স অন করুন'}
-                    </button>
-                  </div>
-
-                  {/* Optional Raw Textarea */}
-                  {showRawTextarea && (
-                    <div className="pt-2">
-                      <label className="block text-xs font-semibold text-gray-400 mb-1">বাল্ক টেক্সটবক্স (লাইন ধরে পেস্ট করুন):</label>
-                      <textarea
-                        rows={4}
-                        value={manualText}
-                        onChange={e => setManualText(e.target.value)}
-                        placeholder="rahim@gmail.com&#10;karim@yahoo.com&#10;sazu@company.com"
-                        className="w-full p-3 rounded-lg border border-gray-700 bg-gray-900 font-mono text-xs text-white focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-                  )}
                 </div>
               )}
 
-              {/* TAB 3: File Upload (CSV, TXT, Excel) */}
+              {/* TAB 3: File Upload */}
               {recipientTab === 'file' && (
                 <div className="space-y-4">
                   <div
@@ -664,117 +684,81 @@ export default function NewCampaignPage() {
                     onDrop={e => {
                       e.preventDefault();
                       setDragActive(false);
-                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                        handleFileUpload(e.dataTransfer.files[0]);
-                      }
+                      if (e.dataTransfer.files?.[0]) handleFileUpload(e.dataTransfer.files[0]);
                     }}
-                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${dragActive ? 'border-[#7C3AED] bg-purple-500/10' : 'border-gray-300 dark:border-gray-700 hover:border-[#7C3AED]'}`}
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = '.csv,.txt,.tsv';
-                      input.onchange = (e: any) => {
-                        if (e.target.files?.[0]) handleFileUpload(e.target.files[0]);
-                      };
-                      input.click();
-                    }}
+                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${dragActive ? 'border-[#7C3AED] bg-purple-500/10' : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900'}`}
                   >
-                    <Upload size={40} className="mx-auto text-purple-400 mb-3" />
-                    <p className="font-bold text-base text-gray-800 dark:text-gray-200">ফাইল এনে ছাড়ুন অথবা ফাইল সিলেক্ট করতে ক্লিক করুন</p>
-                    <p className="text-xs text-gray-500 mt-1">সমর্থিত ফরম্যাট: .CSV, .TXT, .TSV (যেকোনো আকারের কন্টাক্ট লিস্ট)</p>
+                    <Upload size={36} className="mx-auto mb-3 text-purple-400 opacity-80" />
+                    <p className="font-bold text-sm mb-1">CSV, TXT বা Excel ফাইল ড্র্যাগ এন্ড ড্রপ করুন</p>
+                    <label className="inline-block mt-3 px-4 py-2 bg-[#7C3AED] text-white rounded-lg font-bold text-xs cursor-pointer hover:bg-purple-700">
+                      ফাইল ব্রাউজ করুন
+                      <input
+                        type="file"
+                        accept=".csv,.txt,.xlsx"
+                        onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
-
                   {uploadedFileName && (
-                    <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <FileSpreadsheet className="text-purple-400" size={24} />
-                        <div>
-                          <p className="font-bold text-sm text-white">{uploadedFileName}</p>
-                          <p className="text-xs text-green-400 font-semibold">{uploadedFileEmails.length}টি ইমেইল পাওয়া গেছে</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => { setUploadedFileName(''); setUploadedFileEmails([]); }}
-                        className="text-gray-400 hover:text-red-400 text-xs font-bold"
-                      >
-                        ফাইল মুছুন
-                      </button>
+                    <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center justify-between text-xs text-purple-300">
+                      <span>📄 {uploadedFileName} ({uploadedFileEmails.length}টি ইমেইল পাওয়া গেছে)</span>
                     </div>
                   )}
                 </div>
               )}
-
             </div>
           )}
 
-          {/* ── STEP 4: Review & Dispatch ─────────────────────── */}
+          {/* ── STEP 4: Review & Send ──────────────────────────── */}
           {step === 4 && (
             <div className="space-y-6">
-              <h2 className="text-xl font-bold text-center">ক্যাম্পেইন রিভিউ ও ডিসপ্যাচ</h2>
+              <h2 className="text-xl font-bold">ধাপ ৪: ক্যাম্পেইন রিভিউ ও টেস্ট ডেলিভারি</h2>
 
-              {/* Review Summary */}
-              <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-3 text-sm">
-                <div className="flex justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
-                  <span className="text-gray-500 font-medium">ক্যাম্পেইন নাম:</span>
-                  <span className="font-bold">{campaignName || subject || 'নতুন ক্যাম্পেইন'}</span>
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                  <p className="text-xs text-gray-500 font-semibold uppercase">ক্যাম্পেইন নাম</p>
+                  <p className="font-bold text-base mt-1 text-purple-400">{campaignName || subject}</p>
                 </div>
-                <div className="flex justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
-                  <span className="text-gray-500 font-medium">ইমেইল সাবজেক্ট:</span>
-                  <span className="font-bold text-purple-600 dark:text-purple-400">{subject || 'বিশেষ অফার'}</span>
+                <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                  <p className="text-xs text-gray-500 font-semibold uppercase">প্রাপক সংখ্যা</p>
+                  <p className="font-bold text-base mt-1 text-green-400">{allRecipients.length} জন</p>
                 </div>
-                <div className="flex justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
-                  <span className="text-gray-500 font-medium">প্রেরক পরিচয়:</span>
-                  <span className="font-bold">{senderName || 'Smart Email'} &lt;{senderEmail || 'user@email.com'}&gt;</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500 font-medium">মোট প্রাপক সংখ্যা:</span>
-                  <span className="font-bold text-green-500">{allRecipients.length.toLocaleString()} জন ইউনিক কন্টাক্ট</span>
+                <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                  <p className="text-xs text-gray-500 font-semibold uppercase">প্রেরক ইমেইল</p>
+                  <p className="font-bold text-base mt-1 text-cyan-400">{senderEmail || 'user@example.com'}</p>
                 </div>
               </div>
 
-              {/* Test Email Box */}
-              <div className="border border-purple-500/20 bg-purple-500/5 rounded-xl p-5 space-y-3">
-                <h3 className="font-bold text-sm flex items-center gap-2"><Send size={16} className="text-[#7C3AED]" /> টেস্ট ইমেইল পাঠান</h3>
+              {/* Test Email Card */}
+              <div className="p-5 rounded-xl border border-purple-500/30 bg-purple-500/5 space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-bold text-sm text-purple-300">ইনবক্স টেস্ট ইমেইল পাঠান (Test Delivery):</h3>
+                  <span className="text-xs text-gray-400">আসল সেন্ড করার আগে টেস্ট করুন</span>
+                </div>
                 <div className="flex gap-2">
                   <input
                     type="email"
-                    placeholder="আপনার নিজের ইমেইল দিন (যেমন: you@gmail.com)"
                     value={testEmailInput}
-                    onChange={(e) => setTestEmailInput(e.target.value)}
-                    className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-sm"
+                    onChange={e => setTestEmailInput(e.target.value)}
+                    placeholder="আপনার নিজের জিমেইল ঠিকানা লিখুন..."
+                    className="flex-1 px-4 py-2 rounded-lg border border-gray-700 bg-gray-900 text-white font-mono text-sm focus:outline-none focus:border-purple-500"
                   />
                   <button
+                    type="button"
                     onClick={handleSendTestEmail}
-                    disabled={isSendingTest || !testEmailInput}
-                    className="px-5 py-2 bg-[#7C3AED] text-white rounded-lg font-bold text-sm hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                    disabled={isSendingTest}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg disabled:opacity-50"
                   >
-                    {isSendingTest ? 'পাঠাচ্ছে...' : 'টেস্ট পাঠান'}
+                    {isSendingTest ? 'পাঠানো হচ্ছে...' : 'টেস্ট ইমেইল পাঠান'}
                   </button>
                 </div>
                 {testResult && (
-                  <div className={`p-3 rounded-lg text-xs font-semibold flex items-center gap-2 ${testResult.ok ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                    <CheckCircle2 size={14} /> {testResult.msg}
-                  </div>
+                  <p className={`text-xs font-semibold ${testResult.ok ? 'text-green-400' : 'text-red-400'}`}>
+                    {testResult.msg}
+                  </p>
                 )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-2">
-                <button
-                  onClick={handleLaunchCampaign}
-                  disabled={isLaunching || allRecipients.length === 0}
-                  className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-xl font-bold text-lg hover:opacity-90 shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLaunching ? (
-                    <>
-                      <RefreshCw size={20} className="animate-spin" /> ক্যাম্পেইন ডিসপ্যাচ হচ্ছে...
-                    </>
-                  ) : (
-                    <>
-                      <Send size={20} /> ক্যাম্পেইন এখনই পাঠোন ({allRecipients.length} জন)
-                    </>
-                  )}
-                </button>
               </div>
             </div>
           )}
@@ -782,46 +766,59 @@ export default function NewCampaignPage() {
         </div>
 
         {/* Footer Controls */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
-          <button
-            onClick={() => setStep(step - 1)}
-            disabled={step === 1}
-            className="flex items-center gap-2 px-4 py-2 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ArrowLeft size={18} /> পিছনে
-          </button>
-
-          {step < 4 && (
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl flex justify-between items-center">
+          {step > 1 ? (
             <button
-              onClick={() => setStep(step + 1)}
-              className="flex items-center gap-2 px-6 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold rounded-lg transition-colors shadow-sm"
+              onClick={() => setStep(s => s - 1)}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              পরবর্তী ধাপ <ArrowRight size={18} />
+              পিছনে
+            </button>
+          ) : <div />}
+
+          {step < 4 ? (
+            <button
+              onClick={() => setStep(s => s + 1)}
+              className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-sm rounded-lg shadow-md flex items-center gap-2"
+            >
+              পরবর্তী ধাপ <ArrowRight size={16} />
+            </button>
+          ) : (
+            <button
+              onClick={handleLaunchCampaign}
+              disabled={isLaunching}
+              className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-extrabold text-base rounded-lg shadow-lg shadow-green-500/30 flex items-center gap-2"
+            >
+              <Send size={18} />
+              {isLaunching ? 'ক্যাম্পেইন ডিসপ্যাচ হচ্ছে...' : 'ক্যাম্পেইন ডিসপ্যাচ ও সেন্ড করুন'}
             </button>
           )}
         </div>
       </div>
 
-      {/* ── AI Generator Modal inside Step 2 ───────────────── */}
+      {/* AI Prompt Modal */}
       {showAiModal && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0F0F1E] border border-purple-500/30 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-gray-900 border border-purple-500/40 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles size={18} className="text-purple-400" /> AI কন্টেন্ট রাইটার
+                <Sparkles className="text-amber-400" size={18} /> AI ইমেইল কন্টেন্ট জেনারেটর
               </h3>
-              <button onClick={() => setShowAiModal(false)} className="text-gray-400 hover:text-white text-sm">✕</button>
+              <button onClick={() => setShowAiModal(false)} className="text-gray-400 hover:text-white">
+                <X size={20} />
+              </button>
             </div>
-            <p className="text-xs text-gray-400">আপনার অফার বা বার্তা সংক্ষেপে বলুন, AI চমৎকার ইমেইল লিখে দিবে:</p>
             <textarea
-              rows={3}
-              placeholder="যেমন: আমাদের ফাল্গুন কালেকশনে ১৫% অফার শুরু হয়েছে..."
+              rows={4}
               value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              className="w-full p-3 rounded-lg border border-purple-500/20 bg-black/50 text-white text-sm focus:outline-none focus:border-purple-500"
+              onChange={e => setAiPrompt(e.target.value)}
+              placeholder="যেমন: একটি প্রিমিয়াম ঈদ ডিসকাউন্ট অফারের চমৎকার ইমেইল লিখে দাও..."
+              className="w-full p-3 rounded-lg border border-gray-700 bg-gray-900 text-white text-sm focus:outline-none focus:border-purple-500"
             />
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setShowAiModal(false)} className="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white">বাতিল</button>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowAiModal(false)} className="px-4 py-2 text-xs font-bold text-gray-400">
+                বাতিল
+              </button>
               <button
                 onClick={handleAiGenerate}
                 disabled={isAiGenerating || !aiPrompt.trim()}
@@ -834,17 +831,16 @@ export default function NewCampaignPage() {
         </div>
       )}
 
-      {/* Celebration Modal on Dispatch */}
+      {/* Confetti Celebration Modal */}
       <CelebrationModal
         isOpen={showCelebration}
-        campaignName={campaignName || subject || 'নতুন ক্যাম্পেইন'}
-        recipientCount={allRecipients.length}
         onClose={() => {
           setShowCelebration(false);
           router.push('/campaigns');
         }}
+        campaignName={campaignName || subject}
+        recipientCount={allRecipients.length || 1}
       />
-
     </div>
   );
 }
