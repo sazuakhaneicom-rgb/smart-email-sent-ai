@@ -88,9 +88,11 @@ export default function SignupPage() {
         {/* LEFT PANEL */}
         <div className="hidden md:flex flex-col justify-center flex-1 p-12 lg:p-16 border-r border-purple-500/10">
           <div className="flex items-center gap-3.5 mb-10">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-[0_0_24px_rgba(139,92,246,0.5)]">
-              <Zap size={24} className="text-white" />
-            </div>
+            <img
+              src="/logo.jpg"
+              alt="Smart Email Sent AI"
+              className="w-12 h-12 rounded-xl object-cover border border-purple-400/40 shadow-[0_0_24px_rgba(139,92,246,0.5)] flex-shrink-0"
+            />
             <div>
               <p className="text-xl font-extrabold text-gray-100 leading-tight">Smart Email</p>
               <p className="text-[11px] color-[var(--neon-cyan)] tracking-widest uppercase font-bold">Sent AI Platform</p>

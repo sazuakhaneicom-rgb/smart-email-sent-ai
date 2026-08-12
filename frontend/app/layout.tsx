@@ -26,10 +26,16 @@ export const metadata: Metadata = {
   description:
     "Bengali-first Email Marketing SaaS — সহজে Campaign তৈরি করুন, পাঠান এবং ট্র্যাক করুন।",
   keywords: ["email marketing", "bangla", "campaign", "newsletter", "bangladesh"],
+  icons: {
+    icon: "/logo.jpg",
+    shortcut: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
   openGraph: {
     type: "website",
     locale: "bn_BD",
     siteName: "Smart Email Sent AI",
+    images: [{ url: '/logo.jpg' }],
   },
   robots: { index: true, follow: true },
 };
@@ -38,8 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="bn" className="dark" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="icon" href="/logo.jpg" type="image/jpeg" />
+        <link rel="shortcut icon" href="/logo.jpg" type="image/jpeg" />
+        <link rel="apple-touch-icon" href="/logo.jpg" />
       </head>
       <body
         className={anekBangla.variable}
