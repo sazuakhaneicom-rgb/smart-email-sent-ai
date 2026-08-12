@@ -1,57 +1,51 @@
-/* ============================================================
-   ANEK BANGLA — Primary Font (forced globally)
-   ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 @import "tailwindcss";
 
-
 /* ============================================================
-   CYBER DARK DESIGN SYSTEM — Smart Email Sent AI
+   CYBER DARK PREMIUM DESIGN SYSTEM — Smart Email Sent AI
    ============================================================ */
 
 :root {
   /* ── Core Brand ─────────────────────── */
-  --neon-purple:       #8B5CF6;
-  --neon-purple-dim:   #7C3AED;
-  --neon-purple-bright:#A78BFA;
-  --neon-cyan:         #06B6D4;
-  --neon-cyan-bright:  #22D3EE;
-  --neon-green:        #10B981;
-  --neon-pink:         #EC4899;
-  --neon-amber:        #F59E0B;
+  --neon-purple:        #8B5CF6;
+  --neon-purple-dim:    #7C3AED;
+  --neon-purple-bright: #A78BFA;
+  --neon-cyan:          #06B6D4;
+  --neon-cyan-bright:   #22D3EE;
+  --neon-green:         #10B981;
+  --neon-pink:          #EC4899;
+  --neon-amber:         #F59E0B;
 
   /* ── Dark Backgrounds ───────────────── */
-  --bg-void:    #030307;
-  --bg-base:    #07070F;
-  --bg-surface: #0C0C1A;
-  --bg-raised:  #111124;
-  --bg-overlay: #16162E;
-  --bg-glass:   rgba(139, 92, 246, 0.04);
+  --bg-void:     #030308;
+  --bg-base:     #06060F;
+  --bg-surface:  #0C0C1C;
+  --bg-raised:   #121226;
+  --bg-overlay:  #181832;
+  --bg-glass:    rgba(139, 92, 246, 0.05);
 
   /* ── Borders ────────────────────────── */
-  --border-subtle:  rgba(139, 92, 246, 0.10);
-  --border-default: rgba(139, 92, 246, 0.20);
-  --border-accent:  rgba(139, 92, 246, 0.45);
-  --border-cyan:    rgba(6, 182, 212, 0.30);
+  --border-subtle:  rgba(139, 92, 246, 0.12);
+  --border-default: rgba(139, 92, 246, 0.22);
+  --border-accent:  rgba(139, 92, 246, 0.48);
+  --border-cyan:    rgba(6, 182, 212, 0.35);
 
   /* ── Glow Shadows ───────────────────── */
-  --glow-purple-sm: 0 0 8px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.15);
-  --glow-purple-md: 0 0 15px rgba(139, 92, 246, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
-  --glow-cyan-sm:   0 0 8px rgba(6, 182, 212, 0.4), 0 0 20px rgba(6, 182, 212, 0.15);
-  --glow-green-sm:  0 0 8px rgba(16, 185, 129, 0.4);
+  --glow-purple-sm: 0 0 10px rgba(139, 92, 246, 0.35), 0 0 22px rgba(139, 92, 246, 0.12);
+  --glow-purple-md: 0 0 18px rgba(139, 92, 246, 0.45), 0 0 45px rgba(139, 92, 246, 0.18);
+  --glow-cyan-sm:   0 0 10px rgba(6, 182, 212, 0.35), 0 0 22px rgba(6, 182, 212, 0.12);
+  --glow-green-sm:  0 0 10px rgba(16, 185, 129, 0.35);
 
   /* ── Text ───────────────────────────── */
-  --text-primary:   #E8E8F0;
-  --text-secondary: #8888A8;
-  --text-muted:     #4A4A68;
-  --text-inverse:   #030307;
+  --text-primary:   #F1F1F8;
+  --text-secondary: #9494B8;
+  --text-muted:     #52527A;
+  --text-inverse:   #030308;
 
   /* ── Sidebar ────────────────────────── */
-  --sidebar-bg:     #07070F;
-  --sidebar-border: rgba(139, 92, 246, 0.12);
+  --sidebar-bg:     #06060F;
+  --sidebar-border: rgba(139, 92, 246, 0.14);
 
-  /* ── Legacy aliases (for old components) */
+  /* ── Legacy aliases ─────────────────── */
   --color-primary:        var(--neon-purple);
   --color-primary-hover:  var(--neon-purple-dim);
   --color-primary-light:  rgba(139, 92, 246, 0.12);
@@ -76,7 +70,7 @@
 }
 
 /* ============================================================
-   BASE — Force Anek Bangla everywhere
+   BASE — High performance & Smooth Rendering
    ============================================================ */
 
 *, *::before, *::after {
@@ -89,7 +83,7 @@ html {
 }
 
 body {
-  font-family: 'Anek Bangla', system-ui, sans-serif !important;
+  font-family: var(--font-anek), system-ui, -apple-system, sans-serif !important;
   background-color: var(--bg-base);
   color: var(--text-primary);
   font-size: 15px;
@@ -99,28 +93,29 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.12) 0%, transparent 60%);
+    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(124, 58, 237, 0.15) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 60%);
+  background-attachment: fixed;
 }
 
 /* ============================================================
-   MOBILE RESPONSIVE UTILITIES
+   RESPONSIVE UTILITIES
    ============================================================ */
 
-/* Mobile sidebar overlay */
 .mobile-sidebar-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   z-index: 40;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  will-change: opacity;
 }
 
 .mobile-sidebar-overlay.open {
   display: block;
 }
 
-/* Mobile sidebar drawer */
 .mobile-sidebar-drawer {
   position: fixed !important;
   left: 0;
@@ -128,35 +123,32 @@ body {
   bottom: 0;
   z-index: 50;
   transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: transform;
 }
 
 .mobile-sidebar-drawer.open {
   transform: translateX(0) !important;
 }
 
-/* Stat cards grid responsive */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
-/* Dashboard content grid */
 .dashboard-main-grid {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 20px;
 }
 
-/* Quick actions grid */
 .quick-actions-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
-/* ── Mobile breakpoints ── */
 @media (max-width: 1024px) {
   .dashboard-main-grid {
     grid-template-columns: 1fr;
@@ -167,36 +159,25 @@ body {
   body {
     font-size: 14px;
   }
-
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-
   .quick-actions-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
   .dashboard-main-grid {
     grid-template-columns: 1fr;
   }
-
-  /* Hide desktop sidebar on mobile */
   .desktop-sidebar {
     display: none !important;
   }
-
-  /* Show mobile menu button */
   .mobile-menu-btn {
     display: flex !important;
   }
-
-  /* Adjust main content padding for mobile */
   .main-content-area {
     padding: 16px !important;
   }
-
-  /* Navbar adjustments for mobile */
   .navbar-search {
     display: none !important;
   }
@@ -207,26 +188,22 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-
   .quick-actions-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Hide mobile button on desktop by default */
 .mobile-menu-btn {
   display: none;
 }
 
-
-/* Force Anek Bangla on ALL text elements */
+/* Force Anek Bangla font stack */
 h1, h2, h3, h4, h5, h6,
 p, span, div, button, input, textarea, select, label, a,
 th, td, li, nav, section, article, header, footer, aside {
-  font-family: 'Anek Bangla', system-ui, sans-serif !important;
+  font-family: var(--font-anek), system-ui, sans-serif !important;
 }
 
-/* Monospace for code/API keys only */
 code, pre, kbd, .font-mono {
   font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
 }
@@ -248,7 +225,7 @@ code, pre, kbd, .font-mono {
 }
 
 /* ============================================================
-   NEON GLOW UTILITIES
+   NEON GLOW & GRADIENTS
    ============================================================ */
 
 .glow-purple { box-shadow: var(--glow-purple-sm); }
@@ -257,21 +234,17 @@ code, pre, kbd, .font-mono {
 .glow-green { box-shadow: var(--glow-green-sm); }
 
 .glow-text-purple {
-  text-shadow: 0 0 12px rgba(139, 92, 246, 0.7);
+  text-shadow: 0 0 14px rgba(167, 139, 250, 0.7);
   color: var(--neon-purple-bright);
 }
 
 .glow-text-cyan {
-  text-shadow: 0 0 12px rgba(6, 182, 212, 0.7);
+  text-shadow: 0 0 14px rgba(34, 211, 238, 0.7);
   color: var(--neon-cyan-bright);
 }
 
-/* ============================================================
-   GRADIENT TEXT
-   ============================================================ */
-
 .gradient-text {
-  background: linear-gradient(135deg, var(--neon-purple-bright) 0%, var(--neon-cyan) 100%);
+  background: linear-gradient(135deg, #A78BFA 0%, #22D3EE 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -285,25 +258,27 @@ code, pre, kbd, .font-mono {
 }
 
 /* ============================================================
-   GLASS CARDS
+   GLASS CARDS & INTERACTION
    ============================================================ */
 
 .glass-card {
-  background: rgba(12, 12, 26, 0.8);
+  background: rgba(12, 12, 28, 0.82);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-default);
   border-radius: 16px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow;
 }
 
 .glass-card:hover {
   border-color: var(--border-accent);
   box-shadow: var(--glow-purple-sm);
+  transform: translateY(-2px);
 }
 
 .glass-panel {
-  background: rgba(7, 7, 15, 0.9);
+  background: rgba(6, 6, 15, 0.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-subtle);
@@ -318,56 +293,56 @@ code, pre, kbd, .font-mono {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0 1.25rem;
-  height: 2.5rem;
+  padding: 0 1.35rem;
+  height: 2.65rem;
   background: linear-gradient(135deg, #7C3AED, #6D28D9);
-  color: #fff;
-  font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid rgba(139, 92, 246, 0.5);
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1px solid rgba(167, 139, 250, 0.45);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Anek Bangla', sans-serif !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-anek), sans-serif !important;
   font-size: 0.875rem;
   position: relative;
   overflow: hidden;
+  will-change: transform, box-shadow;
 }
 
 .btn-cyber::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), transparent);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
 .btn-cyber:hover {
-  box-shadow: var(--glow-purple-sm);
+  box-shadow: var(--glow-purple-md);
   border-color: var(--neon-purple-bright);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .btn-cyber:hover::before { opacity: 1; }
-.btn-cyber:active { transform: scale(0.98) translateY(0); }
-.btn-cyber:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-cyber:active { transform: scale(0.97) translateY(0); }
+.btn-cyber:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
 
-/* Legacy alias — duplicate styles from .btn-cyber */
 .btn-primary-custom {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0 1.25rem;
-  height: 2.5rem;
+  padding: 0 1.35rem;
+  height: 2.65rem;
   background: linear-gradient(135deg, #7C3AED, #6D28D9);
   color: #fff;
-  font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid rgba(139, 92, 246, 0.5);
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1px solid rgba(167, 139, 250, 0.45);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Anek Bangla', sans-serif !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-anek), sans-serif !important;
   font-size: 0.875rem;
 }
 
@@ -382,7 +357,8 @@ code, pre, kbd, .font-mono {
   border-radius: 16px;
   padding: 1.5rem;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform, box-shadow;
 }
 
 .stat-card::before {
@@ -390,52 +366,18 @@ code, pre, kbd, .font-mono {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
+  background: linear-gradient(90deg, transparent, var(--neon-purple-bright), transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .stat-card:hover {
-  border-color: var(--border-default);
+  border-color: var(--border-accent);
   box-shadow: var(--glow-purple-sm);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 .stat-card:hover::before { opacity: 1; }
-
-/* ============================================================
-   SCANNING LINE ANIMATION
-   ============================================================ */
-
-@keyframes scan-line {
-  0%   { transform: translateY(-100%); opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { transform: translateY(500%); opacity: 0; }
-}
-
-.scan-animation {
-  position: relative;
-  overflow: hidden;
-}
-
-.scan-animation::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-  animation: scan-line 3s linear infinite;
-}
-
-/* ============================================================
-   STATUS BADGES
-   ============================================================ */
-
-.badge-sent     { background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.25); }
-.badge-draft    { background: rgba(139, 92, 246, 0.12); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.25); }
-.badge-scheduled{ background: rgba(6, 182, 212, 0.12); color: #22D3EE; border: 1px solid rgba(6, 182, 212, 0.25); }
-.badge-failed   { background: rgba(248, 113, 113, 0.12); color: #F87171; border: 1px solid rgba(248, 113, 113, 0.25); }
 
 /* ============================================================
    INPUT FIELDS
@@ -443,12 +385,12 @@ code, pre, kbd, .font-mono {
 
 .cyber-input {
   width: 100%;
-  background: rgba(7, 7, 15, 0.8);
+  background: rgba(6, 6, 15, 0.85);
   border: 1px solid var(--border-default);
   border-radius: 10px;
   padding: 0.75rem 1rem;
   color: var(--text-primary);
-  font-family: 'Anek Bangla', sans-serif !important;
+  font-family: var(--font-anek), sans-serif !important;
   font-size: 0.9rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
@@ -456,7 +398,7 @@ code, pre, kbd, .font-mono {
 
 .cyber-input:focus {
   border-color: var(--neon-purple);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
 }
 
 .cyber-input::placeholder { color: var(--text-muted); }
@@ -474,42 +416,46 @@ code, pre, kbd, .font-mono {
 .cyber-table th {
   background: var(--bg-raised);
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .cyber-table td {
-  padding: 0.875rem 1rem;
+  padding: 0.95rem 1rem;
   border-bottom: 1px solid var(--border-subtle);
   color: var(--text-primary);
   font-size: 0.9rem;
 }
 
-.cyber-table tbody tr:hover { background: rgba(139, 92, 246, 0.04); }
+.cyber-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.cyber-table tbody tr:hover { background: rgba(139, 92, 246, 0.05); }
 .cyber-table tbody tr:last-child td { border-bottom: none; }
 
 /* ============================================================
-   SCROLLBAR — Cyber Style
+   CUSTOM SCROLLBAR
    ============================================================ */
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-void); }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(var(--neon-purple-dim), var(--neon-cyan));
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--neon-purple); }
+::-webkit-scrollbar-thumb:hover { background: var(--neon-purple-bright); }
 
 /* ============================================================
-   ANIMATIONS
+   SMOOTH GPU ANIMATIONS
    ============================================================ */
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -519,13 +465,13 @@ code, pre, kbd, .font-mono {
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.96); }
   to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(139, 92, 246, 0.3); }
-  50%       { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.2); }
+  0%, 100% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); }
+  50%       { box-shadow: 0 0 24px rgba(139, 92, 246, 0.65), 0 0 45px rgba(139, 92, 246, 0.25); }
 }
 
 @keyframes float {
@@ -533,132 +479,50 @@ code, pre, kbd, .font-mono {
   50%       { transform: translateY(-6px); }
 }
 
-@keyframes typing {
-  from { width: 0; }
-  to   { width: 100%; }
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.animate-fade-in     { animation: fadeIn 0.25s ease forwards; }
-.animate-slide-right { animation: slideInRight 0.25s ease forwards; }
-.animate-scale-in    { animation: scaleIn 0.15s ease forwards; }
+.animate-fade-in     { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slide-right { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-scale-in    { animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .animate-pulse-glow  { animation: pulse-glow 2.5s ease-in-out infinite; }
-.animate-float       { animation: float 3s ease-in-out infinite; }
+.animate-float       { animation: float 3.5s ease-in-out infinite; }
 
-/* ============================================================
-   RECHARTS — Dark cyber theme override
-   ============================================================ */
-
-.recharts-default-tooltip {
-  background: var(--bg-raised) !important;
-  border: 1px solid var(--border-accent) !important;
-  border-radius: 10px !important;
-  box-shadow: var(--glow-purple-sm) !important;
-  font-family: 'Anek Bangla', sans-serif !important;
-  color: var(--text-primary) !important;
-}
-
-.recharts-tooltip-label {
-  color: var(--neon-purple-bright) !important;
-  font-weight: 600 !important;
-}
-
-/* ============================================================
-   NEON TOGGLE SWITCH
-   ============================================================ */
-
-.cyber-toggle {
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 26px;
-}
-
-.cyber-toggle input { opacity: 0; width: 0; height: 0; }
-
-.cyber-toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background: var(--bg-raised);
-  border: 1px solid var(--border-default);
-  border-radius: 999px;
-  transition: 0.3s ease;
-}
-
-.cyber-toggle-slider::before {
-  content: '';
-  position: absolute;
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background: var(--text-muted);
-  border-radius: 50%;
-  transition: 0.3s ease;
-}
-
-.cyber-toggle input:checked + .cyber-toggle-slider {
-  background: rgba(139, 92, 246, 0.15);
-  border-color: var(--neon-purple);
-  box-shadow: var(--glow-purple-sm);
-}
-
-.cyber-toggle input:checked + .cyber-toggle-slider::before {
-  transform: translateX(22px);
-  background: var(--neon-purple-bright);
-  box-shadow: 0 0 8px rgba(167, 139, 250, 0.8);
-}
-
-/* ============================================================
-   SIDEBAR NAV ITEMS
-   ============================================================ */
-
+/* Nav item styles */
 .nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 9.5px 12px;
   border-radius: 10px;
   color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   border: 1px solid transparent;
   position: relative;
   overflow: hidden;
+  will-change: transform, background;
 }
 
 .nav-item:hover {
   color: var(--text-primary);
   background: rgba(139, 92, 246, 0.08);
-  border-color: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.14);
 }
 
 .nav-item.active {
   color: var(--neon-purple-bright);
-  background: rgba(139, 92, 246, 0.12);
-  border-color: rgba(139, 92, 246, 0.3);
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+  background: rgba(139, 92, 246, 0.14);
+  border-color: rgba(139, 92, 246, 0.32);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.12);
 }
 
 .nav-item.active::before {
   content: '';
   position: absolute;
-  left: 0; top: 20%; bottom: 20%;
-  width: 2px;
-  background: var(--neon-purple);
+  left: 0; top: 18%; bottom: 18%;
+  width: 3px;
+  background: linear-gradient(180deg, var(--neon-purple-bright), var(--neon-cyan));
   border-radius: 0 2px 2px 0;
   box-shadow: var(--glow-purple-sm);
 }
