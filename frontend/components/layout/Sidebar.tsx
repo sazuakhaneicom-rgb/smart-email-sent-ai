@@ -115,16 +115,16 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div
+            <img
+              src="/logo.jpg"
+              alt="Smart Email Sent AI"
               style={{
-                width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
-                background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '38px', height: '38px', borderRadius: '10px', flexShrink: 0,
+                objectFit: 'cover',
+                border: '1px solid rgba(167,139,250,0.4)',
                 boxShadow: 'var(--glow-purple-sm)',
               }}
-            >
-              <Zap size={18} style={{ color: '#fff' }} />
-            </div>
+            />
             {(!collapsed || isMobile) && (
               <div>
                 <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
