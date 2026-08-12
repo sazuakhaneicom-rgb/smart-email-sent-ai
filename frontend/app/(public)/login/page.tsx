@@ -18,10 +18,10 @@ export default function LoginPage() {
 
   // If already logged in, go straight to dashboard
   useEffect(() => {
-    if (isAuthenticated) {
+    if (typeof window !== 'undefined' && useAuthStore.getState().isAuthenticated) {
       router.replace('/dashboard');
     }
-  }, [isAuthenticated, router]);
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
