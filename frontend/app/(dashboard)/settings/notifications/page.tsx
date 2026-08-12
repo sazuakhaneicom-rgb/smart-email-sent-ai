@@ -24,7 +24,7 @@ export default function NotificationsSettingsPage() {
   };
 
   const list = [
-    { key: 'campaignSent' as const, title: 'ক্যাম্পেইন ডিসপ্যাচ অ্যালার্ট', desc: 'ক্যাম্পেইন সফলভাবে সেন্ট হলে ইমেইল অ্যালার্ট' },
+    { key: 'campaignSent' as const, title: 'ক্যাম্পেইন সেন্ড অ্যালার্ট', desc: 'ক্যাম্পেইন সফলভাবে সেন্ট হলে ইমেইল অ্যালার্ট' },
     { key: 'domainFailed' as const, title: 'ডোমেইন ভেরিফিকেশন সমস্যা', desc: 'ডোমেইন যাচাইকরণ সমস্যা হলে অবিলম্বে নোটিফিকেশন' },
     { key: 'paymentFailed' as const, title: 'বিলিং / পেমেন্ট নোটিশ', desc: 'পেমেন্ট বা বিলিং সমস্যা সংক্রান্ত আপডেট' },
     { key: 'usageLimit' as const, title: 'কোটা ৮০% প্লাস সতর্কবার্তা', desc: 'দৈনিক পাঠানোর সীমা ৮০% ছাড়িয়ে গেলে সতর্কতা' },

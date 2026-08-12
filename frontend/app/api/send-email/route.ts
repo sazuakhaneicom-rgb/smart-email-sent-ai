@@ -94,7 +94,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('❌ Nodemailer Email Error:', error);
 
-    let userFriendlyMessage = error?.message || 'ইমেইল ডিসপ্যাচ করা যায়নি।';
+    let userFriendlyMessage = error?.message || 'ইমেইল পাঠানো যায়নি।';
     if (error?.code === 'EAUTH' || userFriendlyMessage.includes('Invalid login') || userFriendlyMessage.includes('Username and Password not accepted')) {
       userFriendlyMessage = `❌ SMTP অথেনটিকেশন ব্যর্থ: আপনার Gmail App Password বা Email আইডি সঠিক নয়। অনুগ্রহ করে /settings/email-config পেজে ১৬ অক্ষরের সঠিক App Password প্রদান করুন।`;
     } else if (error?.code === 'ESOCKET' || error?.code === 'ETIMEDOUT') {

@@ -101,7 +101,7 @@ export default function AnalyticsClient({ params }: { params: { id: string } }) 
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{sentCount} টি</div>
-          <p className="text-xs text-green-500 font-medium">ডিসপ্যাচ সম্পন্ন হয়েছে</p>
+          <p className="text-xs text-green-500 font-medium">ইমেইল প্রেরণ সম্পন্ন হয়েছে</p>
         </div>
 
         {/* Real Open Rate (Starts at 0.0%) */}
@@ -162,7 +162,7 @@ export default function AnalyticsClient({ params }: { params: { id: string } }) 
                 </td>
                 <td className="px-4 py-3">
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20 inline-flex items-center gap-1.5">
-                    <Send className="w-3.5 h-3.5" /> ডিসপ্যাচ সম্পন্ন (Sent)
+                    <Send className="w-3.5 h-3.5" /> সফলভাবে প্রেরিত (Sent)
                   </span>
                 </td>
                 <td className="px-4 py-3">

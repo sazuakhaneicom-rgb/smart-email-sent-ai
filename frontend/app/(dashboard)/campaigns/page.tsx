@@ -88,7 +88,7 @@ export default function CampaignsPage() {
             ক্যাম্পেইন হিস্টোরি ও ইনবক্স ট্র্যাকিং
           </h1>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-            আপনার প্রেরিত সকল ইমেইল ক্যাম্পেইন, ডিসপ্যাচ স্ট্যাটাস ও ট্র্যাকিং রিপোর্ট
+            আপনার প্রেরিত সকল ইমেইল ক্যাম্পেইন, সেন্ট স্ট্যাটাস ও ট্র্যাকিং রিপোর্ট
           </p>
         </div>
         <Link href="/campaigns/new" style={{
@@ -115,7 +115,7 @@ export default function CampaignsPage() {
             <p style={{ fontSize: '1.4rem', fontWeight: 800, color: '#34D399', marginTop: 4 }}>{totalSentCount.toLocaleString()} টি</p>
           </div>
           <div className="glass-card" style={{ padding: 18 }}>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>ডিসপ্যাচ স্ট্যাটাস</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>ডেলিভারি স্ট্যাটাস</p>
             <p style={{ fontSize: '1.4rem', fontWeight: 800, color: '#67E8F9', marginTop: 4 }}>১০০% সম্পন্ন</p>
           </div>
           <div className="glass-card" style={{ padding: 18 }}>
@@ -193,7 +193,7 @@ export default function CampaignsPage() {
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>ক্যাম্পেইন নাম ও বিষয়</th>
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>স্ট্যাটাস</th>
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>প্রাপক সংখ্যা</th>
-                  <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>ডিসপ্যাচ স্ট্যাটাস</th>
+                  <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>ডেলিভারি স্ট্যাটাস</th>
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>তারিখ</th>
                   <th style={{ padding: '12px 16px', color: 'var(--text-muted)', textAlign: 'right' }}>অ্যাকশন</th>
                 </tr>
@@ -314,7 +314,7 @@ export default function CampaignsPage() {
             {/* Overall Honest Stats Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
               <div style={{ padding: 12, borderRadius: 12, background: 'rgba(7,7,15,0.7)', border: '1px solid rgba(16,185,129,0.3)' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>ডিসপ্যাচ স্ট্যাটাস</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>ডেলিভারি স্ট্যাটাস</p>
                 <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#34D399', margin: '2px 0 0' }}>প্রেরিত (Sent)</p>
               </div>
               <div style={{ padding: 12, borderRadius: 12, background: 'rgba(7,7,15,0.7)', border: '1px solid rgba(245,158,11,0.3)' }}>
@@ -352,14 +352,14 @@ export default function CampaignsPage() {
                   <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-subtle)' }}>
                       <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>প্রাপক Email</th>
-                      <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>ডিসপ্যাচ অবস্থা</th>
+                      <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>ডেলিভারি অবস্থা</th>
                       <th style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>রিড / ওপেন স্ট্যাটাস</th>
                       <th style={{ padding: '8px 12px', color: 'var(--text-muted)', textAlign: 'right' }}>সময়</th>
                     </tr>
                   </thead>
                   <tbody>
                     {[
-                      { email: selectedCampaign.senderEmail || user?.email || 'target@gmail.com', inbox: 'Sent (ডিসপ্যাচড)', status: 'এখনো অসম্পঠিত (Unopened)', time: 'আজ' },
+                      { email: selectedCampaign.senderEmail || user?.email || 'target@gmail.com', inbox: 'Sent (প্রেরিত)', status: 'এখনো অসম্পঠিত (Unopened)', time: 'আজ' },
                     ].map((row, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                         <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontWeight: 600, fontFamily: 'monospace' }}>

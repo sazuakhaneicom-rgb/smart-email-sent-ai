@@ -139,7 +139,7 @@ export default function AIAgentPage() {
               </span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-              উন্নত মানবীয় টোন ও স্টেলথ টেকনোলজির মাধ্যমে ইমেইল তৈরি ও সরাসরি টেমপ্লেটে সংরক্ষণ বা ডিসপ্যাচ সুবিধা।
+              উন্নত মানবীয় টোন ও স্টেলথ টেকনোলজির মাধ্যমে ইমেইল তৈরি ও সরাসরি টেমপ্লেটে সংরক্ষণ বা ইমেইল সেন্ড সুবিধা।
             </p>
           </div>
         </div>
@@ -373,7 +373,7 @@ export default function AIAgentPage() {
                     }}
                   >
                     <Send size={16} />
-                    সরাসরি ডিসপ্যাচ করুন
+                    সরাসরি সেন্ড করুন
                   </button>
                 )}
               </div>

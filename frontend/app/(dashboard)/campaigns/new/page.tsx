@@ -298,20 +298,31 @@ export default function NewCampaignPage() {
   const handleLaunchCampaign = async () => {
     setIsLaunching(true);
 
-    const targetEmails = allRecipients.length > 0 ? allRecipients : [senderEmail || user?.email || 'target@example.com'];
-    const fromName = senderName || 'স্মার্ট ইমেইল টিম';
-    const fromAddr = senderEmail || 'user@example.com';
+    // Ensure recipient emails are valid; fallback to current user's actual email
+    const validEmails = allRecipients.filter(e => e && e.includes('@') && !e.includes('example.com'));
+    const targetEmails = validEmails.length > 0 
+      ? validEmails 
+      : (user?.email ? [user.email] : []);
 
-    for (const recipient of targetEmails.slice(0, 3)) {
+    const fromName = senderName || user?.name || 'স্মার্ট ইমেইল টিম';
+    const fromAddr = senderEmail || user?.email || '';
+
+    if (targetEmails.length === 0) {
+      alert('অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা প্রদান করুন।');
+      setIsLaunching(false);
+      return;
+    }
+
+    for (const recipient of targetEmails) {
       const finalBody = body
-        .replace(/\{\{first_name\}\}/g, 'সম্মানিত গ্রাহক')
+        .replace(/\{\{first_name\}\}/g, user?.name || 'সম্মানিত গ্রাহক')
         .replace(/\{\{email\}\}/g, recipient);
 
       await sendRealEmail({
         to: recipient,
         senderName: fromName,
         senderEmail: fromAddr,
-        subject,
+        subject: subject || 'নতুন ক্যাম্পেইন বার্তা',
         body: finalBody,
       });
     }
@@ -347,7 +358,7 @@ export default function NewCampaignPage() {
     { id: 1, name: 'টেমপ্লেট ও কন্টেন্ট সেটআপ' },
     { id: 2, name: 'ক্যাম্পেইন ও প্রেরক তথ্য' },
     { id: 3, name: 'প্রাপক নির্বাচন' },
-    { id: 4, name: 'রিভিউ ও ডিসপ্যাচ' },
+    { id: 4, name: 'রিভিউ ও সেন্ড' },
   ];
 
   return (
@@ -790,7 +801,7 @@ export default function NewCampaignPage() {
               className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-extrabold text-base rounded-lg shadow-lg shadow-green-500/30 flex items-center gap-2"
             >
               <Send size={18} />
-              {isLaunching ? 'ক্যাম্পেইন ডিসপ্যাচ হচ্ছে...' : 'ক্যাম্পেইন ডিসপ্যাচ ও সেন্ড করুন'}
+              {isLaunching ? 'ক্যাম্পেইন পাঠানো হচ্ছে...' : 'ক্যাম্পেইন সেন্ড করুন'}
             </button>
           )}
         </div>

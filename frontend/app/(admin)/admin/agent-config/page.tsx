@@ -153,7 +153,7 @@ export default function AgentConfigPage() {
     await new Promise(r => setTimeout(r, 1800));
     const p = cfg.emailProvider || 'smtp';
     if ((p === 'aws_ses' && cfg.awsAccessKeyId) || (p === 'smtp' && cfg.smtpHost) || (p === 'sendgrid' && cfg.sendgridApiKey) || (p === 'mailgun' && cfg.mailgunApiKey)) {
-      setTestResult({ ok: true, msg: `${testEmail}-এ "${cfg.senderDisplayName || cfg.awsFromName || 'Smart Email AI'}" <${cfg.awsFromEmail || 'noreply@yourdomain.com'}> নাম থেকে সফলভাবে ইমেইল ডিসপ্যাচ করা হয়েছে! ✓` });
+      setTestResult({ ok: true, msg: `${testEmail}-এ "${cfg.senderDisplayName || cfg.awsFromName || 'Smart Email AI'}" <${cfg.awsFromEmail || 'noreply@yourdomain.com'}> নাম থেকে সফলভাবে ইমেইল পাঠানো হয়েছে! ✓` });
     } else {
       setTestResult({ ok: false, msg: 'ইমেইল ক্রেডেনশিয়ালস (Host / Username / Password) সেট করুন, তারপর চেষ্টা করুন।' });
     }
