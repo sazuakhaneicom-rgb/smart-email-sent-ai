@@ -1,20 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store';
+import DashboardLayout from './(dashboard)/layout';
+import DashboardPage from './(dashboard)/dashboard/page';
 
 export default function RootPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const isAuth = useAuthStore.getState().isAuthenticated;
-    if (isAuth) {
-      router.replace('/dashboard');
-    } else {
-      router.replace('/login');
-    }
-  }, [router]);
-
-  return null;
+  return (
+    <DashboardLayout>
+      <DashboardPage />
+    </DashboardLayout>
+  );
 }
