@@ -3,12 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import {
   Mail, Save, CheckCircle2, AlertTriangle, ExternalLink,
-  Eye, EyeOff, Send, Server, ChevronDown, ChevronUp,
+  Eye, EyeOff, Send, Server, ChevronDown, ChevronUp, Cloud,
 } from 'lucide-react';
 import { useAuthStore } from '@/store';
 import { loadAdminConfig } from '@/lib/admin-config';
 import { onConfigSync } from '@/lib/config-sync';
 import { sendRealEmail } from '@/lib/email-dispatcher';
+import { db } from '@/lib/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 type EmailProvider = 'gmail_smtp' | 'custom_smtp' | 'system_default';
 
@@ -111,9 +113,35 @@ export default function UserEmailSetupPage() {
   const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSynced, setIsSynced] = useState(false);
 
+  // Load config: Firestore (cloud) first, then localStorage fallback
   useEffect(() => {
-    setCfg(load(uid, userEmail));
+    const fetchConfig = async () => {
+      // 1. Show localStorage data immediately (fast)
+      const localCfg = load(uid, userEmail);
+      setCfg(localCfg);
+
+      // 2. Try to fetch from Firestore (cross-device sync)
+      if (db && uid && uid !== 'guest') {
+        try {
+          const docRef = doc(db, 'user_settings', uid);
+          const snap = await getDoc(docRef);
+          if (snap.exists()) {
+            const cloudData = snap.data()?.emailConfig as UserEmailConfig;
+            if (cloudData) {
+              setCfg({ ...DEFAULT, ...cloudData });
+              // Also update localStorage cache
+              save(uid, userEmail, { ...DEFAULT, ...cloudData });
+              setIsSynced(true);
+            }
+          }
+        } catch (e) {
+          // Firestore not available — use localStorage
+        }
+      }
+    };
+    fetchConfig();
     setAdminCfg(loadAdminConfig());
     const unsub = onConfigSync(setAdminCfg);
     return () => unsub();
@@ -128,7 +156,19 @@ export default function UserEmailSetupPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
+    // 1. Save to localStorage (instant)
     save(uid, userEmail, cfg);
+
+    // 2. Save to Firestore (cloud — works across all devices)
+    if (db && uid && uid !== 'guest') {
+      try {
+        const docRef = doc(db, 'user_settings', uid);
+        await setDoc(docRef, { emailConfig: cfg, updatedAt: new Date().toISOString() }, { merge: true });
+        setIsSynced(true);
+      } catch (e) {
+        // Firestore save failed — localStorage backup still works
+      }
+    }
     await new Promise(r => setTimeout(r, 400));
     setIsSaving(false);
     setToast({ msg: '✅ Email সেটআপ সেভ হয়েছে! পেজ রিফ্রেশ করলেও হারাবে না।', ok: true });
