@@ -190,6 +190,12 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
               <Link
                 key={href}
                 href={href}
+                prefetch={false}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (isMobile && onMobileClose) onMobileClose();
+                  if (pathname !== href) router.push(href);
+                }}
                 className={`nav-item ${isActive(href) ? 'active' : ''}`}
                 title={(collapsed && !isMobile) ? label : undefined}
                 style={{
@@ -231,6 +237,12 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
               <Link
                 key={href}
                 href={href}
+                prefetch={false}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (isMobile && onMobileClose) onMobileClose();
+                  if (pathname !== href) router.push(href);
+                }}
                 className={`nav-item ${isActive(href) ? 'active' : ''}`}
                 title={(collapsed && !isMobile) ? label : undefined}
                 style={{ marginBottom: '2px', justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start' }}
